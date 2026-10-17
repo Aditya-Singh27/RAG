@@ -44,7 +44,7 @@ class GeminiLLM:
             "temperature": temperature,
             "max_output_tokens": max_tokens,
         }
-        if max_tokens < 256 and hasattr(self._types, "ThinkingConfig"):
+        if hasattr(self._types, "ThinkingConfig"):
             try:
                 config_kwargs["thinking_config"] = self._types.ThinkingConfig(thinking_budget=0)
             except Exception:
@@ -70,29 +70,8 @@ class GeminiLLM:
             except Exception as exc:
                 last_exc = exc
                 err_str = str(exc)
-                if "RESOURCE_EXHAUSTED" in err_str:
-                    if self.model != "gemini-3.1-flash-lite":
-                        self.model = "gemini-3.1-flash-lite"
-                        continue
-                    # If all Gemini tiers exhausted, failover to local Ollama
-                    try:
-                        from openai import OpenAI
-                        cli = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
-                        msgs = ([{"role": "system", "content": system}] if system else []) + [
-                            {"role": "user", "content": prompt}
-                        ]
-                        c_resp = cli.chat.completions.create(
-                            model="llama3.2:latest", messages=msgs, temperature=temperature, max_tokens=max_tokens
-                        )
-                        ms = (time.perf_counter() - t0) * 1000
-                        u = c_resp.usage
-                        return LLMResponse(c_resp.choices[0].message.content or "", "llama3.2:latest",
-                                           getattr(u, "prompt_tokens", None),
-                                           getattr(u, "completion_tokens", None), ms)
-                    except Exception:
-                        pass
-                if any(code in err_str for code in ["503", "429", "UNAVAILABLE"]):
-                    time.sleep(1.5 * (2 ** attempt))
+                if any(code in err_str for code in ["RESOURCE_EXHAUSTED", "429", "503", "UNAVAILABLE"]):
+                    time.sleep(3.0 * (attempt + 1))
                     continue
                 raise
         raise last_exc

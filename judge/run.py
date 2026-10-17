@@ -84,7 +84,8 @@ def run_full_judge_pipeline():
 
     # 1. Human / Gold Label Agreement (Cohen's Kappa)
     print("--- 1. Evaluating Agreement with Human/Gold Labels ---", flush=True)
-    hl_path = SUITE_DIR / "human_labeled_cases.json"
+    hl_v2 = SUITE_DIR / "human_labeled_cases_v2.json"
+    hl_path = hl_v2 if hl_v2.exists() else (SUITE_DIR / "human_labeled_cases.json")
     with open(hl_path, "r", encoding="utf-8") as f:
         human_labeled_cases = json.load(f)
 
