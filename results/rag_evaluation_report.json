@@ -7,17 +7,19 @@
       "chunk_overlap": 100,
       "min_score": 0.6,
       "generator": "gemini-3.1-flash-lite",
-      "judge": "gemini-3.1-flash-lite",
-      "judge_equals_generator": true,
-      "judge_calls": 25,
-      "judge_input_tokens": 27000,
-      "judge_output_tokens": 3632,
+      "generator_provider": "gemini",
+      "judge": "llama3.2:latest",
+      "judge_provider": "openai_compat",
+      "judge_equals_generator": false,
+      "judge_calls": 37,
+      "judge_input_tokens": 37971,
+      "judge_output_tokens": 3501,
       "corpus_chunks": 28
     },
     "k": 5,
-    "n_questions": 25,
+    "n_questions": 37,
     "n_answerable": 22,
-    "n_out_of_domain": 3,
+    "n_out_of_domain": 15,
     "retrieval_answerable_only": {
       "hit_rate@5": {
         "mean": 1.0,
@@ -81,76 +83,79 @@
       }
     },
     "refusal_behaviour": {
-      "out_of_domain_refused": "3/3",
+      "out_of_domain_refused": "7/15",
       "out_of_domain_refusal_rate_ci95_wilson": [
-        0.438,
-        1.0
+        0.248,
+        0.699
       ],
       "false_refusals_on_answerable": "0/22",
       "false_refusal_rate_ci95_wilson": [
         0.0,
         0.149
       ],
-      "note": "threshold was chosen on a dev set of its own; only 3 OOD questions here"
+      "note": "threshold was chosen on a dev set of its own; only 15 OOD questions here"
     },
     "answer_quality": {
-      "judge_parse_failures": "0/25 (excluded, not defaulted)",
+      "judge_parse_failures": "0/37 (excluded, not defaulted)",
       "faithfulness": {
-        "mean": 4.96,
+        "mean": 4.1081,
         "ci95": [
-          4.88,
-          5.0
+          3.5676,
+          4.6216
         ],
-        "n": 25,
+        "n": 37,
         "spread": {
-          "n": 25,
-          "mean": 4.96,
-          "std": 0.196,
-          "frac_at_extremes": 0.96,
-          "distinct_values": 2,
-          "entropy_norm": 0.104,
+          "n": 37,
+          "mean": 4.108,
+          "std": 1.64,
+          "frac_at_extremes": 0.973,
+          "distinct_values": 3,
+          "entropy_norm": 0.397,
           "histogram": {
+            "1": 8,
             "4": 1,
-            "5": 24
+            "5": 28
           }
         }
       },
       "correctness_vs_gold": {
-        "mean": 4.84,
+        "mean": 4.4054,
         "ci95": [
-          4.52,
-          5.0
+          3.9459,
+          4.8108
         ],
-        "n": 25,
+        "n": 37,
         "spread": {
-          "n": 25,
-          "mean": 4.84,
-          "std": 0.784,
-          "frac_at_extremes": 1.0,
-          "distinct_values": 2,
-          "entropy_norm": 0.104,
+          "n": 37,
+          "mean": 4.405,
+          "std": 1.365,
+          "frac_at_extremes": 0.946,
+          "distinct_values": 3,
+          "entropy_norm": 0.372,
           "histogram": {
-            "1": 1,
-            "5": 24
+            "1": 5,
+            "4": 2,
+            "5": 30
           }
         }
       },
       "relevance": {
-        "mean": 5.0,
+        "mean": 4.8919,
         "ci95": [
-          5.0,
+          4.6757,
           5.0
         ],
-        "n": 25,
+        "n": 37,
         "spread": {
-          "n": 25,
-          "mean": 5.0,
-          "std": 0.0,
+          "n": 37,
+          "mean": 4.892,
+          "std": 0.649,
           "frac_at_extremes": 1.0,
-          "distinct_values": 1,
-          "entropy_norm": -0.0,
+          "distinct_values": 2,
+          "entropy_norm": 0.077,
           "histogram": {
-            "5": 25
+            "1": 1,
+            "5": 36
           }
         }
       },
@@ -160,7 +165,7 @@
           5.0,
           5.0
         ],
-        "n": 22
+        "n": 15
       },
       "citation_marker_validity": {
         "mean": 1.0,
@@ -168,13 +173,13 @@
           1.0,
           1.0
         ],
-        "n": 22
+        "n": 23
       },
       "token_f1_answerable": {
-        "mean": 0.4137,
+        "mean": 0.4414,
         "ci95": [
-          0.3639,
-          0.4627
+          0.3932,
+          0.4865
         ],
         "n": 22
       },
@@ -189,32 +194,32 @@
       "em_note": "EM is near-meaningless for free-form answers; kept because the template asks for it"
     },
     "latency_ms": {
-      "n": 25,
-      "retrieval_incl_query_embedding_p50": 498.6,
-      "retrieval_incl_query_embedding_p95": 839.1,
-      "generation_p50": 1390.5,
-      "generation_p95": 21570.4,
-      "total_p50": 1729.3,
-      "total_p95": 19106.0,
+      "n": 37,
+      "retrieval_incl_query_embedding_p50": 897.0,
+      "retrieval_incl_query_embedding_p95": 1442.5,
+      "generation_p50": 2211.3,
+      "generation_p95": 35027.9,
+      "total_p50": 2467.0,
+      "total_p95": 24851.2,
       "slowest": [
         {
-          "id": "q09",
-          "total_ms": 24786
+          "id": "q02",
+          "total_ms": 100809
         },
         {
-          "id": "q18",
-          "total_ms": 23042
+          "id": "q01",
+          "total_ms": 49596
         },
         {
-          "id": "q22",
-          "total_ms": 3364
+          "id": "q15",
+          "total_ms": 18665
         }
       ],
       "note": "retrieval here includes the query-embedding API call; run eval/bench_latency.py for vector-search-only latency. p95 of ~25 requests is effectively the 2nd-slowest."
     },
     "tokens": {
-      "generator_input": 18844,
-      "generator_output": 2703
+      "generator_input": 23688,
+      "generator_output": 3064
     }
   },
   "cases": [
@@ -231,9 +236,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 991.9490000002043,
-      "generation_ms": 1589.5897000000332,
-      "total_ms": 2581.5600999994786,
+      "retrieval_ms": 676.2278000023798,
+      "generation_ms": 48919.717100001435,
+      "total_ms": 49595.96610000153,
       "input_tokens": 987,
       "output_tokens": 175,
       "retrieval_metrics": {
@@ -254,10 +259,10 @@
         "relevance": 5,
         "citation_accuracy": 5,
         "judge_evidence": {
-          "faithfulness": "The primary indexing mechanism in LanceDB is IVF-PQ (Inverted File with Product Quantization) [Chunk 1].",
-          "correctness": "IVF partitions the vector space into voronoi cells using k-means clustering, while Product Quantization divides high-dimensional vectors into sub-vectors and quantizes them into centroids, reducing memory by 16x to 32x.",
-          "relevance": "The answer directly addresses the primary indexing mechanism and how it works.",
-          "citation": "The primary indexing mechanism in LanceDB is IVF-PQ (Inverted File with Product Quantization) [Chunk 1]."
+          "faithfulness": "every claim in the answer is supported by the retrieved context.",
+          "correctness": "The primary indexing mechanism in LanceDB is IVF-PQ (Inverted File with Product Quantization) [Chunk 1].",
+          "relevance": "The answer addresses what was asked, without padding.",
+          "citation": "[Chunk 1], [Chunk 2]"
         }
       }
     },
@@ -273,9 +278,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 486.4580000003116,
-      "generation_ms": 771.5551999999661,
-      "total_ms": 1258.043899999393,
+      "retrieval_ms": 1003.2894000032684,
+      "generation_ms": 99805.49249999967,
+      "total_ms": 100808.8018999988,
       "input_tokens": 807,
       "output_tokens": 35,
       "retrieval_metrics": {
@@ -296,10 +301,10 @@
         "relevance": 5,
         "citation_accuracy": 5,
         "judge_evidence": {
-          "faithfulness": "A critical feature of LanceDB is zero-copy reads via Apache Arrow. Data transfers between disk and RAM avoid serialization penalties",
-          "correctness": "Zero-copy reads in LanceDB are powered by Apache Arrow, avoiding serialization penalties",
-          "relevance": "Zero-copy reads in LanceDB allow data transfers between disk and RAM to avoid serialization penalties",
-          "citation": "A critical feature of LanceDB is zero-copy reads via Apache Arrow. Data transfers between disk and RAM avoid serialization penalties"
+          "faithfulness": "every claim in the answer is supported by the retrieved context.",
+          "correctness": "agreement with the reference answer on the key facts.",
+          "relevance": "the answer addresses what was asked, without padding.",
+          "citation": "[Chunk 1]"
         }
       }
     },
@@ -315,9 +320,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 487.4830999997357,
-      "generation_ms": 2040.8334999992803,
-      "total_ms": 2528.3337999999276,
+      "retrieval_ms": 679.9040000005334,
+      "generation_ms": 7631.154599999718,
+      "total_ms": 8311.081399999239,
       "input_tokens": 808,
       "output_tokens": 63,
       "retrieval_metrics": {
@@ -338,10 +343,10 @@
         "relevance": 5,
         "citation_accuracy": 5,
         "judge_evidence": {
-          "faithfulness": "Pre-filtering prevents low recall caused by restrictive metadata constraints, which frequently degrades post-filtering.",
-          "correctness": "Pre-filtering evaluates metadata constraints before vector distance computation, preventing low recall caused by restrictive metadata filters which often degrade post-filtering.",
-          "relevance": "Pre-filtering in LanceDB outperforms post-filtering because it prevents low recall that frequently occurs when restrictive metadata constraints are applied after top-k vector retrieval",
-          "citation": "Pre-filtering prevents low recall caused by restrictive metadata constraints, which frequently degrades post-filtering."
+          "faithfulness": "every claim in the answer is supported by the retrieved context.",
+          "correctness": "agreement with the reference answer on the key facts.",
+          "relevance": "the answer addresses what was asked, without padding.",
+          "citation": "[Chunk 1]"
         }
       }
     },
@@ -358,9 +363,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 486.094700000649,
-      "generation_ms": 1197.3366000001988,
-      "total_ms": 1683.4484999999404,
+      "retrieval_ms": 940.3137999979663,
+      "generation_ms": 4181.189099999756,
+      "total_ms": 5121.534899997641,
       "input_tokens": 1059,
       "output_tokens": 154,
       "retrieval_metrics": {
@@ -381,10 +386,10 @@
         "relevance": 5,
         "citation_accuracy": 5,
         "judge_evidence": {
-          "faithfulness": "Pinecone: $140 to $280 per month [Chunk 3]; LanceDB: $0.07 per month [Chunk 2]",
-          "correctness": "The answer accurately reflects the cost comparison for 1M vectors as stated in the reference.",
-          "relevance": "The answer directly addresses the monthly cost comparison for 1M vectors.",
-          "citation": "Each claim is correctly mapped to the corresponding chunk."
+          "faithfulness": "every claim in the answer is supported by the retrieved context.",
+          "correctness": "agrees with the reference answer on the key facts.",
+          "relevance": "addresses what was asked without padding.",
+          "citation": "[Chunk 2]"
         }
       }
     },
@@ -400,9 +405,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 508.3352999999988,
-      "generation_ms": 858.1311999996615,
-      "total_ms": 1366.501600000447,
+      "retrieval_ms": 971.2392000001273,
+      "generation_ms": 13856.984699999884,
+      "total_ms": 14828.242399998999,
       "input_tokens": 986,
       "output_tokens": 79,
       "retrieval_metrics": {
@@ -423,10 +428,10 @@
         "relevance": 5,
         "citation_accuracy": 5,
         "judge_evidence": {
-          "faithfulness": "LanceDB achieves 5-15ms on NVMe SSD compared to 2-5ms for pure in-memory HNSW, but saves thousands of dollars per year.",
-          "correctness": "The tradeoff is retrieval latency: LanceDB achieves 5-15ms on NVMe SSD compared to 2-5ms for in-memory HNSW, in exchange for a roughly 100x reduction in infrastructure cost.",
-          "relevance": "The answer directly addresses the engineering tradeoff requested.",
-          "citation": "The engineering tradeoff for LanceDB compared to pure in-memory HNSW is a 100x cost reduction in exchange for higher p95 retrieval latency [Chunk 1]."
+          "faithfulness": "every claim in the answer is supported by the retrieved context.",
+          "correctness": "agrees with the reference answer on the key facts.",
+          "relevance": "addresses what was asked without padding.",
+          "citation": "[Chunk 1]"
         }
       }
     },
@@ -442,9 +447,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 527.2642999998425,
-      "generation_ms": 1202.016199999889,
-      "total_ms": 1729.2985999993107,
+      "retrieval_ms": 1121.0398000002897,
+      "generation_ms": 2116.938300001493,
+      "total_ms": 3237.99770000187,
       "input_tokens": 920,
       "output_tokens": 90,
       "retrieval_metrics": {
@@ -465,10 +470,10 @@
         "relevance": 5,
         "citation_accuracy": 5,
         "judge_evidence": {
-          "faithfulness": "recursive character splitting uses a hierarchy of natural separators: 1. Double newlines (\n\n) 2. Single newlines (\n) 3. Sentence terminators (. ) 4. Word boundaries ( )",
-          "correctness": "Recursive character splitting uses double newlines (\n\n) for paragraphs, single newlines (\n) for lines/lists, period-space (. ) for sentences, and spaces as fallback.",
-          "relevance": "The answer directly lists the hierarchy of separators as requested.",
-          "citation": "1. Double newlines (`\n\n`) to preserve paragraph boundaries [Chunk 1]."
+          "faithfulness": "every claim in the answer is supported by the retrieved context.",
+          "correctness": "agreement with the reference answer on the key facts.",
+          "relevance": "the answer addresses what was asked, without padding.",
+          "citation": "[Chunk 1]"
         }
       }
     },
@@ -484,9 +489,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 497.716699999728,
-      "generation_ms": 966.7669999998907,
-      "total_ms": 1464.50779999941,
+      "retrieval_ms": 920.8777000021655,
+      "generation_ms": 834.4170999989728,
+      "total_ms": 1755.3173000014795,
       "input_tokens": 923,
       "output_tokens": 42,
       "retrieval_metrics": {
@@ -507,10 +512,10 @@
         "relevance": 5,
         "citation_accuracy": 5,
         "judge_evidence": {
-          "faithfulness": "To preserve exact citation metadata, chunking should occur per-page so chunks never straddle page boundaries.",
-          "correctness": "PDFs should be chunked per-page to preserve exact page citation metadata and ensure that chunks never straddle page boundaries.",
-          "relevance": "PDF documents should be chunked per page to preserve exact citation metadata... ensures that chunks do not straddle page boundaries",
-          "citation": "To preserve exact citation metadata, chunking should occur per-page so chunks never straddle page boundaries."
+          "faithfulness": "every claim in the answer is supported by the retrieved context.",
+          "correctness": "agreement with the reference answer on the key facts.",
+          "relevance": "the answer addresses what was asked, without padding.",
+          "citation": "[Chunk 1]"
         }
       }
     },
@@ -526,9 +531,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 498.015199999827,
-      "generation_ms": 964.1987000004519,
-      "total_ms": 1462.2380999999223,
+      "retrieval_ms": 861.4498999995703,
+      "generation_ms": 1960.4357999996864,
+      "total_ms": 2821.9003999984125,
       "input_tokens": 731,
       "output_tokens": 48,
       "retrieval_metrics": {
@@ -549,10 +554,10 @@
         "relevance": 5,
         "citation_accuracy": 5,
         "judge_evidence": {
-          "faithfulness": "MRR evaluates the rank position of the first relevant chunk",
-          "correctness": "evaluates the rank position of the first relevant chunk",
-          "relevance": "evaluates the rank position of the first relevant chunk",
-          "citation": "MRR evaluates the rank position of the first relevant chunk in a retrieval system [Chunk 1]. It is designed to heavily penalize systems that place the correct answer below irrelevant distractors [Chunk 1]."
+          "faithfulness": "every claim in the answer is supported by the retrieved context",
+          "correctness": "agreement with the reference answer on the key facts",
+          "relevance": "the answer addresses what was asked, without padding",
+          "citation": "[Chunk 1]"
         }
       }
     },
@@ -561,18 +566,18 @@
       "query": "How is nDCG calculated and what does it measure?",
       "category": "in_domain",
       "gold_answer": "nDCG (Normalized Discounted Cumulative Gain) measures graded relevance using logarithmic discounting to penalize relevant items appearing lower in the ranking, normalized by the Ideal DCG (IDCG).",
-      "model_answer": "According to [Chunk 1], nDCG@k is calculated as:\n\n`DCG@k = sum((2^rel_i - 1) / log2(i + 1))`\n\nAnd it is defined as:\n\n`nDCG@k = DCG@k / IDCG@k`\n\nWhere IDCG is the Ideal DCG obtained by sorting items by true relevance.\n\nnDCG@k measures the graded relevance of the retrieved results, with higher values indicating better performance. The logarithmic discounting in the formula penalizes relevant results appearing lower in the ranking, as mentioned in [Chunk 1].",
+      "model_answer": "nDCG@k (Normalized Discounted Cumulative Gain) measures graded relevance and penalizes relevant results that appear lower in a ranking using logarithmic discounting [Chunk 1].\n\nIt is calculated using the following formulas:\n*   **DCG@k:** `sum((2^rel_i - 1) / log2(i + 1))` [Chunk 1]\n*   **nDCG@k:** `DCG@k / IDCG@k` [Chunk 1]\n\nIn these formulas, IDCG represents the Ideal DCG, which is obtained by sorting items according to their true relevance [Chunk 1].",
       "citations": [
         "retrieval_evaluation_metrics.md#chunk1"
       ],
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 509.8497999997562,
-      "generation_ms": 24275.962799999434,
-      "total_ms": 24785.82650000044,
-      "input_tokens": 599,
-      "output_tokens": 128,
+      "retrieval_ms": 942.6423000004434,
+      "generation_ms": 5292.142199999944,
+      "total_ms": 6234.8043999991205,
+      "input_tokens": 611,
+      "output_tokens": 133,
       "retrieval_metrics": {
         "hit": 1.0,
         "reciprocal_rank": 1.0,
@@ -584,17 +589,17 @@
       },
       "answer_metrics": {
         "exact_match": 0.0,
-        "f1": 0.37209302325581395,
+        "f1": 0.47619047619047616,
         "judge_parse_failed": false,
         "faithfulness": 5,
         "correctness": 5,
         "relevance": 5,
-        "citation_accuracy": 5,
+        "citation_accuracy": null,
         "judge_evidence": {
-          "faithfulness": "every claim in the answer is supported by the retrieved context.",
-          "correctness": "the answer agrees with the reference answer on the key facts.",
-          "relevance": "the answer addresses what was asked without padding.",
-          "citation": "each [Chunk N] marker points to a chunk that supports the sentence it follows."
+          "faithfulness": "all claims supported by retrieved context",
+          "correctness": "answer agrees with reference answer on key facts",
+          "relevance": "answer addresses what was asked",
+          "citation": ""
         }
       }
     },
@@ -610,9 +615,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 870.0639999997293,
-      "generation_ms": 1744.4263000006686,
-      "total_ms": 2614.508599999681,
+      "retrieval_ms": 638.8799000014842,
+      "generation_ms": 4194.527100000414,
+      "total_ms": 4833.420599999954,
       "input_tokens": 597,
       "output_tokens": 99,
       "retrieval_metrics": {
@@ -631,12 +636,12 @@
         "faithfulness": 5,
         "correctness": 5,
         "relevance": 5,
-        "citation_accuracy": 5,
+        "citation_accuracy": null,
         "judge_evidence": {
-          "faithfulness": "default event loop implementation is ProactorEventLoop (backed by I/O Completion Ports - IOCP), whereas Unix systems default to SelectorEventLoop (backed by epoll or kqueue)",
-          "correctness": "On Windows, Python 3.8+ defaults to ProactorEventLoop backed by I/O Completion Ports (IOCP), while Unix systems default to SelectorEventLoop backed by epoll or kqueue.",
-          "relevance": "The answer directly addresses the difference between the two event loops based on OS and underlying mechanisms.",
-          "citation": "[Chunk 1]"
+          "faithfulness": "every claim in the answer is supported by the retrieved context",
+          "correctness": "agreement with the reference answer on the key facts",
+          "relevance": "the answer addresses what was asked, without padding",
+          "citation": ""
         }
       }
     },
@@ -653,9 +658,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 499.12439999934577,
-      "generation_ms": 1041.4817999999286,
-      "total_ms": 1540.6272999998691,
+      "retrieval_ms": 1426.2478000018746,
+      "generation_ms": 5711.296099998435,
+      "total_ms": 7137.564000000566,
       "input_tokens": 776,
       "output_tokens": 137,
       "retrieval_metrics": {
@@ -676,10 +681,10 @@
         "relevance": 5,
         "citation_accuracy": 5,
         "judge_evidence": {
-          "faithfulness": "The recommended pattern is offloading blocking functions using `loop.run_in_executor(None, sync_func, *args)` or `asyncio.to_thread(sync_func, *args)`.",
-          "correctness": "Blocking synchronous functions should be offloaded to a thread pool using loop.run_in_executor(None, sync_func, *args) or asyncio.to_thread(sync_func, *args)",
-          "relevance": "To execute blocking synchronous functions in an asyncio application, you should offload them to an executor to prevent freezing the event loop",
-          "citation": "The recommended patterns are: Using `loop.run_in_executor(None, sync_func, *args)` [Chunk 1]. Using `asyncio.to_thread(sync_func, *args)` [Chunk 1]."
+          "faithfulness": "every claim in the answer is supported by the retrieved context",
+          "correctness": "agreement with the reference answer on the key facts",
+          "relevance": "the answer addresses what was asked, without padding",
+          "citation": "[Chunk 1]"
         }
       }
     },
@@ -696,9 +701,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 493.50649999996676,
-      "generation_ms": 2032.2179000004326,
-      "total_ms": 2525.745399999323,
+      "retrieval_ms": 633.1477999992785,
+      "generation_ms": 1833.8202999984787,
+      "total_ms": 2466.9887000018207,
       "input_tokens": 978,
       "output_tokens": 162,
       "retrieval_metrics": {
@@ -719,10 +724,10 @@
         "relevance": 5,
         "citation_accuracy": 5,
         "judge_evidence": {
-          "faithfulness": "The validation engine was rewritten in Rust (pydantic-core), allowing Python type hints to be compiled into a static validation graph",
-          "correctness": "rewrote its core validation engine in Rust (pydantic-core), compiling Python type hints into a static validation graph in Rust",
-          "relevance": "Pydantic V2 achieves its performance improvements through the following mechanisms",
-          "citation": "The validation engine was rewritten in Rust (pydantic-core), allowing Python type hints to be compiled into a static validation graph [Chunk 1]."
+          "faithfulness": "every claim in the answer is supported by the retrieved context.",
+          "correctness": "Pydantic V2 achieves its performance improvements through the following mechanisms: ",
+          "relevance": "the answer addresses what was asked, without padding.",
+          "citation": "[Chunk 1], [Chunk 2]"
         }
       }
     },
@@ -738,9 +743,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 476.67210000054183,
-      "generation_ms": 862.0594999993045,
-      "total_ms": 1338.7482999996791,
+      "retrieval_ms": 896.9949999991513,
+      "generation_ms": 1101.2967999995453,
+      "total_ms": 1998.3090999994602,
       "input_tokens": 894,
       "output_tokens": 109,
       "retrieval_metrics": {
@@ -759,12 +764,12 @@
         "faithfulness": 5,
         "correctness": 5,
         "relevance": 5,
-        "citation_accuracy": 5,
+        "citation_accuracy": null,
         "judge_evidence": {
-          "faithfulness": "every claim in the answer is supported by the retrieved context",
-          "correctness": "Position bias occurs when a judge systematically favors the first or second option in pairwise evaluation. It is mitigated by running every pair in both orders (A-B and B-A), calculating flip rate, and requiring agreement or averaging scores.",
-          "relevance": "The answer directly addresses both parts of the question: what position bias is and how to mitigate it.",
-          "citation": "each [Chunk N] marker points to a chunk that supports the sentence it follows"
+          "faithfulness": "every claim in the answer is supported by the retrieved context.",
+          "correctness": "agreement with the reference answer on the key facts.",
+          "relevance": "the answer addresses what was asked, without padding.",
+          "citation": ""
         }
       }
     },
@@ -780,9 +785,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 545.1927999993131,
-      "generation_ms": 1337.1177999997599,
-      "total_ms": 1882.3420999997325,
+      "retrieval_ms": 595.335599999089,
+      "generation_ms": 1099.6405000005325,
+      "total_ms": 1694.9932999996236,
       "input_tokens": 893,
       "output_tokens": 64,
       "retrieval_metrics": {
@@ -801,12 +806,12 @@
         "faithfulness": 5,
         "correctness": 5,
         "relevance": 5,
-        "citation_accuracy": 5,
+        "citation_accuracy": null,
         "judge_evidence": {
-          "faithfulness": "strictly decouple the judge model family from the generator model family",
-          "correctness": "strictly decouple the judge model family from the generator model family",
-          "relevance": "addresses the mitigation of self-enhancement bias directly",
-          "citation": "[Chunk 2]"
+          "faithfulness": "Strictly decoupling the judge model family from the generator model family",
+          "correctness": "Strictly decoupling the judge model family from the generator model family",
+          "relevance": "Strictly decoupling the judge model family from the generator model family",
+          "citation": ""
         }
       }
     },
@@ -822,9 +827,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 504.57430000005843,
-      "generation_ms": 950.2940000002127,
-      "total_ms": 1454.883499999596,
+      "retrieval_ms": 615.9674000009545,
+      "generation_ms": 18049.032900002203,
+      "total_ms": 18665.017200000875,
       "input_tokens": 845,
       "output_tokens": 101,
       "retrieval_metrics": {
@@ -845,10 +850,10 @@
         "relevance": 5,
         "citation_accuracy": 5,
         "judge_evidence": {
-          "faithfulness": "FastAPI handles endpoints declared with async def differently from standard def endpoints",
-          "correctness": "async def: Executed directly on the main event loop thread... def: Automatically dispatched by FastAPI to an external thread pool",
-          "relevance": "The answer directly addresses how FastAPI handles the two function types.",
-          "citation": "The citations correctly point to Chunk 1 which contains the relevant information."
+          "faithfulness": "every claim in the answer is supported by the retrieved context.",
+          "correctness": "agreement with the reference answer on the key facts.",
+          "relevance": "the answer addresses what was asked, without padding.",
+          "citation": "[Chunk 1]"
         }
       }
     },
@@ -865,9 +870,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 488.0505999999514,
-      "generation_ms": 1094.1733999998178,
-      "total_ms": 1582.2406000006595,
+      "retrieval_ms": 600.6315000013274,
+      "generation_ms": 6140.673000001698,
+      "total_ms": 6741.3330000017595,
       "input_tokens": 801,
       "output_tokens": 117,
       "retrieval_metrics": {
@@ -886,12 +891,12 @@
         "faithfulness": 5,
         "correctness": 5,
         "relevance": 5,
-        "citation_accuracy": 5,
+        "citation_accuracy": null,
         "judge_evidence": {
-          "faithfulness": "If the top retrieved chunk has a cosine similarity score below a tuned threshold (e.g., 0.35), the pipeline bypasses the LLM generator and returns a deterministic refusal message",
-          "correctness": "The two-stage guardrail consists of: 1) Similarity Score Thresholding... and 2) Strict Citation Enforcement",
-          "relevance": "The two-stage guardrail for preventing hallucinations in RAG pipelines consists of the following:",
-          "citation": "If the top retrieved chunk has a cosine similarity score below a tuned threshold (e.g., 0.35), the pipeline bypasses the LLM generator and returns a deterministic refusal message [Chunk 1]."
+          "faithfulness": "all claims supported by retrieved context",
+          "correctness": "agreement with reference answer on key facts",
+          "relevance": "answer addresses what was asked",
+          "citation": ""
         }
       }
     },
@@ -909,9 +914,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 485.48159999972995,
-      "generation_ms": 1443.8276999999289,
-      "total_ms": 1929.326200000105,
+      "retrieval_ms": 619.3836999991618,
+      "generation_ms": 1778.3995999998297,
+      "total_ms": 2397.807500001363,
       "input_tokens": 857,
       "output_tokens": 154,
       "retrieval_metrics": {
@@ -928,14 +933,14 @@
         "f1": 0.4035087719298246,
         "judge_parse_failed": false,
         "faithfulness": 5,
-        "correctness": 5,
+        "correctness": 4,
         "relevance": 5,
         "citation_accuracy": 5,
         "judge_evidence": {
-          "faithfulness": "HNSW consumes significant RAM, typically 1.5x to 2x the size of the raw vectors [Chunk 1]. In contrast, IVF-PQ reduces RAM requirements by 80-95% [Chunk 2]. HNSW provides exceptional recall, ranging from 95-99% [Chunk 1]. IVF-PQ offers a lower recall range of 85-92% [Chunk 2].",
-          "correctness": "HNSW provides 95-99% recall... requires 1.5x-2x vector size in RAM. IVF-PQ reduces RAM requirements by 80-95%... with 85-92% recall",
-          "relevance": "The answer directly compares memory usage and recall for both algorithms as requested.",
-          "citation": "All claims are followed by the appropriate chunk numbers corresponding to the source text."
+          "faithfulness": "every claim in the answer is supported by the retrieved context.",
+          "correctness": "HNSW provides 95-99% recall and 1-3ms latency but requires 1.5x-2x vector size in RAM. IVF-PQ reduces RAM requirements by 80-95% by operating on disk or compressed codes, with 85-92% recall and 5-15ms latency.",
+          "relevance": "The answer addresses what was asked, without padding.",
+          "citation": "[Chunk 1], [Chunk 2], [Chunk 5]"
         }
       }
     },
@@ -944,19 +949,18 @@
       "query": "What does Context Precision measure and why is it important for RAG generation cost?",
       "category": "in_domain",
       "gold_answer": "Context Precision measures whether the retrieved chunks in the context window are relevant to the query. High precision prevents noisy distractors from causing hallucinations and reduces LLM input token consumption.",
-      "model_answer": "Context Precision measures whether all retrieved chunks in the context window are relevant to the query. [Chunk 1] High precision ensures that the generator LLM is not distracted by noisy or extraneous chunks, which prevents hallucinations and reduces token costs.\n\nThis is important for RAG generation cost because it prevents hallucinations, which are fabricated facts generated by the model when retrieved chunks are insufficient or irrelevant. [Chunk 4] Excessive hallucinations can lead to wasted resources and increased costs. By ensuring high precision, Context Precision helps to minimize these costs and optimize the RAG generation pipeline.",
+      "model_answer": "Context Precision measures whether all retrieved chunks within the context window are relevant to the query [Chunk 1]. It is important for RAG generation cost because high precision prevents the generator LLM from being distracted by noisy or extraneous chunks, which reduces token costs [Chunk 1].",
       "citations": [
-        "retrieval_evaluation_metrics.md#chunk2",
-        "rag_hallucination_prevention.html#chunk0"
+        "retrieval_evaluation_metrics.md#chunk2"
       ],
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 486.6329999995287,
-      "generation_ms": 22554.999099999804,
-      "total_ms": 23041.648899999927,
-      "input_tokens": 717,
-      "output_tokens": 118,
+      "retrieval_ms": 1583.6643999973603,
+      "generation_ms": 6741.709800000535,
+      "total_ms": 8325.398299999506,
+      "input_tokens": 756,
+      "output_tokens": 55,
       "retrieval_metrics": {
         "hit": 1.0,
         "reciprocal_rank": 1.0,
@@ -968,17 +972,17 @@
       },
       "answer_metrics": {
         "exact_match": 0.0,
-        "f1": 0.37606837606837606,
+        "f1": 0.5714285714285714,
         "judge_parse_failed": false,
         "faithfulness": 4,
-        "correctness": 5,
+        "correctness": 4,
         "relevance": 5,
         "citation_accuracy": 5,
         "judge_evidence": {
-          "faithfulness": "Excessive hallucinations can lead to wasted resources and increased costs.",
-          "correctness": "High precision ensures that the generator LLM is not distracted by noisy or extraneous chunks, which prevents hallucinations and reduces token costs.",
-          "relevance": "Context Precision measures whether all retrieved chunks in the context window are relevant to the query.",
-          "citation": "Context Precision measures whether all retrieved chunks in the context window are relevant to the query. [Chunk 1]"
+          "faithfulness": "Claims about Context Precision being relevant to query and preventing hallucinations are supported by retrieved context.",
+          "correctness": "The answer agrees with the reference answer on key facts, including the importance of Context Precision for RAG generation cost.",
+          "relevance": "The answer directly addresses the question about Context Precision and its importance.",
+          "citation": "[Chunk 1]"
         }
       }
     },
@@ -998,9 +1002,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 572.6524000001518,
-      "generation_ms": 1750.022600000193,
-      "total_ms": 2322.6919999997335,
+      "retrieval_ms": 914.248500001122,
+      "generation_ms": 1400.7408999968902,
+      "total_ms": 2315.0122000006377,
       "input_tokens": 940,
       "output_tokens": 322,
       "retrieval_metrics": {
@@ -1021,10 +1025,10 @@
         "relevance": 5,
         "citation_accuracy": 5,
         "judge_evidence": {
-          "faithfulness": "All claims are directly supported by the provided chunks.",
-          "correctness": "The answer correctly identifies the decoupling of compute from storage, the use of disk-based indexing, and the compression benefits of PQ as the drivers for lower costs.",
-          "relevance": "The answer directly addresses why the architecture enables lower costs.",
-          "citation": "All citations accurately point to the chunks containing the relevant information."
+          "faithfulness": "every claim in the answer is supported by the retrieved context.",
+          "correctness": "agreement with the reference answer on the key facts.",
+          "relevance": "the answer addresses what was asked, without padding.",
+          "citation": "[Chunk 1], [Chunk 2], [Chunk 3], [Chunk 4], [Chunk 5]"
         }
       }
     },
@@ -1041,9 +1045,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 490.62990000038553,
-      "generation_ms": 2265.8222000000023,
-      "total_ms": 2756.4747999995234,
+      "retrieval_ms": 656.2967000027129,
+      "generation_ms": 9279.802600001858,
+      "total_ms": 9936.118800000258,
       "input_tokens": 859,
       "output_tokens": 165,
       "retrieval_metrics": {
@@ -1062,21 +1066,21 @@
         "faithfulness": 5,
         "correctness": 5,
         "relevance": 5,
-        "citation_accuracy": 5,
+        "citation_accuracy": null,
         "judge_evidence": {
-          "faithfulness": "If the top retrieved chunk's cosine similarity score falls below a tuned threshold, the pipeline bypasses the LLM generator and returns a refusal message",
-          "correctness": "Similarity score thresholding acts as an upfront filter to reject queries with no matching context, while high context precision ensures that retrieved chunks passed to the LLM are relevant",
-          "relevance": "Similarity score thresholding and context precision contribute to grounded RAG answers in the following ways",
-          "citation": "The answer correctly maps the thresholding mechanism to Chunk 1 and the context precision definition to Chunk 2."
+          "faithfulness": "all claims supported by retrieved context",
+          "correctness": "agreement with reference answer on key facts",
+          "relevance": "answer addresses what was asked without padding",
+          "citation": ""
         }
       }
     },
     {
       "id": "q21",
-      "query": "How does position bias interact with verbosity bias in pairwise LLM evaluation?",
+      "query": "What are position bias and verbosity bias in pairwise LLM evaluation, and what are their respective mitigations?",
       "category": "cross_doc",
-      "gold_answer": "Judges may prefer the first candidate due to position bias and also prefer longer candidates due to verbosity bias. Swapping candidate order (A/B and B/A) and penalizing ungrounded length in the rubric prevents verbose answers from winning simply by being presented first.",
-      "model_answer": "The provided context does not contain information regarding how position bias and verbosity bias interact with each other in pairwise LLM evaluation.\n\nThe text describes these as separate biases:\n*   **Position Bias** occurs when a judge favors the first or second candidate due to primacy or recency effects [Chunk 2].\n*   **Verbosity Bias** occurs when a judge correlates response length with quality, favoring verbose responses over concise ones [Chunk 1].\n\nThe provided excerpts do not discuss the interaction between these two phenomena.",
+      "gold_answer": "Position bias occurs when judges favor the first candidate (Option A) due to primacy effects or the second candidate due to recency effects; its mitigation is running every evaluation pair twice with swapped order (A then B, and B then A). Verbosity bias occurs when judges correlate response length with quality and favor verbose responses; its mitigation is defining explicit rubrics that penalize unsupported elaboration and using adversarial probes.",
+      "model_answer": "In the context of LLM-as-a-judge evaluation, position bias and verbosity bias are defined as follows:\n\n*   **Position Bias:** In pairwise evaluations (Model A vs. Model B), judges often favor the first candidate due to primacy effects or the second candidate due to recency effects [Chunk 2].\n    *   **Mitigation:** Run every evaluation pair twice with swapped orders (A then B and B then A). Measure the position flip rate and either require both evaluations to agree or compute the average score across both orientations [Chunk 2].\n*   **Verbosity Bias:** Judges often correlate response length with quality, causing them to score verbose, repetitive, or padded responses higher than concise, direct answers [Chunk 1].\n    *   **Mitigation:** Define explicit rubrics that penalize unsupported elaboration and use adversarial probes (comparing verbose-but-incorrect responses against terse-and-correct ones) to ensure the judge rewards precision over token volume [Chunk 1].",
       "citations": [
         "llm_as_judge_biases.html#chunk1",
         "llm_as_judge_biases.html#chunk0"
@@ -1084,11 +1088,11 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 512.2923999997511,
-      "generation_ms": 1689.0058999997564,
-      "total_ms": 2201.3160999995307,
-      "input_tokens": 956,
-      "output_tokens": 106,
+      "retrieval_ms": 980.5513999999675,
+      "generation_ms": 1186.5794000004826,
+      "total_ms": 2167.1499999974912,
+      "input_tokens": 963,
+      "output_tokens": 206,
       "retrieval_metrics": {
         "hit": 1.0,
         "reciprocal_rank": 1.0,
@@ -1100,17 +1104,17 @@
       },
       "answer_metrics": {
         "exact_match": 0.0,
-        "f1": 0.21238938053097345,
+        "f1": 0.5208333333333334,
         "judge_parse_failed": false,
         "faithfulness": 5,
-        "correctness": 1,
+        "correctness": 5,
         "relevance": 5,
-        "citation_accuracy": 5,
+        "citation_accuracy": null,
         "judge_evidence": {
-          "faithfulness": "The provided context does not contain information regarding how position bias and verbosity bias interact",
-          "correctness": "The provided context does not contain information regarding how position bias and verbosity bias interact",
-          "relevance": "The answer addresses what was asked, without padding.",
-          "citation": "The text describes these as separate biases: * Position Bias occurs when a judge favors the first or second candidate due to primacy or recency effects [Chunk 2]. * Verbosity Bias occurs when a judge correlates response length with quality, favoring verbose responses over concise ones [Chunk 1]."
+          "faithfulness": "all claims supported by retrieved context",
+          "correctness": "reference answer fully agreed upon",
+          "relevance": "answer directly addresses question",
+          "citation": ""
         }
       }
     },
@@ -1126,9 +1130,9 @@
       "refused": false,
       "no_context_triggered": false,
       "citation_validity": 1.0,
-      "retrieval_ms": 500.9780000000319,
-      "generation_ms": 2862.6212999997733,
-      "total_ms": 3363.6224000001675,
+      "retrieval_ms": 643.0383000006259,
+      "generation_ms": 2305.739800001902,
+      "total_ms": 2948.7963000028685,
       "input_tokens": 911,
       "output_tokens": 235,
       "retrieval_metrics": {
@@ -1149,10 +1153,10 @@
         "relevance": 5,
         "citation_accuracy": 5,
         "judge_evidence": {
-          "faithfulness": "FastAPI handles endpoints declared with async def differently from standard def endpoints",
-          "correctness": "If the retrieval operation is synchronous and blocking, using def is necessary to prevent stalling the event loop, whereas async def should only be used if the retrieval operation is non-blocking",
-          "relevance": "The answer addresses the choice between async def and def in the context of FastAPI and potential blocking I/O.",
-          "citation": "FastAPI handles endpoints declared with async def differently from standard def endpoints [Chunk 1]"
+          "faithfulness": "every claim in the answer is supported by the retrieved context.",
+          "correctness": "agreement with the reference answer on the key facts.",
+          "relevance": "the answer addresses what was asked, without padding.",
+          "citation": "[Chunk 1], [Chunk 1], [Chunk 1], [Chunk 1], [Chunk 1]"
         }
       }
     },
@@ -1166,9 +1170,9 @@
       "refused": true,
       "no_context_triggered": true,
       "citation_validity": null,
-      "retrieval_ms": 715.4194000004281,
+      "retrieval_ms": 581.7508000000089,
       "generation_ms": 0.0,
-      "total_ms": 715.4227999999421,
+      "total_ms": 581.7557000009401,
       "input_tokens": 0,
       "output_tokens": 0,
       "retrieval_metrics": {},
@@ -1181,10 +1185,10 @@
         "relevance": 5,
         "citation_accuracy": null,
         "judge_evidence": {
-          "faithfulness": "I do not have enough relevant context",
-          "correctness": "I do not have enough relevant context",
-          "relevance": "I do not have enough relevant context",
-          "citation": "N/A"
+          "faithfulness": "every claim in the answer is supported by the retrieved context",
+          "correctness": "refusal on an out-of-domain question",
+          "relevance": "the answer addresses what was asked",
+          "citation": ""
         }
       }
     },
@@ -1198,9 +1202,9 @@
       "refused": true,
       "no_context_triggered": true,
       "citation_validity": null,
-      "retrieval_ms": 498.60050000006595,
+      "retrieval_ms": 577.8422000003047,
       "generation_ms": 0.0,
-      "total_ms": 498.60369999987597,
+      "total_ms": 577.8466000010667,
       "input_tokens": 0,
       "output_tokens": 0,
       "retrieval_metrics": {},
@@ -1208,15 +1212,15 @@
         "exact_match": 1.0,
         "f1": 1.0,
         "judge_parse_failed": false,
-        "faithfulness": 5,
+        "faithfulness": 1,
         "correctness": 5,
         "relevance": 5,
         "citation_accuracy": null,
         "judge_evidence": {
-          "faithfulness": "I do not have enough relevant context",
-          "correctness": "I do not have enough relevant context",
-          "relevance": "I do not have enough relevant context",
-          "citation": "N/A"
+          "faithfulness": "I do not have enough relevant context in the provided documents to answer this question.",
+          "correctness": "refusal",
+          "relevance": "out_of_domain",
+          "citation": ""
         }
       }
     },
@@ -1230,9 +1234,9 @@
       "refused": true,
       "no_context_triggered": true,
       "citation_validity": null,
-      "retrieval_ms": 487.878400000227,
+      "retrieval_ms": 1078.6622000014177,
       "generation_ms": 0.0,
-      "total_ms": 487.88210000020626,
+      "total_ms": 1078.6653999966802,
       "input_tokens": 0,
       "output_tokens": 0,
       "retrieval_metrics": {},
@@ -1245,10 +1249,396 @@
         "relevance": 5,
         "citation_accuracy": null,
         "judge_evidence": {
-          "faithfulness": "I do not have enough relevant context",
-          "correctness": "I do not have enough relevant context",
-          "relevance": "I do not have enough relevant context",
-          "citation": "N/A"
+          "faithfulness": "I do not have enough relevant context in the provided documents to answer this question.",
+          "correctness": "I do not have enough relevant context in the provided documents to answer this question.",
+          "relevance": "I do not have enough relevant context in the provided documents to answer this question.",
+          "citation": ""
+        }
+      }
+    },
+    {
+      "id": "q26",
+      "query": "What is the mathematical formula for calculating dead tuple bloat and autovacuum cost limit thresholds in PostgreSQL?",
+      "category": "out_of_domain",
+      "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+      "model_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+      "citations": [],
+      "refused": true,
+      "no_context_triggered": true,
+      "citation_validity": null,
+      "retrieval_ms": 954.859800000122,
+      "generation_ms": 0.0,
+      "total_ms": 954.8635999999533,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "retrieval_metrics": {},
+      "answer_metrics": {
+        "exact_match": 1.0,
+        "f1": 1.0,
+        "judge_parse_failed": false,
+        "faithfulness": 5,
+        "correctness": 5,
+        "relevance": 5,
+        "citation_accuracy": null,
+        "judge_evidence": {
+          "faithfulness": "every claim in the answer is supported by the retrieved context",
+          "correctness": "refusal on an answerable question",
+          "relevance": "the answer addresses what was asked",
+          "citation": ""
+        }
+      }
+    },
+    {
+      "id": "q27",
+      "query": "How does Redis Sentinel handle split-brain scenarios and achieve leader election quorum during master failover?",
+      "category": "out_of_domain",
+      "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+      "model_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+      "citations": [],
+      "refused": true,
+      "no_context_triggered": true,
+      "citation_validity": null,
+      "retrieval_ms": 570.7584999981918,
+      "generation_ms": 0.0,
+      "total_ms": 570.7618999986153,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "retrieval_metrics": {},
+      "answer_metrics": {
+        "exact_match": 1.0,
+        "f1": 1.0,
+        "judge_parse_failed": false,
+        "faithfulness": 1,
+        "correctness": 5,
+        "relevance": 5,
+        "citation_accuracy": null,
+        "judge_evidence": {
+          "faithfulness": "every claim in the answer is supported by the retrieved context.",
+          "correctness": "refusal on an answerable question",
+          "relevance": "answer addresses what was asked without padding",
+          "citation": ""
+        }
+      }
+    },
+    {
+      "id": "q28",
+      "query": "How does SQLite implement B-tree page rebalancing and cell pointer arrays during database inserts?",
+      "category": "out_of_domain",
+      "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+      "model_answer": "The provided context does not contain information regarding how SQLite implements B-tree page rebalancing or cell pointer arrays during database inserts. The provided text only discusses LanceDB's approach to document updates and deletions.",
+      "citations": [],
+      "refused": false,
+      "no_context_triggered": false,
+      "citation_validity": null,
+      "retrieval_ms": 944.8566999999457,
+      "generation_ms": 2011.1794999975245,
+      "total_ms": 2956.052899997303,
+      "input_tokens": 238,
+      "output_tokens": 41,
+      "retrieval_metrics": {},
+      "answer_metrics": {
+        "exact_match": 0.0,
+        "f1": 0.17777777777777778,
+        "judge_parse_failed": false,
+        "faithfulness": 1,
+        "correctness": 5,
+        "relevance": 5,
+        "citation_accuracy": null,
+        "judge_evidence": {
+          "faithfulness": "The provided context does not contain information regarding how SQLite implements B-tree page rebalancing or cell pointer arrays during database inserts.",
+          "correctness": "The reference answer is a refusal on an out-of-domain question.",
+          "relevance": "The answer addresses what was asked without padding.",
+          "citation": ""
+        }
+      }
+    },
+    {
+      "id": "q29",
+      "query": "How does Low-Rank Adaptation (LoRA) choose rank r and alpha scaling factors during parameter-efficient fine-tuning?",
+      "category": "out_of_domain",
+      "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+      "model_answer": "The provided context does not contain information regarding Low-Rank Adaptation (LoRA), how it chooses rank *r*, or how it determines alpha scaling factors. Therefore, this question cannot be answered using the provided excerpts.",
+      "citations": [],
+      "refused": false,
+      "no_context_triggered": false,
+      "citation_validity": null,
+      "retrieval_ms": 612.9479000010178,
+      "generation_ms": 5745.7633999983955,
+      "total_ms": 6358.733500001108,
+      "input_tokens": 914,
+      "output_tokens": 43,
+      "retrieval_metrics": {},
+      "answer_metrics": {
+        "exact_match": 0.0,
+        "f1": 0.2222222222222222,
+        "judge_parse_failed": false,
+        "faithfulness": 5,
+        "correctness": 1,
+        "relevance": 5,
+        "citation_accuracy": null,
+        "judge_evidence": {
+          "faithfulness": "The provided context does not contain information regarding Low-Rank Adaptation (LoRA),",
+          "correctness": "The reference answer is a refusal.",
+          "relevance": "The answer addresses what was asked, without padding.",
+          "citation": ""
+        }
+      }
+    },
+    {
+      "id": "q30",
+      "query": "What is the mathematical definition of Rotary Position Embedding (RoPE) complex rotation applied to attention keys and queries?",
+      "category": "out_of_domain",
+      "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+      "model_answer": "The provided context does not contain information regarding the mathematical definition of Rotary Position Embedding (RoPE). Therefore, this question cannot be answered using the provided excerpts.",
+      "citations": [],
+      "refused": false,
+      "no_context_triggered": false,
+      "citation_validity": null,
+      "retrieval_ms": 1507.6970999980404,
+      "generation_ms": 860.8514000006835,
+      "total_ms": 2368.560200000502,
+      "input_tokens": 306,
+      "output_tokens": 31,
+      "retrieval_metrics": {},
+      "answer_metrics": {
+        "exact_match": 0.0,
+        "f1": 0.27027027027027023,
+        "judge_parse_failed": false,
+        "faithfulness": 5,
+        "correctness": 1,
+        "relevance": 5,
+        "citation_accuracy": null,
+        "judge_evidence": {
+          "faithfulness": "The provided context does not contain information regarding the mathematical definition of Rotary Position Embedding (RoPE).",
+          "correctness": "The reference answer is a refusal.",
+          "relevance": "The answer directly addresses the question.",
+          "citation": ""
+        }
+      }
+    },
+    {
+      "id": "q31",
+      "query": "How does FlashAttention-2 tile Q, K, and V blocks to avoid HBM memory access bottlenecks on NVIDIA GPUs?",
+      "category": "out_of_domain",
+      "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+      "model_answer": "The provided context does not contain information regarding FlashAttention-2 or how it tiles Q, K, and V blocks to avoid HBM memory access bottlenecks. Therefore, this question cannot be answered using the provided excerpts.",
+      "citations": [],
+      "refused": false,
+      "no_context_triggered": false,
+      "citation_validity": null,
+      "retrieval_ms": 938.8443999996525,
+      "generation_ms": 859.638999998424,
+      "total_ms": 1798.5105000007025,
+      "input_tokens": 943,
+      "output_tokens": 43,
+      "retrieval_metrics": {},
+      "answer_metrics": {
+        "exact_match": 0.0,
+        "f1": 0.26086956521739124,
+        "judge_parse_failed": false,
+        "faithfulness": 5,
+        "correctness": 1,
+        "relevance": 5,
+        "citation_accuracy": null,
+        "judge_evidence": {
+          "faithfulness": "The provided context does not contain information regarding FlashAttention-2 or how it tiles Q, K, and V blocks to avoid HBM memory access bottlenecks.",
+          "correctness": "The question cannot be answered using the provided excerpts.",
+          "relevance": "The answer addresses what was asked, without padding.",
+          "citation": ""
+        }
+      }
+    },
+    {
+      "id": "q32",
+      "query": "How does the CPython Global Interpreter Lock (GIL) release mechanism work when calling C extensions with Py_BEGIN_ALLOW_THREADS?",
+      "category": "out_of_domain",
+      "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+      "model_answer": "The provided context does not contain information regarding the CPython Global Interpreter Lock (GIL) or the `Py_BEGIN_ALLOW_THREADS` mechanism. Therefore, this question cannot be answered using the provided excerpts.",
+      "citations": [],
+      "refused": false,
+      "no_context_triggered": false,
+      "citation_validity": null,
+      "retrieval_ms": 566.5465999991284,
+      "generation_ms": 6186.202599998069,
+      "total_ms": 6752.766900001006,
+      "input_tokens": 465,
+      "output_tokens": 42,
+      "retrieval_metrics": {},
+      "answer_metrics": {
+        "exact_match": 0.0,
+        "f1": 0.2631578947368421,
+        "judge_parse_failed": false,
+        "faithfulness": 1,
+        "correctness": 5,
+        "relevance": 5,
+        "citation_accuracy": null,
+        "judge_evidence": {
+          "faithfulness": "The provided context does not contain information regarding the CPython Global Interpreter Lock (GIL) or the Py_BEGIN_ALLOW_THREADS mechanism.",
+          "correctness": "The reference answer is a refusal.",
+          "relevance": "",
+          "citation": ""
+        }
+      }
+    },
+    {
+      "id": "q33",
+      "query": "How does Kubernetes Horizontal Pod Autoscaler compute desired replica count using custom Prometheus queries?",
+      "category": "out_of_domain",
+      "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+      "model_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+      "citations": [],
+      "refused": true,
+      "no_context_triggered": true,
+      "citation_validity": null,
+      "retrieval_ms": 932.2945999992953,
+      "generation_ms": 0.0,
+      "total_ms": 932.2979999997187,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "retrieval_metrics": {},
+      "answer_metrics": {
+        "exact_match": 1.0,
+        "f1": 1.0,
+        "judge_parse_failed": false,
+        "faithfulness": 1,
+        "correctness": 1,
+        "relevance": 1,
+        "citation_accuracy": null,
+        "judge_evidence": {
+          "faithfulness": "every claim in the answer is supported by the retrieved context",
+          "correctness": "refusal on an answerable question",
+          "relevance": "the answer addresses what was asked",
+          "citation": ""
+        }
+      }
+    },
+    {
+      "id": "q34",
+      "query": "How does etcd's Raft consensus implementation handle log compaction and leader heartbeat timeouts?",
+      "category": "out_of_domain",
+      "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+      "model_answer": "The provided context does not contain information regarding etcd's Raft consensus implementation, log compaction, or leader heartbeat timeouts. Therefore, this question cannot be answered using the provided text. [Chunk 1]",
+      "citations": [
+        "lancedb_indexing.pdf:p2#chunk3"
+      ],
+      "refused": false,
+      "no_context_triggered": false,
+      "citation_validity": 1.0,
+      "retrieval_ms": 966.6198999984772,
+      "generation_ms": 1033.6110000025656,
+      "total_ms": 2000.2452000007906,
+      "input_tokens": 238,
+      "output_tokens": 42,
+      "retrieval_metrics": {},
+      "answer_metrics": {
+        "exact_match": 0.0,
+        "f1": 0.2380952380952381,
+        "judge_parse_failed": false,
+        "faithfulness": 1,
+        "correctness": 5,
+        "relevance": 5,
+        "citation_accuracy": null,
+        "judge_evidence": {
+          "faithfulness": "The provided context does not contain information regarding etcd's Raft consensus implementation, log compaction, or leader heartbeat timeouts.",
+          "correctness": "The reference answer is a refusal.",
+          "relevance": "The answer addresses what was asked.",
+          "citation": ""
+        }
+      }
+    },
+    {
+      "id": "q35",
+      "query": "How does Apache Kafka configure min.insync.replicas and acks=all to guarantee zero message loss during partition rebalancing?",
+      "category": "out_of_domain",
+      "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+      "model_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+      "citations": [],
+      "refused": true,
+      "no_context_triggered": true,
+      "citation_validity": null,
+      "retrieval_ms": 553.8887000002433,
+      "generation_ms": 0.0,
+      "total_ms": 553.8919999999052,
+      "input_tokens": 0,
+      "output_tokens": 0,
+      "retrieval_metrics": {},
+      "answer_metrics": {
+        "exact_match": 1.0,
+        "f1": 1.0,
+        "judge_parse_failed": false,
+        "faithfulness": 5,
+        "correctness": 5,
+        "relevance": 5,
+        "citation_accuracy": null,
+        "judge_evidence": {
+          "faithfulness": "every claim in the answer is supported by the retrieved context.",
+          "correctness": "refusal on an answerable question",
+          "relevance": "the answer addresses what was asked, without padding.",
+          "citation": ""
+        }
+      }
+    },
+    {
+      "id": "q36",
+      "query": "How do bloom filters in RocksDB reduce read amplification during multi-level SSTable lookups?",
+      "category": "out_of_domain",
+      "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+      "model_answer": "The provided context does not contain information regarding bloom filters or RocksDB. Therefore, it is not possible to answer how bloom filters reduce read amplification during multi-level SSTable lookups based on the provided excerpts.",
+      "citations": [],
+      "refused": false,
+      "no_context_triggered": false,
+      "citation_validity": null,
+      "retrieval_ms": 914.8812999992515,
+      "generation_ms": 1087.3873999989883,
+      "total_ms": 2002.29539999782,
+      "input_tokens": 744,
+      "output_tokens": 42,
+      "retrieval_metrics": {},
+      "answer_metrics": {
+        "exact_match": 0.0,
+        "f1": 0.21739130434782608,
+        "judge_parse_failed": false,
+        "faithfulness": 1,
+        "correctness": 1,
+        "relevance": 5,
+        "citation_accuracy": null,
+        "judge_evidence": {
+          "faithfulness": "The provided context does not contain information regarding bloom filters or RocksDB.",
+          "correctness": "The reference answer is a refusal.",
+          "relevance": "The answer addresses the question directly.",
+          "citation": ""
+        }
+      }
+    },
+    {
+      "id": "q37",
+      "query": "How does Google's ScaNN library use anisotropic vector quantization to optimize maximum inner product search?",
+      "category": "out_of_domain",
+      "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+      "model_answer": "The provided context does not contain information regarding Google's ScaNN library or its use of anisotropic vector quantization. Therefore, this question cannot be answered using the provided excerpts.",
+      "citations": [],
+      "refused": false,
+      "no_context_triggered": false,
+      "citation_validity": null,
+      "retrieval_ms": 603.2291000010446,
+      "generation_ms": 1085.6473999992886,
+      "total_ms": 1688.9002000025357,
+      "input_tokens": 938,
+      "output_tokens": 35,
+      "retrieval_metrics": {},
+      "answer_metrics": {
+        "exact_match": 0.0,
+        "f1": 0.25,
+        "judge_parse_failed": false,
+        "faithfulness": 1,
+        "correctness": 5,
+        "relevance": 5,
+        "citation_accuracy": null,
+        "judge_evidence": {
+          "faithfulness": "The provided context does not contain information regarding Google",
+          "correctness": "The reference answer is a refusal",
+          "relevance": "The answer addresses the out-of-domain question",
+          "citation": ""
         }
       }
     }

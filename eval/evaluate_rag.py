@@ -89,15 +89,21 @@ def parse_judge_json(text: str) -> dict | None:
     m = re.search(r"\{.*\}", t, flags=re.DOTALL)
     if not m:
         return None
+    raw = m.group(0)
+    cleaned = re.sub(r",\s*(\}|\])", r"\1", raw)
     try:
-        d = json.loads(m.group(0))
+        d = json.loads(cleaned)
     except json.JSONDecodeError:
-        return None
+        try:
+            d = json.loads(raw)
+        except json.JSONDecodeError:
+            return None
     for k in SCORE_KEYS:
-        if not isinstance(d.get(k), int) or isinstance(d.get(k), bool) or not 1 <= d[k] <= 5:
+        val = d.get(k)
+        if isinstance(val, bool) or not isinstance(val, int) or not 1 <= val <= 5:
             return None
     ca = d.get("citation_accuracy")
-    if ca is not None and (not isinstance(ca, int) or not 1 <= ca <= 5):
+    if ca is not None and (isinstance(ca, bool) or not isinstance(ca, int) or not 1 <= ca <= 5):
         return None
     return d
 
@@ -107,7 +113,8 @@ def judge_answer(judge_llm, item: dict, chunks: list[dict], answer: str) -> dict
     prompt = JUDGE_PROMPT.format(query=item["query"], qtype=item["category"], gold=item["gold_answer"],
                                  context=ctx, answer=answer)
     for attempt in range(2):
-        r = judge_llm.generate(prompt=prompt, temperature=0.0, max_tokens=700, tag=f"rag_eval:{item['id']}:{attempt}")
+        r = judge_llm.generate(prompt=prompt, system="You are a strict evaluator of a retrieval-augmented answer. Reply with ONLY a valid JSON object.",
+                               temperature=0.0, max_tokens=700, tag=f"rag_eval:{item['id']}:{attempt}")
         v = parse_judge_json(r.text)
         if v is not None:
             return v
@@ -187,18 +194,34 @@ def load_corpus_texts(lancedb_uri: str) -> list[str]:
 
 
 def run_rag_evaluation(path: str = "data/eval_questions.json"):
+    import os
     from common.config import RagConfig, JudgeConfig
     from common.llm import LoggedLLM, make_llm
     from rag.service import RagService
 
     cfg, jcfg = RagConfig.from_env(), JudgeConfig.from_env()
     service = RagService(config=cfg)
-    judge = LoggedLLM(make_llm(jcfg.judge_provider, jcfg.judge_model), "logs/rag_eval_judge.jsonl", "rag_answer_judge")
+
+    # Problem 1 answer judge MUST be a different model family from the RAG generator
+    # When generator is Gemini, judge defaults to Llama 3.2 (Ollama); when generator is Llama, judge defaults to Gemini
+    default_judge_prov = "openai_compat" if cfg.gen_provider == "gemini" else "gemini"
+    default_judge_mod = "llama3.2:latest" if cfg.gen_provider == "gemini" else "gemini-3.1-flash-lite"
+
+    judge_prov = os.environ.get("RAG_JUDGE_PROVIDER", default_judge_prov)
+    judge_mod = os.environ.get("RAG_JUDGE_MODEL", default_judge_mod)
+    judge_url = os.environ.get("RAG_JUDGE_BASE_URL", os.environ.get("GENERATOR_BASE_URL", "http://localhost:11434/v1"))
+    judge_key = os.environ.get("RAG_JUDGE_API_KEY", os.environ.get("GENERATOR_API_KEY", "ollama"))
+
+    raw_judge = make_llm(judge_prov, judge_mod, judge_url, judge_key)
+    judge = LoggedLLM(raw_judge, "logs/rag_eval_judge.jsonl", "rag_answer_judge")
     questions = json.load(open(path, encoding="utf-8"))
     corpus = load_corpus_texts(cfg.lancedb_uri)
-    same = (jcfg.judge_provider, jcfg.judge_model) == (cfg.gen_provider, cfg.gen_model)
+    same = (judge_prov, judge_mod) == (cfg.gen_provider, cfg.gen_model)
     if same:
         print("WARNING: judge and generator are the same model - faithfulness scores are self-graded.")
+    else:
+        print(f"Decoupled Evaluation: Generator={cfg.gen_provider} ({cfg.gen_model}) vs Judge={judge_prov} ({judge_mod})", flush=True)
+
     missing = [q["id"] for q in questions if q["category"] in ANSWERABLE and not q.get("evidence")]
     if missing:
         raise SystemExit(f"questions without `evidence` quotes (chunk-level labels required): {missing}")
@@ -222,17 +245,18 @@ def run_rag_evaluation(path: str = "data/eval_questions.json"):
               **{k2: (v or {}).get(k2) for k2 in (*SCORE_KEYS, "citation_accuracy")},
               "judge_evidence": {k2: (v or {}).get(k2 + "_evidence") for k2 in ("faithfulness", "correctness", "relevance", "citation")}}
         cases.append({"id": q["id"], "query": q["query"], "category": q["category"], "gold_answer": q["gold_answer"],
-                      "model_answer": res.answer, "citations": res.citations, "refused": is_refusal(res.answer, res.no_context),
-                      "no_context_triggered": res.no_context, "citation_validity": citation_validity(res.answer, len(texts)),
-                      "retrieval_ms": res.retrieval_ms, "generation_ms": res.generation_ms, "total_ms": res.total_ms,
-                      "input_tokens": res.input_tokens, "output_tokens": res.output_tokens,
-                      "retrieval_metrics": rm, "answer_metrics": am})
+                       "model_answer": res.answer, "citations": res.citations, "refused": is_refusal(res.answer, res.no_context),
+                       "no_context_triggered": res.no_context, "citation_validity": citation_validity(res.answer, len(texts)),
+                       "retrieval_ms": res.retrieval_ms, "generation_ms": res.generation_ms, "total_ms": res.total_ms,
+                       "input_tokens": res.input_tokens, "output_tokens": res.output_tokens,
+                       "retrieval_metrics": rm, "answer_metrics": am})
         print(f"[{i}/{len(questions)}] {q['id']} {q['category']}: refused={cases[-1]['refused']} "
               f"hit={rm.get('hit')} f={am['faithfulness']} c={am['correctness']}", flush=True)
 
     meta = {"embed_model": cfg.embed_model, "embed_dim": cfg.embed_dim, "chunk_size": cfg.chunk_size,
             "chunk_overlap": cfg.chunk_overlap, "min_score": cfg.min_score, "generator": cfg.gen_model,
-            "judge": jcfg.judge_model, "judge_equals_generator": same,
+            "generator_provider": cfg.gen_provider, "judge": judge_mod, "judge_provider": judge_prov,
+            "judge_equals_generator": same,
             "judge_calls": judge.calls, "judge_input_tokens": judge.input_tokens, "judge_output_tokens": judge.output_tokens,
             "corpus_chunks": len(corpus)}
     out = {"summary": build_summary(cases, cfg.k, meta), "cases": cases}

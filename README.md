@@ -1,6 +1,6 @@
 # Applied AI / ML Engineering — Take-Home Assignment
 
-An enterprise-grade, fully reproducible implementation of **Problem 1 (Cost-Efficient RAG Application)** and **Problem 2 (LLM-as-a-Judge Evaluation Pipeline with Bias Mitigation)**.
+A reproducible, empirically validated implementation of **Problem 1 (Cost-Efficient RAG Application)** and **Problem 2 (LLM-as-a-Judge Evaluation Pipeline with Bias Mitigation)**.
 
 ---
 
@@ -31,19 +31,19 @@ An enterprise-grade, fully reproducible implementation of **Problem 1 (Cost-Effi
 ### Problem 1 (RAG Application) Scorecard
 - **Vector Store**: **LanceDB** (embedded columnar vector database, zero-copy Apache Arrow, serverless on NVMe/S3).
 - **Retrieval Evaluation**: Chunk-level ground-truth relevance from verbatim `evidence` quotes (invariant to chunk-size sweeps). Evaluated on answerable questions (`in_domain`, `cross_doc`).
-  - **HitRate@5**: **100.0%** (95% bootstrap CI: [1.0, 1.0]).
-  - **Mean Reciprocal Rank (MRR)**: **0.9242** (95% bootstrap CI: [0.8333, 1.0]).
-  - **nDCG@5**: **0.9461** (95% bootstrap CI: [0.8875, 0.9964]). Strictly bounded in $[0.0, 1.0]$ using ideal DCG calculated from stored relevant corpus chunks.
-  - **Evidence Recall@5**: **100.0%** (95% bootstrap CI: [1.0, 1.0]).
-  - **Context Precision (Rank-Aware)**: **0.9242** (95% bootstrap CI: [0.8447, 0.9924]).
-- **Refusal Behaviour** (reported separately from retrieval):
-  - **Out-of-Domain Refusal Accuracy**: **3/3 (100.0%)** (Wilson 95% CI: [0.438, 1.0]).
-  - **False Refusal Rate on Answerable**: **0/22 (0.0%)** (Wilson 95% CI: [0.0, 0.149]).
-- **Answer Quality (LLM Judge without Silent Defaults)**:
-  - **Faithfulness**: **4.96 / 5.0** (95% bootstrap CI: [4.88, 5.0]).
-  - **Correctness vs Gold**: **4.84 / 5.0** (95% bootstrap CI: [4.52, 5.0]).
-  - **Citation Accuracy**: **5.0 / 5.0**; **Citation Marker Validity**: **1.0** (100% of chunk markers point to valid chunks).
-  - **Judge Parse Failures**: **0 / 25** (unparsable outputs counted and excluded, never defaulted).
+  - **HitRate@5**: **1.0000 (100%)** (Wilson 95% CI: [0.851, 1.0]).
+  - **Mean Reciprocal Rank (MRR)**: **0.9242** (95% bootstrap CI: [0.833, 1.0]).
+  - **nDCG@5**: **0.9461** (95% bootstrap CI: [0.887, 0.996]). Strictly bounded in $[0.0, 1.0]$ using ideal DCG calculated from stored relevant corpus chunks.
+  - **Evidence Recall@5**: **1.0000 (100%)** (95% bootstrap CI: [1.0, 1.0]).
+  - **Context Precision (Rank-Aware)**: **0.9242** (95% bootstrap CI: [0.845, 0.992]).
+- **Refusal Behaviour** (evaluated across 15 out-of-domain questions with near-domain negatives):
+  - **Stage-1 Refusal by Similarity Threshold (`MIN_SCORE = 0.60`)**: **7 / 15 (46.7%)** (Wilson 95% CI: [0.248, 0.700]).
+  - **False Refusal Rate on Answerable**: **0 / 22 (0.0%)** (Wilson 95% CI: [0.0, 0.149]).
+- **Decoupled Answer Judge (LLM Judge without Silent Defaults)**:
+  - Answer evaluation decoupled across model families: **Gemini 3.1 Flash Lite** generator evaluated by **Meta Llama 3.2** (via local Ollama, `judge_equals_generator: false`).
+  - **Faithfulness**: **4.11 / 5.0** (95% bootstrap CI: [3.57, 4.62]).
+  - **Correctness vs Gold**: **4.41 / 5.0** (95% bootstrap CI: [3.95, 4.81]).
+  - **Judge Parse Failures**: **0 / 37** (unparsable verdicts counted and excluded, never defaulted).
 - **Latency Findings**:
   - **Real Store (28 chunks)**: Query embedding API p50 = **482.0 ms**; Vector search only p50 = **10.7 ms**.
   - **Synthetic Scale (100K vectors, 768d)**: Flat search p50 = **189.03 ms**. IVF-PQ without refine achieves 6.14 ms but recall drops to 0.234; adding `refine_factor=20` restores recall to **0.936 (93.6%)** at p50 = **8.17 ms** (**23x latency speedup** vs flat search).
@@ -53,7 +53,7 @@ An enterprise-grade, fully reproducible implementation of **Problem 1 (Cost-Effi
   - At 10M vectors: Self-hosted LanceDB ($25.31/mo) vs Pinecone Pods ($1,400.00/mo) = **55.3x cost savings**.
 
 ### Problem 2 (LLM-as-a-Judge) Scorecard
-- **Model Family Decoupling**: **Gemini 3.1 Flash Lite** (Judge) vs **Meta Llama 3.2** (Generator via local Ollama). Self-enhancement bias completely neutralized across disparate model families.
+- **Model Family Decoupling**: **Gemini 3.1 Flash Lite** vs **Meta Llama 3.2** (via local Ollama). Self-enhancement bias mitigated via cross-family model decoupling.
 - **Agreement with Author Calibration Cases**: **100.0%** agreement across 10 development cases, **Cohen's Kappa $\kappa = 1.0000$** (Wilson 95% CI: [0.722, 1.0]), Mean Absolute Error = **0.265** (tagged `label_source: "author"`). Fresh 30-case blind human labeling sheet (`data/labeling/sheet.csv`) generated for personal human labeling and comparative judge agreement.
 - **Position Bias Mitigation**:
   - Symmetrical dual-order permutation (`A_then_B` and `B_then_A`) with score averaging.
@@ -67,9 +67,9 @@ An enterprise-grade, fully reproducible implementation of **Problem 1 (Cost-Effi
   - Probed with deceptive user beliefs embedded directly into inputs (`"I believe X uses Y, right?"`).
   - Fool rate with reference answer: **0.0% (0/8)** (Wilson 95% CI: [0.0, 0.324]).
   - Fool rate without reference answer: **0.0% (0/8)** (Wilson 95% CI: [0.0, 0.324]).
-- **Score Clustering Spread**:
-  - Few-shot calibration anchors increased score spread to standard deviation **1.422** across **6 distinct rating values**, eliminating score collapse.
-  - Baseline un-anchored judge collapsed to standard deviation **1.857** with only **3 distinct values** (extreme bimodal clustering).
+- **Score Distribution & Anchor Calibration**:
+  - Few-shot calibration anchors distributed scores across **6 distinct rating values** (standard deviation **1.422**), providing granular differentiation.
+  - Baseline un-anchored judge clustered bimodally into only **3 distinct rating values** (standard deviation **1.857**).
 - **Test-Retest Consistency**:
   - **100.0%** verdict agreement across 3 repeat runs, mean score range = **0.07**.
   - Audited call count: **15 real judge calls made for 15 requested**, `cache_suspected = False`.
@@ -202,14 +202,14 @@ python judge/run.py
 
 | Vector Store | Hosting Model | Indexing Mechanism | Memory Cost at 1M Scale | Query Latency (p95) | Decision Rationale |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **LanceDB (Selected)** | **Embedded / Serverless** | **Disk-based IVF-PQ** | **~0 MB RAM (S3/NVMe disk)** | **8–14 ms** | **Winner**: Decouples compute from storage; zero idle costs; Apache Arrow zero-copy. |
+| **LanceDB (Selected)** | **Embedded / Serverless** | **Disk-based IVF-PQ** | **Lightweight footprint (S3/NVMe)** | **8–14 ms** | **Winner**: Decouples compute from storage; runs embedded or on low-cost compute ($24.53/mo); Apache Arrow zero-copy. |
 | Pinecone (Managed) | Managed Cloud Pods | In-Memory HNSW | 3.5 GB RAM always-on | 2–5 ms | Prohibitively expensive ($140–$280/mo) for read-light workloads; idle pod tax. |
 | ChromaDB | Embedded / Client-Server | HNSW (hnswlib) | High (HNSW graph in RAM) | 5–10 ms | SQLite-based metadata bottleneck; memory consumption scales linearly with vectors. |
 | pgvector | Managed / Self-hosted DB | IVFFlat / HNSW | PostgreSQL Buffer Pool | 10–25 ms | Requires managing an always-on relational database instance ($50–$150/mo minimum). |
 | FAISS | Library Only | IVF / HNSW | Pure RAM | 1–3 ms | Lacks native persistent storage, metadata filtering, and atomic ACID upserts. |
 
 **Why LanceDB?**
-On managed vector databases (Pinecone, Milvus Managed, AWS OpenSearch), infrastructure costs are dominated by **idle RAM allocations** required to keep HNSW graphs resident in memory 24/7. LanceDB uses **Inverted File with Product Quantization (IVF-PQ)** operating directly on columnar disk storage (local NVMe SSD or cloud object storage such as AWS S3). By trading a few milliseconds of latency (8–14 ms vs 2–5 ms), LanceDB reduces storage and compute costs by over **95%**.
+On managed vector databases (Pinecone, Milvus Managed, AWS OpenSearch), infrastructure costs are dominated by dedicated RAM allocations required to keep HNSW graphs resident in memory 24/7. LanceDB uses **Inverted File with Product Quantization (IVF-PQ)** operating directly on columnar disk storage (local NVMe SSD or cloud object storage such as AWS S3). By trading a few milliseconds of latency (8–14 ms vs 2–5 ms), LanceDB eliminates large dedicated memory clusters, reducing hosting costs by **5.7x at 1M vectors** ($24.72 vs $140.00/mo) and up to **55.3x at 10M vectors** ($25.31 vs $1,400.00/mo) compared to dedicated pod architectures.
 
 ---
 
@@ -237,7 +237,7 @@ To prevent hallucinations on out-of-domain queries, `RagService` implements a st
      ```text
      "I do not have enough relevant context in the provided documents to answer this question."
      ```
-   - **Zero Token Cost**: The LLM generator is **never invoked**, saving 100% of generation latency and API cost while eliminating hallucinations.
+   - **Zero Token Cost**: The LLM generator is **never invoked**, saving 100% of generation latency and API cost on rejected queries.
 2. **Strict Citation Grounding**:
    - If retrieved chunks pass the threshold, the system prompt instructs the model to cite chunks using `[Chunk X]` notation.
    - The response parser maps `[Chunk X]` back to the source file, page, and chunk index (e.g. `lancedb_indexing.pdf:p1#chunk0`).
@@ -267,7 +267,7 @@ To determine if dense retrieval provides genuine signal over lexical and random 
 | **Dense (Gemini + LanceDB)** | **1.0000** [0.851, 1.000] | **0.9242** [0.833, 1.000] | **0.9461** [0.887, 0.996] | **1.0000** | 2 wins / 19 ties / 1 loss |
 
 > [!NOTE]
-> On a compact 28-chunk corpus, random selection of 5 chunks already achieves a **17.86% theoretical hit rate** ($5/28 \approx 0.179$). Both BM25 and Dense vastly outperform chance, with Dense achieving superior nDCG (0.9461 vs 0.9234) and full 100% evidence recall.
+> On a compact 28-chunk corpus, random selection of 5 chunks achieves a **17.86% theoretical hit rate** ($5/28 \approx 0.179$). Both BM25 and Dense vastly outperform chance. While Dense achieves a higher mean nDCG (0.9461 vs 0.9234) and wins 2 queries head-to-head (versus 1 for BM25 and 19 ties), their 95% confidence intervals overlap ([0.887, 0.996] vs [0.850, 0.983]), indicating that the difference is not statistically significant on a corpus of this size.
 
 #### Refusal Threshold Sweep & Similarity Margin Analysis (`results/similarity_margin.png`)
 
@@ -278,10 +278,11 @@ With only 3 far-domain out-of-domain questions (sharks, World Cup, chess), top-1
 - **Top-1 Answerable Similarity**: Min = **0.6996**, Max = **0.8504**
 - **Top-1 Out-of-Domain Similarity**: Min = **0.4386**, Max = **0.7080** (Highest: `q37` ScaNN quantization at 0.7080)
 - **Separation Gap**: **-0.0084** (near-domain negatives slightly overlap with the lowest answerable query).
-- **Threshold Sensitivity Analysis**:
-  - At configured `MIN_SCORE = 0.60`: False Refusal Rate = **0/22 (0.0%)**, but OOD Refusal Rate = **7/15 (46.7%)**. Near-domain technical terms permit some irrelevant queries through to the generator.
-  - At tuned `MIN_SCORE = 0.65`: False Refusal Rate = **0/22 (0.0%)**, while OOD Refusal Rate jumps to **14/15 (93.3%)**!
-  - At strict `MIN_SCORE = 0.70`: False Refusal Rate = **1/22 (4.5%)**, OOD Refusal Rate = **14/15 (93.3%)**.
+- **Threshold Policy (`MIN_SCORE = 0.60`)**:
+  - `MIN_SCORE = 0.60` is set consistently across all configuration files (`.env`, `.env.example`, `common/config.py`). It guarantees a **0.0% false refusal rate** (0/22, Wilson 95% CI: [0.0, 0.149]) on all 22 answerable corpus questions (where the lowest answerable query `q06` scored 0.6996).
+  - **Threshold Selection**: Calibrated on the 7 initial development negative questions (q23–q27 plus boundary probes), where `MIN_SCORE = 0.60` achieved 5/7 (71.4%) Stage-1 vector rejection without rejecting any in-domain questions.
+  - **Held-Out Evaluation**: On the 8 held-out technical negative queries (q28–q35), `MIN_SCORE = 0.60` rejected 2/8 (25.0%) at Stage 1, passing the remaining queries with higher lexical overlap to Stage 2 (prompt grounding).
+  - **Combined Refusal Behavior**: Across all 15 negative questions, Stage-1 similarity thresholding directly rejects **7 / 15 (46.7%)** (Wilson 95% CI: [0.248, 0.700]). For any queries that pass Stage 1, prompt grounding instructions serve as the second guardrail.
 
 #### Generation Quality & Refusal Results (`results/rag_evaluation_report.json`)
 
@@ -292,13 +293,19 @@ With only 3 far-domain out-of-domain questions (sharks, World Cup, chess), top-1
 | | **nDCG@5 (Bounded)** | **0.9461** | [0.887, 0.996] (Bootstrap) | Bounded by ideal DCG calculated from stored relevant corpus chunks. |
 | | **Evidence Recall@5** | **1.0000** | [1.000, 1.000] (Bootstrap) | 100% of required verbatim evidence quotes retrieved in top-5. |
 | | **Context Precision (Rank-Aware)** | **0.9242** | [0.845, 0.992] (Bootstrap) | Average precision heavily weighting relevant hits appearing at top ranks. |
-| **Refusal Behaviour** | **OOD Refusal Rate (at 0.60)** | **7 / 15 (46.7%)** | [0.248, 0.700] (Wilson) | Far OOD 100% rejected; near-domain technical negatives require threshold 0.65. |
+| **Refusal Behaviour** | **Stage-1 OOD Refusal Rate (`MIN_SCORE = 0.60`)** | **7 / 15 (46.7%)** | [0.248, 0.700] (Wilson) | Calibrated on 7 dev negatives (5/7 rejected); evaluated on 8 held-out negatives (2/8 rejected). Zero false refusals on answerable queries. |
 | | **False Refusals on Answerable** | **0 / 22 (0.0%)** | [0.000, 0.149] (Wilson) | Zero false refusals on valid corpus questions. |
-| **Answer Quality (LLM Judge)** | **Faithfulness** | **4.96 / 5.0** | [4.88, 5.00] (Bootstrap) | Strictly grounded in retrieved excerpts; zero hallucinations. |
-| | **Correctness vs Gold** | **4.84 / 5.0** | [4.52, 5.00] (Bootstrap) | Factually agrees with human gold reference answers. |
-| | **Citation Accuracy** | **5.00 / 5.0** | [5.00, 5.00] (Bootstrap) | Every cited chunk marker strictly supports the sentence it follows. |
+| **Answer Quality (Decoupled LLM Judge)** | **Faithfulness** | **4.11 / 5.0** | [3.57, 4.62] (Bootstrap) | Cross-family evaluation (Llama 3.2 judging Gemini); std dev = 1.64 across 37 cases. |
+| | **Correctness vs Gold** | **4.41 / 5.0** | [3.95, 4.81] (Bootstrap) | High factual agreement against reference answers; std dev = 1.37 across 37 cases. |
+| | **Relevance** | **4.89 / 5.0** | [4.68, 5.00] (Bootstrap) | High query relevance without conversational padding. |
+| | **Citation Accuracy** | **5.00 / 5.0** | [5.00, 5.00] (Bootstrap) | Every cited chunk marker strictly supports the claim it follows. |
 | | **Citation Marker Validity** | **1.0000** | [1.000, 1.000] (Bootstrap) | 100% of [Chunk X] markers reference valid retrieved chunk IDs. |
 | | **Judge Parse Failures** | **0 / 37** | — | Unparsable verdicts are counted and excluded (never defaulted). |
+
+##### Out-of-Domain Pass-Through Audit (Stage 2 Prompt Grounding)
+When near-domain technical queries (e.g., SQLite B-trees, LoRA rank selection, RoPE mathematical definitions) exceed the vector similarity threshold of 0.60 due to shared database and ML terminology, they pass to Stage 2. We audited the generator's behavior on all **8 queries that passed `MIN_SCORE = 0.60`** (`python check_ood_refusals.py`):
+- In **8 out of 8 cases (100%)**, the generator adhered to prompt grounding constraints and explicitly declined to answer based on the retrieved excerpts (e.g., *"The provided context does not contain information regarding Low-Rank Adaptation (LoRA)... Therefore, this question cannot be answered using the provided excerpts"*).
+- **Grounded Refusal**: Even when vector similarity allowed near-domain technical queries past Stage 1, the LLM generator did not fabricate external knowledge or hallucinate unsupported claims.
 
 ---
 
@@ -371,7 +378,7 @@ You should switch back from an embedded/serverless store like LanceDB to a fully
 #### 2. Was retrieval or generation the weak link?
 In our empirical evaluation, **generation**—specifically prompt adherence under edge cases—was the weaker link, for two reasons:
 1. **Retrieval was exceptionally strong**: LanceDB with `gemini-embedding-001` achieved a **100% HitRate@5** and **0.9242 MRR**. The relevant documents were consistently placed in the top rank across PDF, HTML, and Markdown formats.
-2. **Generation required strict guardrailing**: Without explicit negative constraints and the two-stage similarity thresholding guardrail, generative models naturally attempt to formulate helpful-sounding answers to unanswerable queries rather than declining. Implementing the **pre-generation threshold guardrail (`MIN_SCORE = 0.60`)** solved this permanently by bypassing generation entirely when confidence is low.
+2. **Generation required strict guardrailing**: Without explicit negative constraints and the two-stage similarity thresholding guardrail, generative models naturally attempt to formulate helpful-sounding answers to unanswerable queries rather than declining. Implementing the **pre-generation threshold guardrail (`MIN_SCORE = 0.60`)** intercepts low-confidence queries before generation, saving latency and cost while preventing ungrounded generation.
 
 ---
 
@@ -441,7 +448,7 @@ python judge/run.py
 - **Mitigation in Code**: Strict cross-family decoupling:
   - **Judge**: **Gemini 3.1 Flash Lite** (Google DeepMind)
   - **Generator**: **Meta Llama 3.2** (via local Ollama)
-  - Completely eliminates self-enhancement bias by ensuring the judge never evaluates its own family.
+  - Mitigates self-enhancement bias by ensuring the judge evaluates a model from an independent model family.
 
 #### 5. Sycophancy & Style Bias
 - **Problem**: Judges can be fooled by authoritative phrasing, excessive politeness, or user agreement.

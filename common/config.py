@@ -53,7 +53,7 @@ class RagConfig:
             chunk_size=int(_env("CHUNK_SIZE", "800")),
             chunk_overlap=int(_env("CHUNK_OVERLAP", "100")),
             k=int(_env("RETRIEVAL_K", "5")),
-            min_score=float(_env("MIN_SCORE", "0.0")),
+            min_score=float(_env("MIN_SCORE", "0.60")),
         )
 
 
