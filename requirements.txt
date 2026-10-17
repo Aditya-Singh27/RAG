@@ -1,0 +1,13 @@
+lancedb>=0.40
+pyarrow
+numpy
+pypdf
+beautifulsoup4
+pyyaml
+pydantic>=2
+fastapi
+uvicorn
+httpx
+google-genai
+openai
+pytest
