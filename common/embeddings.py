@@ -7,6 +7,8 @@ import re
 from typing import Protocol
 
 import numpy as np
+from common.config import _load_dotenv
+_load_dotenv()
 
 
 class Embedder(Protocol):

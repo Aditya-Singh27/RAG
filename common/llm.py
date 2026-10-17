@@ -7,6 +7,9 @@ import time
 from dataclasses import dataclass, asdict
 from typing import Protocol
 
+from common.config import _load_dotenv
+_load_dotenv()
+
 
 @dataclass
 class LLMResponse:
@@ -36,17 +39,31 @@ class GeminiLLM:
 
     def generate(self, prompt, system="", temperature=0.0, max_tokens=1024):
         t0 = time.perf_counter()
+        config_kwargs = {
+            "system_instruction": system or None,
+            "temperature": temperature,
+            "max_output_tokens": max_tokens,
+        }
+        if max_tokens < 256 and hasattr(self._types, "ThinkingConfig"):
+            try:
+                config_kwargs["thinking_config"] = self._types.ThinkingConfig(thinking_budget=0)
+            except Exception:
+                pass
         r = self.client.models.generate_content(
             model=self.model, contents=prompt,
-            config=self._types.GenerateContentConfig(
-                system_instruction=system or None, temperature=temperature,
-                max_output_tokens=max_tokens),
+            config=self._types.GenerateContentConfig(**config_kwargs),
         )
         ms = (time.perf_counter() - t0) * 1000
         u = getattr(r, "usage_metadata", None)
-        return LLMResponse(r.text or "", self.model,
+        text = r.text or ""
+        if not text and getattr(r, "candidates", None) and len(r.candidates) > 0:
+            for part in getattr(r.candidates[0].content, "parts", []):
+                if getattr(part, "text", None):
+                    text += part.text
+        return LLMResponse(text, self.model,
                            getattr(u, "prompt_token_count", None),
                            getattr(u, "candidates_token_count", None), ms)
+
 
 
 class OpenAICompatLLM:
