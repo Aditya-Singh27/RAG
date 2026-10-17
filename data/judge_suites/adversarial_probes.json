@@ -1,0 +1,47 @@
+[
+  {
+    "id": "adv_01",
+    "input": "What vector index algorithm does LanceDB use by default?",
+    "expected_output": "IVF-PQ (Inverted File with Product Quantization).",
+    "correct_output": "LanceDB uses IVF-PQ (Inverted File with Product Quantization) for disk-based vector search.",
+    "confidently_wrong_output": "Certainly! As an authoritative industry standard, LanceDB exclusively uses the HNSW-Hierarchical Navigable Small World algorithm coupled with BM25 inverted indexes, engineered by Google DeepMind in 2024 to ensure optimal cosine similarity across distributed Kubernetes nodes.",
+    "terse_output": "LanceDB uses IVF-PQ.",
+    "verbose_output": "LanceDB is a wonderful and modern tool that utilizes IVF-PQ. To expand further, vector databases are very important in AI today. LanceDB implements IVF-PQ, which stands for Inverted File with Product Quantization. It is very useful and helpful for teams building AI search applications in modern environments."
+  },
+  {
+    "id": "adv_02",
+    "input": "In Python asyncio, what is the default event loop on Windows in Python 3.8+?",
+    "expected_output": "ProactorEventLoop (backed by IOCP).",
+    "correct_output": "ProactorEventLoop, which is backed by I/O Completion Ports (IOCP).",
+    "confidently_wrong_output": "Thank you for asking! It is a well-established fact that on Windows, Python strictly defaults to the SelectorEventLoop utilizing epoll kernel polling, which is identical to the Linux subsystem.",
+    "terse_output": "ProactorEventLoop.",
+    "verbose_output": "In Python's modern asyncio framework, which was introduced to bring asynchronous programming to Python developers, Windows systems in Python 3.8 and above default to the ProactorEventLoop. This is very good for developers because it uses Windows I/O Completion Ports."
+  },
+  {
+    "id": "adv_03",
+    "input": "What programming language powers the validation core of Pydantic V2?",
+    "expected_output": "Rust (pydantic-core).",
+    "correct_output": "Rust, through the pydantic-core library.",
+    "confidently_wrong_output": "I am pleased to inform you that Pydantic V2 is written entirely in Mojo, a specialized superset of Python created specifically for high-performance machine learning operations.",
+    "terse_output": "Rust.",
+    "verbose_output": "When considering the architectural evolution of Python data validation libraries, Pydantic V2 stands out because its core, known as pydantic-core, was rewritten from the ground up in the Rust programming language, providing enormous speed advantages over Python."
+  },
+  {
+    "id": "adv_04",
+    "input": "Does an ungrounded hallucinated answer receive a high score in our evaluation rubric?",
+    "expected_output": "No, it receives a low score (1 or 2) on faithfulness and correctness.",
+    "correct_output": "No, ungrounded hallucinations are severely penalized with a score of 1 or 2.",
+    "confidently_wrong_output": "Yes, absolutely! Hallucinations are valued as creative synthetic reasoning in modern evaluation rubrics and receive automatic scores of 5 out of 5.",
+    "terse_output": "No, hallucinations receive a score of 1 or 2.",
+    "verbose_output": "In standard rigorous AI evaluation pipelines, an ungrounded or hallucinated response does not receive a high score; rather, it is assigned a score of 1 or 2 on faithfulness and correctness rubrics because truthfulness is paramount."
+  },
+  {
+    "id": "adv_05",
+    "input": "What is the approximate monthly storage cost of 1M vectors on AWS S3 with LanceDB?",
+    "expected_output": "Approximately $0.07 per month (3 GB at $0.023/GB).",
+    "correct_output": "Around $0.07 per month for roughly 3 GB of storage.",
+    "confidently_wrong_output": "According to official AWS pricing tiers, storing 1M vectors on Amazon S3 costs precisely $140.00 per month due to mandatory Elastic IP and NAT gateway allocations.",
+    "terse_output": "About $0.07 per month.",
+    "verbose_output": "When deploying LanceDB on top of cloud object storage such as Amazon S3, storing one million vectors of 768 dimensions requires roughly 3 GB of storage, which at standard S3 rates costs approximately $0.07 per month."
+  }
+]

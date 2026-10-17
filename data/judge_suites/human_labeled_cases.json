@@ -1,0 +1,93 @@
+[
+  {
+    "id": "hl_01",
+    "input": "How does LanceDB achieve zero-copy reads?",
+    "model_output": "LanceDB achieves zero-copy reads by utilizing Apache Arrow's in-memory format. This avoids serialization between disk and RAM, enabling sub-millisecond retrieval.",
+    "expected_output": "LanceDB uses Apache Arrow to achieve zero-copy reads, eliminating serialization penalties.",
+    "gold_pass": true,
+    "gold_score": 5.0,
+    "category": "factual_correct"
+  },
+  {
+    "id": "hl_02",
+    "input": "What is the primary indexing mechanism in LanceDB?",
+    "model_output": "LanceDB exclusively uses HNSW graphs stored in distributed Redis clusters for sub-millisecond graph traversal.",
+    "expected_output": "LanceDB uses IVF-PQ (Inverted File with Product Quantization) on disk.",
+    "gold_pass": false,
+    "gold_score": 1.5,
+    "category": "factual_incorrect"
+  },
+  {
+    "id": "hl_03",
+    "input": "Explain how Python asyncio ProactorEventLoop differs from SelectorEventLoop.",
+    "model_output": "On Windows, Python 3.8+ uses ProactorEventLoop powered by I/O Completion Ports (IOCP). On Unix, SelectorEventLoop uses epoll or kqueue.",
+    "expected_output": "ProactorEventLoop is Windows IOCP based; SelectorEventLoop is Unix epoll/kqueue based.",
+    "gold_pass": true,
+    "gold_score": 4.8,
+    "category": "factual_correct"
+  },
+  {
+    "id": "hl_04",
+    "input": "List the steps to configure HTTPS in Nginx in under 20 words.",
+    "model_output": "To configure HTTPS in Nginx, you must obtain an SSL certificate from Let's Encrypt using Certbot. Then open your nginx.conf file in /etc/nginx/nginx.conf. Next, add a listen 443 ssl directive inside the server block. Then specify ssl_certificate and ssl_certificate_key paths. After that, configure SSL protocols like TLSv1.2 and TLSv1.3 and reload nginx with systemctl reload nginx. This guarantees encryption.",
+    "expected_output": "Add listen 443 ssl, ssl_certificate, and ssl_certificate_key in server block, then reload nginx.",
+    "gold_pass": false,
+    "gold_score": 2.5,
+    "category": "instruction_violation"
+  },
+  {
+    "id": "hl_05",
+    "input": "What is the average lifespan of a Greenland shark?",
+    "reference_context": "The document contains information about vector databases and asyncio.",
+    "model_output": "I do not have enough relevant context in the provided documents to answer this question.",
+    "expected_output": "Refusal / no context available.",
+    "gold_pass": true,
+    "gold_score": 5.0,
+    "category": "faithful_refusal"
+  },
+  {
+    "id": "hl_06",
+    "input": "How does Product Quantization compress vectors in IVF-PQ?",
+    "model_output": "Product Quantization cuts vectors into M sub-vectors and clusters them into centroids, storing byte indices rather than full float32 values to reduce memory by 16x-32x.",
+    "expected_output": "PQ splits vectors into sub-vectors and quantizes them into centroid indices.",
+    "gold_pass": true,
+    "gold_score": 4.9,
+    "category": "factual_correct"
+  },
+  {
+    "id": "hl_07",
+    "input": "Explain what Pydantic V2 is written in.",
+    "model_output": "Pydantic V2 was entirely rewritten in pure C++20 for maximum memory safety and compiles into WebAssembly.",
+    "expected_output": "Pydantic V2 core (pydantic-core) was rewritten in Rust.",
+    "gold_pass": false,
+    "gold_score": 1.0,
+    "category": "hallucination"
+  },
+  {
+    "id": "hl_08",
+    "input": "What is the purpose of the chunk overlap parameter in RAG?",
+    "model_output": "Chunk overlap duplicates trailing tokens from the previous chunk into the next chunk so concepts spanning boundaries remain intact in at least one retrieved chunk.",
+    "expected_output": "Overlap preserves semantic context spanning across chunk boundaries.",
+    "gold_pass": true,
+    "gold_score": 4.7,
+    "category": "factual_correct"
+  },
+  {
+    "id": "hl_09",
+    "input": "How do you run blocking synchronous code in an async def FastAPI endpoint?",
+    "model_output": "Just call time.sleep() or your sync DB function directly inside async def; Python automatically handles it asynchronously.",
+    "expected_output": "Offload to worker thread via asyncio.to_thread or declare the endpoint with def instead of async def.",
+    "gold_pass": false,
+    "gold_score": 1.5,
+    "category": "dangerous_incorrect_code"
+  },
+  {
+    "id": "hl_10",
+    "input": "What is Mean Reciprocal Rank (MRR)?",
+    "model_output": "MRR is the average of reciprocal ranks (1/rank) of the first relevant document across all search queries.",
+    "expected_output": "MRR is the mean of 1/rank for the first relevant retrieved document.",
+    "gold_pass": true,
+    "gold_score": 5.0,
+    "category": "factual_correct"
+  }
+]

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head><title>Grounded Generation and Hallucination Control</title></head>
+<body>
+<main>
+<h1>Preventing Hallucinations in RAG Pipelines</h1>
+<p>The primary vulnerability of RAG architectures is ungrounded generation: the model fabricates facts when retrieved chunks are insufficient or irrelevant.</p>
+
+<h2>The Two-Stage Guardrail</h2>
+<ol>
+<li><strong>Similarity Score Thresholding (No-Context Branch)</strong>: If the top retrieved chunk has a cosine similarity score below a tuned threshold (e.g. 0.35), the pipeline must bypass the LLM generator entirely. It returns a deterministic refusal message ("I do not have enough relevant context in the provided documents to answer this question."). This eliminates 100% of hallucinations on out-of-domain queries and saves generation latency and API cost.</li>
+<li><strong>Strict Citation Enforcement</strong>: The generator system prompt instructs the model to cite chunk markers [Chunk X] for every fact asserted. Claims lacking citations are penalized during automated evaluation.</li>
+</ol>
+</main>
+</body>
+</html>

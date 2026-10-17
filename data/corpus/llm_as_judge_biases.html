@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head><title>LLM-as-a-Judge Bias Taxonomies and Mitigations</title></head>
+<body>
+<nav><a href="/">Home</a></nav>
+<main>
+<h1>Biases in LLM-as-a-Judge Evaluation Systems</h1>
+<p>Using large language models as automated judges offers scalable evaluation, but models exhibit well-documented systematic biases that distort quality scores if left unmitigated.</p>
+
+<section>
+<h2>1. Position Bias in Pairwise Evaluation</h2>
+<p>When presenting two model outputs (Model A vs Model B) to a judge, judges frequently favor the first candidate (Option A) due to primacy effects, or occasionally the second candidate (Option B) due to recency effects.</p>
+<p><strong>Mitigation:</strong> Run every evaluation pair twice with swapped order: Order 1 (A then B) and Order 2 (B then A). Measure the position flip rate. Require both evaluations to agree, or compute the average score across both orientations.</p>
+</section>
+
+<section>
+<h2>2. Verbosity and Length Bias</h2>
+<p>Judges inherently correlate response length with thoroughness and quality. A verbose response filled with padding or repetitive elaboration often scores higher than a concise, direct answer.</p>
+<p><strong>Mitigation:</strong> Define explicit rubrics that penalize unsupported elaboration. Use adversarial probes (verbose-but-incorrect vs terse-and-correct) to validate that the judge rewards precision over token volume.</p>
+</section>
+
+<section>
+<h2>3. Self-Enhancement Bias</h2>
+<p>LLM judges consistently assign higher ratings to outputs produced by their own model family (e.g. GPT judging GPT, Gemini judging Gemini) due to shared token distributions and stylistic habits.</p>
+<p><strong>Mitigation:</strong> Strictly decouple the judge model family from the generator model family (e.g. Gemini judging Llama 3.2, or an ensemble of independent models).</p>
+</section>
+
+<section>
+<h2>4. Sycophancy and Style Bias</h2>
+<p>Judges can be deceived by an authoritative, polished, or overly apologetic tone, overlooking factual falsehoods.</p>
+<p><strong>Mitigation:</strong> Force structured per-criterion grounding with separate reasoning steps before assigning numerical scores.</p>
+</section>
+</main>
+<footer>Copyright 2026 AI Evaluation Labs</footer>
+</body>
+</html>

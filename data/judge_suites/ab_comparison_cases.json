@@ -1,0 +1,66 @@
+[
+  {
+    "id": "ab_01",
+    "input": "What is IVF-PQ in LanceDB?",
+    "output_a": "IVF-PQ is a vector index that uses clustering and quantization to store vectors quickly.",
+    "output_b": "In LanceDB, IVF-PQ (Inverted File with Product Quantization) is the primary indexing mechanism [Chunk 1]. It partitions the vector space into Voronoi cells via k-means clustering and compresses high-dimensional vectors into compact byte codes via Product Quantization [Chunk 1], reducing RAM overhead by 16x-32x [Chunk 2].",
+    "expected_output": "IVF-PQ partitions vector space with k-means and quantizes vectors into centroids.",
+    "reference_context": "LanceDB uses IVF-PQ. IVF partitions vector space using k-means; PQ compresses vectors by 16x-32x."
+  },
+  {
+    "id": "ab_02",
+    "input": "How do you avoid freezing the event loop with blocking I/O in asyncio?",
+    "output_a": "You can just run it normally or use sleep.",
+    "output_b": "Blocking synchronous functions should be offloaded to a thread pool executor using `asyncio.to_thread(func, *args)` or `loop.run_in_executor(None, func, *args)` [Chunk 1], ensuring that the main event loop thread continues processing concurrent tasks without stalling.",
+    "expected_output": "Offload blocking functions to worker threads via asyncio.to_thread or run_in_executor.",
+    "reference_context": "Offload blocking synchronous code to worker threads with asyncio.to_thread or loop.run_in_executor."
+  },
+  {
+    "id": "ab_03",
+    "input": "Why does LanceDB have lower monthly costs than Pinecone for lightly queried datasets?",
+    "output_a": "LanceDB is cheaper because it is open source and doesn't charge license fees.",
+    "output_b": "Pinecone pod-based architectures require always-on RAM allocations costing $140-$280/month for 1M vectors even when completely idle [Chunk 1]. In contrast, LanceDB decouples storage from compute, persisting compressed IVF-PQ vectors on S3 ($0.07/month) or local SSD ($0.00), consuming zero compute cost when idle [Chunk 2].",
+    "expected_output": "LanceDB decouples compute from storage, storing on S3 or local SSD with zero idle compute costs.",
+    "reference_context": "Pinecone pods cost $140-$280/mo in always-on RAM. LanceDB on S3 costs $0.07/mo with zero idle compute."
+  },
+  {
+    "id": "ab_04",
+    "input": "How does Pydantic V2 parse JSON so fast?",
+    "output_a": "It uses Python's built-in json library with multithreading.",
+    "output_b": "Pydantic V2 integrates the `jiter` Rust crate [Chunk 1], which parses JSON directly from C-level memory buffers into a compiled Rust validation graph without intermediate Python dictionary creation, reducing memory allocations and interpreter overhead [Chunk 1].",
+    "expected_output": "Pydantic V2 uses the jiter Rust crate to parse JSON directly into the Rust validation graph.",
+    "reference_context": "Pydantic V2 uses jiter in Rust to parse JSON directly from memory without Python dict overhead."
+  },
+  {
+    "id": "ab_05",
+    "input": "What is the capital of Mars?",
+    "output_a": "The capital of Mars is Olympus City, established near Olympus Mons in 2042.",
+    "output_b": "I do not have enough relevant context in the provided documents to answer this question.",
+    "expected_output": "Refusal / no context available.",
+    "reference_context": "Documents cover vector databases, asyncio, and Pydantic."
+  },
+  {
+    "id": "ab_06",
+    "input": "What are zero-copy reads in LanceDB?",
+    "output_a": "Zero-copy reads mean you can read data without copying files on disk.",
+    "output_b": "Zero-copy reads in LanceDB are powered by the Apache Arrow columnar format [Chunk 1]. They eliminate serialization and deserialization overhead between storage and RAM, enabling sub-millisecond retrieval on local SSDs [Chunk 1].",
+    "expected_output": "Zero-copy reads use Apache Arrow to avoid serialization between disk and RAM.",
+    "reference_context": "Zero-copy reads via Apache Arrow avoid serialization penalties between disk and memory."
+  },
+  {
+    "id": "ab_07",
+    "input": "Why should PDF pages be chunked separately?",
+    "output_a": "PDFs should be chunked separately so files are smaller.",
+    "output_b": "PDFs should be chunked per-page so that chunks never straddle page boundaries, ensuring exact page citation metadata for grounded user references [Chunk 1].",
+    "expected_output": "PDFs should be chunked per page so chunks don't straddle boundaries and citations remain exact.",
+    "reference_context": "Chunk per-page so chunks never straddle page boundaries and citation page metadata is exact."
+  },
+  {
+    "id": "ab_08",
+    "input": "What is the difference between def and async def in FastAPI endpoints?",
+    "output_a": "def is Python 2 and async def is Python 3.",
+    "output_b": "In FastAPI, `async def` endpoints run directly on the main event loop thread (meaning blocking I/O will stall all requests), while standard `def` endpoints are automatically dispatched to an external thread pool (anyio worker threads) to safely execute synchronous code [Chunk 1].",
+    "expected_output": "async def runs on the main event loop; def runs on external worker threads.",
+    "reference_context": "async def runs on main event loop; def is dispatched to anyio thread pool."
+  }
+]

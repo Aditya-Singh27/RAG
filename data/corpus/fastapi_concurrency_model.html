@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head><title>FastAPI Concurrency and Dependency Injection</title></head>
+<body>
+<header>API Documentation</header>
+<article>
+<h1>FastAPI Asynchronous Architecture</h1>
+<p>FastAPI is a modern web framework built on top of Starlette and Pydantic that achieves performance on par with NodeJS and Go.</p>
+
+<h2>Path Operation Functions: async def vs def</h2>
+<p>FastAPI handles endpoints declared with <code>async def</code> differently from standard <code>def</code> endpoints:</p>
+<ul>
+<li><strong>async def</strong>: Executed directly on the main event loop thread. If an async endpoint executes blocking I/O (e.g. time.sleep or synchronous database calls), it blocks the entire event loop for all requests.</li>
+<li><strong>def</strong>: Automatically dispatched by FastAPI to an external thread pool (anyio worker threads). This allows blocking synchronous code to run without halting the event loop.</li>
+</ul>
+
+<h2>Dependency Injection (Depends)</h2>
+<p>FastAPI features a hierarchical Dependency Injection system. Dependencies can declare sub-dependencies, yield resources (enabling cleanup via context managers), and be shared across routers.</p>
+</article>
+</body>
+</html>

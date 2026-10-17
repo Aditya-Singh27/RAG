@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head><title>Vector Index Algorithms: HNSW vs IVF-PQ</title></head>
+<body>
+<main>
+<h1>Comparing Vector Index Algorithms</h1>
+<p>Approximate Nearest Neighbor (ANN) search relies on specialized vector indexing structures.</p>
+
+<h2>HNSW (Hierarchical Navigable Small World)</h2>
+<p>HNSW builds a multi-layer proximity graph where upper layers have long-range skips and lower layers have dense local connections. HNSW provides exceptional recall (95-99%) and low query latency (1-3ms), but consumes immense RAM (typically 1.5x to 2x the raw vector size) and has slow index build times.</p>
+
+<h2>IVF-PQ (Inverted File with Product Quantization)</h2>
+<p>IVF-PQ clusters vectors into Voronoi cells and quantizes vectors into small codebooks. IVF-PQ can operate directly from disk or compressed memory, reducing RAM requirements by 80-95% at the expense of a modest reduction in recall (85-92%) and slightly higher latency (5-15ms).</p>
+</main>
+</body>
+</html>

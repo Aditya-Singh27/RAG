@@ -1,0 +1,359 @@
+[
+  {
+    "id": "q01",
+    "query": "What is the primary vector indexing mechanism used in LanceDB and how does it work?",
+    "gold_answer": "LanceDB uses IVF-PQ (Inverted File with Product Quantization). IVF partitions the vector space into voronoi cells using k-means clustering, while Product Quantization divides high-dimensional vectors into sub-vectors and quantizes them into centroids, reducing memory by 16x to 32x.",
+    "doc_id": "lancedb_indexing.pdf",
+    "doc_type": "pdf",
+    "category": "in_domain",
+    "keywords": [
+      "IVF-PQ",
+      "Inverted File",
+      "Product Quantization",
+      "k-means",
+      "voronoi"
+    ]
+  },
+  {
+    "id": "q02",
+    "query": "What are zero-copy reads in LanceDB and what technology powers them?",
+    "gold_answer": "Zero-copy reads in LanceDB are powered by Apache Arrow, avoiding serialization penalties between disk and RAM and enabling sub-millisecond retrieval on local SSDs and cost-effective queries on S3.",
+    "doc_id": "lancedb_indexing.pdf",
+    "doc_type": "pdf",
+    "category": "in_domain",
+    "keywords": [
+      "zero-copy",
+      "Apache Arrow",
+      "serialization",
+      "SSD"
+    ]
+  },
+  {
+    "id": "q03",
+    "query": "Why does pre-filtering in LanceDB outperform post-filtering with metadata constraints?",
+    "gold_answer": "Pre-filtering evaluates metadata constraints before vector distance computation, preventing low recall caused by restrictive metadata filters which often degrade post-filtering.",
+    "doc_id": "lancedb_indexing.pdf",
+    "doc_type": "pdf",
+    "category": "in_domain",
+    "keywords": [
+      "pre-filtering",
+      "post-filtering",
+      "metadata constraints",
+      "recall"
+    ]
+  },
+  {
+    "id": "q04",
+    "query": "What is the monthly cost comparison between Pinecone and LanceDB for storing 1M vectors?",
+    "gold_answer": "For 1M 768d vectors, Pinecone requires at least two pods costing $140 to $280 per month because vectors must stay in memory 24/7. In contrast, LanceDB on S3 costs approximately $0.07 per month for 3 GB of storage, with zero idle compute cost.",
+    "doc_id": "vector_db_cost_analysis.pdf",
+    "doc_type": "pdf",
+    "category": "in_domain",
+    "keywords": [
+      "Pinecone",
+      "$140",
+      "$280",
+      "LanceDB",
+      "S3",
+      "$0.07",
+      "1M"
+    ]
+  },
+  {
+    "id": "q05",
+    "query": "What is the engineering tradeoff of LanceDB compared to in-memory HNSW?",
+    "gold_answer": "The tradeoff is retrieval latency: LanceDB achieves 5-15ms on NVMe SSD compared to 2-5ms for in-memory HNSW, in exchange for a roughly 100x reduction in infrastructure cost.",
+    "doc_id": "vector_db_cost_analysis.pdf",
+    "doc_type": "pdf",
+    "category": "in_domain",
+    "keywords": [
+      "5-15ms",
+      "2-5ms",
+      "tradeoff",
+      "latency",
+      "HNSW"
+    ]
+  },
+  {
+    "id": "q06",
+    "query": "What is the hierarchy of separators used in recursive character splitting?",
+    "gold_answer": "Recursive character splitting uses double newlines (\\n\\n) for paragraphs, single newlines (\\n) for lines/lists, period-space (. ) for sentences, and spaces as fallback.",
+    "doc_id": "rag_chunking_best_practices.md",
+    "doc_type": "md",
+    "category": "in_domain",
+    "keywords": [
+      "\\n\\n",
+      "\\n",
+      ". ",
+      "paragraphs",
+      "sentences"
+    ]
+  },
+  {
+    "id": "q07",
+    "query": "Why should PDF documents be chunked per page rather than across page boundaries?",
+    "gold_answer": "PDFs should be chunked per-page to preserve exact page citation metadata and ensure that chunks never straddle page boundaries.",
+    "doc_id": "rag_chunking_best_practices.md",
+    "doc_type": "md",
+    "category": "in_domain",
+    "keywords": [
+      "per-page",
+      "straddle",
+      "page citation",
+      "metadata"
+    ]
+  },
+  {
+    "id": "q08",
+    "query": "What does Mean Reciprocal Rank (MRR) evaluate in retrieval systems?",
+    "gold_answer": "MRR evaluates the rank position of the first relevant chunk, calculated as the mean of the reciprocal ranks (1/rank) across all queries, heavily penalizing systems that rank the relevant item low.",
+    "doc_id": "retrieval_evaluation_metrics.md",
+    "doc_type": "md",
+    "category": "in_domain",
+    "keywords": [
+      "MRR",
+      "reciprocal rank",
+      "first relevant",
+      "rank position"
+    ]
+  },
+  {
+    "id": "q09",
+    "query": "How is nDCG calculated and what does it measure?",
+    "gold_answer": "nDCG (Normalized Discounted Cumulative Gain) measures graded relevance using logarithmic discounting to penalize relevant items appearing lower in the ranking, normalized by the Ideal DCG (IDCG).",
+    "doc_id": "retrieval_evaluation_metrics.md",
+    "doc_type": "md",
+    "category": "in_domain",
+    "keywords": [
+      "nDCG",
+      "logarithmic discounting",
+      "IDCG",
+      "graded relevance"
+    ]
+  },
+  {
+    "id": "q10",
+    "query": "What is the difference between SelectorEventLoop and ProactorEventLoop in Python asyncio?",
+    "gold_answer": "On Windows, Python 3.8+ defaults to ProactorEventLoop backed by I/O Completion Ports (IOCP), while Unix systems default to SelectorEventLoop backed by epoll or kqueue.",
+    "doc_id": "python_asyncio_internals.md",
+    "doc_type": "md",
+    "category": "in_domain",
+    "keywords": [
+      "ProactorEventLoop",
+      "SelectorEventLoop",
+      "IOCP",
+      "Windows",
+      "epoll"
+    ]
+  },
+  {
+    "id": "q11",
+    "query": "How should blocking synchronous functions be executed inside an asyncio application?",
+    "gold_answer": "Blocking synchronous functions should be offloaded to a thread pool using loop.run_in_executor(None, sync_func, *args) or asyncio.to_thread(sync_func, *args) so they do not freeze the event loop.",
+    "doc_id": "python_asyncio_internals.md",
+    "doc_type": "md",
+    "category": "in_domain",
+    "keywords": [
+      "run_in_executor",
+      "to_thread",
+      "thread pool",
+      "freeze the event loop"
+    ]
+  },
+  {
+    "id": "q12",
+    "query": "How does Pydantic V2 achieve its dramatic speed improvements over V1?",
+    "gold_answer": "Pydantic V2 rewrote its core validation engine in Rust (pydantic-core), compiling Python type hints into a static validation graph in Rust that parses objects and JSON without Python interpreter overhead.",
+    "doc_id": "pydantic_v2_architecture.md",
+    "doc_type": "md",
+    "category": "in_domain",
+    "keywords": [
+      "Rust",
+      "pydantic-core",
+      "validation graph",
+      "jiter"
+    ]
+  },
+  {
+    "id": "q13",
+    "query": "What is position bias in LLM-as-a-judge and how can it be mitigated?",
+    "gold_answer": "Position bias occurs when a judge systematically favors the first or second option in pairwise evaluation. It is mitigated by running every pair in both orders (A-B and B-A), calculating flip rate, and requiring agreement or averaging scores.",
+    "doc_id": "llm_as_judge_biases.html",
+    "doc_type": "html",
+    "category": "in_domain",
+    "keywords": [
+      "position bias",
+      "swapped order",
+      "flip rate",
+      "agreement",
+      "both orders"
+    ]
+  },
+  {
+    "id": "q14",
+    "query": "How should self-enhancement bias be mitigated when using an LLM as an evaluation judge?",
+    "gold_answer": "Self-enhancement bias is mitigated by strictly decoupling the judge model family from the generator model family (for example, using Gemini to judge Llama 3.2, or using an ensemble).",
+    "doc_id": "llm_as_judge_biases.html",
+    "doc_type": "html",
+    "category": "in_domain",
+    "keywords": [
+      "self-enhancement",
+      "different model family",
+      "decouple",
+      "Gemini",
+      "Llama"
+    ]
+  },
+  {
+    "id": "q15",
+    "query": "How does FastAPI handle functions declared with 'def' versus 'async def'?",
+    "gold_answer": "Endpoints declared with 'async def' run directly on the main event loop thread, while standard 'def' endpoints are dispatched to an external thread pool (anyio worker threads) to prevent blocking the event loop.",
+    "doc_id": "fastapi_concurrency_model.html",
+    "doc_type": "html",
+    "category": "in_domain",
+    "keywords": [
+      "async def",
+      "def",
+      "thread pool",
+      "event loop",
+      "anyio"
+    ]
+  },
+  {
+    "id": "q16",
+    "query": "What is the two-stage guardrail for preventing hallucinations in RAG pipelines?",
+    "gold_answer": "The two-stage guardrail consists of: 1) Similarity Score Thresholding (no-context branch) to return a deterministic refusal when cosine similarity is below a threshold, and 2) Strict Citation Enforcement requiring [Chunk X] citations for all asserted facts.",
+    "doc_id": "rag_hallucination_prevention.html",
+    "doc_type": "html",
+    "category": "in_domain",
+    "keywords": [
+      "two-stage",
+      "similarity score thresholding",
+      "no-context",
+      "strict citation"
+    ]
+  },
+  {
+    "id": "q17",
+    "query": "Compare memory usage and recall between HNSW and IVF-PQ vector index algorithms.",
+    "gold_answer": "HNSW provides 95-99% recall and 1-3ms latency but requires 1.5x-2x vector size in RAM. IVF-PQ reduces RAM requirements by 80-95% by operating on disk or compressed codes, with 85-92% recall and 5-15ms latency.",
+    "doc_id": "vector_index_ivf_pq_hnsw.html",
+    "doc_type": "html",
+    "category": "in_domain",
+    "keywords": [
+      "HNSW",
+      "IVF-PQ",
+      "95-99%",
+      "80-95%",
+      "RAM",
+      "recall"
+    ]
+  },
+  {
+    "id": "q18",
+    "query": "What does Context Precision measure and why is it important for RAG generation cost?",
+    "gold_answer": "Context Precision measures whether the retrieved chunks in the context window are relevant to the query. High precision prevents noisy distractors from causing hallucinations and reduces LLM input token consumption.",
+    "doc_id": "retrieval_evaluation_metrics.md",
+    "doc_type": "md",
+    "category": "in_domain",
+    "keywords": [
+      "Context Precision",
+      "distractors",
+      "token consumption",
+      "hallucinations"
+    ]
+  },
+  {
+    "id": "q19",
+    "query": "Why does LanceDB's IVF-PQ architecture directly enable lower infrastructure costs compared to managed HNSW databases?",
+    "gold_answer": "LanceDB's IVF-PQ quantizes vectors and queries them directly from disk or S3 without requiring always-on in-memory HNSW graphs. This decouples storage from compute, allowing 1M vectors to cost cents per month on storage instead of hundreds of dollars in RAM pods.",
+    "doc_id": "lancedb_indexing.pdf",
+    "doc_type": "pdf",
+    "category": "cross_doc",
+    "keywords": [
+      "IVF-PQ",
+      "decouple compute",
+      "disk",
+      "S3",
+      "RAM",
+      "always-on"
+    ]
+  },
+  {
+    "id": "q20",
+    "query": "How do similarity score thresholding and context precision work together to ensure grounded RAG answers?",
+    "gold_answer": "Similarity score thresholding acts as an upfront filter to reject queries with no matching context, while high context precision ensures that retrieved chunks passed to the LLM are relevant and free of distracting noise, enabling faithful citations.",
+    "doc_id": "rag_hallucination_prevention.html",
+    "doc_type": "html",
+    "category": "cross_doc",
+    "keywords": [
+      "thresholding",
+      "context precision",
+      "grounded",
+      "distracting noise",
+      "citations"
+    ]
+  },
+  {
+    "id": "q21",
+    "query": "How does position bias interact with verbosity bias in pairwise LLM evaluation?",
+    "gold_answer": "Judges may prefer the first candidate due to position bias and also prefer longer candidates due to verbosity bias. Swapping candidate order (A/B and B/A) and penalizing ungrounded length in the rubric prevents verbose answers from winning simply by being presented first.",
+    "doc_id": "llm_as_judge_biases.html",
+    "doc_type": "html",
+    "category": "cross_doc",
+    "keywords": [
+      "position bias",
+      "verbosity bias",
+      "swapping order",
+      "rubric"
+    ]
+  },
+  {
+    "id": "q22",
+    "query": "If an API endpoint in FastAPI performs vector retrieval with LanceDB, why should it be defined carefully with async def versus def?",
+    "gold_answer": "If LanceDB disk retrieval performs blocking synchronous file I/O, declaring the endpoint as standard 'def' lets FastAPI run it on worker threads, whereas 'async def' without non-blocking I/O would block the main event loop.",
+    "doc_id": "fastapi_concurrency_model.html",
+    "doc_type": "html",
+    "category": "cross_doc",
+    "keywords": [
+      "async def",
+      "def",
+      "blocking I/O",
+      "event loop",
+      "thread pool"
+    ]
+  },
+  {
+    "id": "q23",
+    "query": "What is the average lifespan of a Greenland shark in arctic waters?",
+    "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+    "doc_id": null,
+    "doc_type": null,
+    "category": "out_of_domain",
+    "keywords": [
+      "do not have enough relevant context"
+    ]
+  },
+  {
+    "id": "q24",
+    "query": "Who won the FIFA World Cup in 1998 and what was the final match score?",
+    "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+    "doc_id": null,
+    "doc_type": null,
+    "category": "out_of_domain",
+    "keywords": [
+      "do not have enough relevant context"
+    ]
+  },
+  {
+    "id": "q25",
+    "query": "What are the rules for castling in competitive chess tournaments?",
+    "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+    "doc_id": null,
+    "doc_type": null,
+    "category": "out_of_domain",
+    "keywords": [
+      "do not have enough relevant context"
+    ]
+  }
+]
