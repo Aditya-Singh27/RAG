@@ -1,157 +1,110 @@
-"""Generate high-resolution architecture diagrams for Problem 1 and Problem 2."""
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
+"""Architecture diagrams for the submission (matplotlib, no data in them - structure only).
+
+Run: python scripts/create_diagrams.py   -> results/figures/problem{1,2}_architecture.png
+"""
 from pathlib import Path
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyBboxPatch
 
-out_dir = Path("results/figures")
-out_dir.mkdir(parents=True, exist_ok=True)
+OUT = Path("results/figures")
+BLUE, ORANGE, GREY, RED, INK = "#2166ac", "#d9730d", "#6b7280", "#b42318", "#111827"
 
-def render_problem1_diagram():
-    fig, ax = plt.subplots(figsize=(12, 7), dpi=300)
-    ax.set_xlim(0, 12)
-    ax.set_ylim(0, 7)
+
+def box(ax, x, y, w, h, title, sub="", edge=BLUE, fill="white"):
+    ax.add_patch(FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.02,rounding_size=0.12",
+                                fc=fill, ec=edge, lw=2))
+    ax.text(x + w / 2, y + h * 0.66, title, ha="center", va="center", fontsize=10.5, weight="bold", color=edge)
+    if sub:
+        ax.text(x + w / 2, y + h * 0.30, sub, ha="center", va="center", fontsize=8.3, color=INK, linespacing=1.35)
+
+
+def arrow(ax, p, q, label="", color=GREY, rad=0.0, lx=0, ly=0.13):
+    ax.annotate("", xy=q, xytext=p, arrowprops=dict(arrowstyle="-|>", color=color, lw=1.8,
+                                                   connectionstyle=f"arc3,rad={rad}", shrinkA=0, shrinkB=0))
+    if label:
+        ax.text((p[0] + q[0]) / 2 + lx, (p[1] + q[1]) / 2 + ly, label, ha="center", va="center", fontsize=7.8,
+                color=color, bbox=dict(fc="white", ec="none", pad=1.2))
+
+
+def canvas(title, subtitle, w=15, h=8.4):
+    fig, ax = plt.subplots(figsize=(w, h))
+    ax.set_xlim(0, w)
+    ax.set_ylim(0, h)
     ax.axis("off")
-    fig.patch.set_facecolor("#F8FAFC")
+    ax.text(w / 2, h - 0.35, title, ha="center", fontsize=15, weight="bold", color=INK)
+    ax.text(w / 2, h - 0.80, subtitle, ha="center", fontsize=9.5, color=GREY)
+    return fig, ax
 
-    # Colors
-    c_blue = "#1E40AF"      # Ingest / Retrieval
-    c_teal = "#0D9488"      # Storage
-    c_amber = "#D97706"     # Decision / Branch
-    c_purple = "#6D28D9"    # Generation
-    c_red = "#DC2626"       # Fallback / Refusal
-    c_box = "#FFFFFF"
 
-    # Title
-    ax.text(6, 6.6, "Problem 1: End-to-End Cost-Efficient RAG Architecture",
-            ha="center", va="center", fontsize=15, fontweight="bold", color="#0F172A")
-    ax.text(6, 6.25, "LanceDB On-Disk Vector Store + Cosine Thresholding + Grounded Generation",
-            ha="center", va="center", fontsize=10, color="#475569")
+def problem1():
+    fig, ax = canvas("Problem 1 - RAG service", "Ingestion path (top) and query path (bottom). The query can be refused at the score gate or by the generator itself.")
+    bw, bh = 2.6, 1.25
+    ax.text(0.2, 6.55, "INGESTION  (idempotent: skipped when doc_hash is unchanged)", fontsize=9, weight="bold", color=GREY)
+    top = [("Loaders", "PDF / HTML / Markdown"), ("Chunker", "size + overlap\n(default 800 / 100)"),
+           ("Embedder", "gemini-embedding-001\n768-d, document task type"), ("LanceDB table", "vectors + metadata\n(doc_id, source, page ...)")]
+    xs = [0.4, 4.0, 7.6, 11.2]
+    for (t, s), x in zip(top, xs):
+        box(ax, x, 5.0, bw, bh, t, s, edge=BLUE if t != "LanceDB table" else ORANGE)
+    for a, b in zip(xs[:-1], xs[1:]):
+        arrow(ax, (a + bw, 5.62), (b, 5.62))
+    ax.text(12.5, 6.85, "upsert by chunk_id, then delete stale rows\nwith an older doc_hash", ha="center", va="center", fontsize=7.6, color=GREY)
 
-    def draw_box(x, y, w, h, title, subtitle, color, bg=c_box, style="solid"):
-        rect = patches.FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.12",
-                                      edgecolor=color, facecolor=bg, linewidth=2, linestyle=style)
-        ax.add_patch(rect)
-        ax.text(x + w/2, y + h*0.65, title, ha="center", va="center", fontsize=9.5, fontweight="bold", color=color)
-        ax.text(x + w/2, y + h*0.30, subtitle, ha="center", va="center", fontsize=8, color="#334155")
+    ax.text(0.2, 3.85, "QUERY", fontsize=9, weight="bold", color=GREY)
+    qy = 2.35
+    box(ax, 0.4, qy, bw, bh, "Query", "HTTP /query or CLI\n(k, optional filter)")
+    box(ax, 4.0, qy, bw, bh, "Embed query", "same model,\nquery task type")
+    box(ax, 7.6, qy, bw, bh, "Top-k search", "cosine similarity\n+ metadata filter", edge=ORANGE)
+    box(ax, 11.2, qy, bw, bh, "Score gate", "top-1 score >= MIN_SCORE ?", edge=ORANGE)
+    for a_, b_ in [(0.4, 4.0), (4.0, 7.6), (7.6, 11.2)]:
+        arrow(ax, (a_ + bw, qy + 0.62), (b_, qy + 0.62))
+    arrow(ax, (11.6, 5.0), (9.2, qy + bh + 0.02), "reads the same table", color=ORANGE, lx=-1.6, ly=0.25)
 
-    def draw_arrow(x1, y1, x2, y2, label="", color="#475569", style="-|>", rad=0.0):
-        ax.annotate("", xy=(x2, y2), xytext=(x1, y1),
-                    arrowprops=dict(arrowstyle=style, color=color, lw=1.8,
-                                    connectionstyle=f"arc3,rad={rad}"))
-        if label:
-            mx, my = (x1 + x2)/2, (y1 + y2)/2
-            ax.text(mx, my + 0.18, label, ha="center", va="center", fontsize=7.5,
-                    fontweight="bold", color=color, bbox=dict(boxstyle="round,pad=0.15", fc="#FFFFFF", ec="#CBD5E1", lw=0.8))
+    box(ax, 7.6, 0.45, bw, bh, "Generator", "grounded prompt, [Chunk N]\ncitations; may itself decline\nif the context lacks the answer", edge=BLUE)
+    box(ax, 11.2, 0.45, bw, bh, "Refusal: no context", "no LLM call; returns\n'no relevant context'", edge=RED)
+    arrow(ax, (11.4, qy), (9.9, 0.45 + bh), "yes", color=BLUE, lx=0.15, ly=0.2)
+    arrow(ax, (12.5, qy), (12.5, 0.45 + bh), "no (below MIN_SCORE)", color=RED, lx=0.0, ly=0.0)
+    box(ax, 0.4, 0.45, bw, bh, "Response + log", "answer, citations, chunk ids,\nlatency, tokens (JSONL)", edge=GREY)
+    arrow(ax, (7.6, 1.07), (3.0, 1.07))
+    ax.plot([12.5, 12.5, 1.7], [0.45, 0.12, 0.12], color=RED, lw=1.8)
+    arrow(ax, (1.7, 0.12), (1.7, 0.45), color=RED)
+    ax.text(6.6, 0.22, "refusal returned directly", fontsize=7.8, color=RED, ha="center", bbox=dict(fc="white", ec="none", pad=1))
+    fig.savefig(OUT / "problem1_architecture.png", dpi=170, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
 
-    # Top Row: Ingestion Pipeline
-    draw_box(0.5, 4.8, 2.2, 1.0, "Corpus Ingestion", "PDF / HTML / Markdown\nHash & SHA-256", c_blue)
-    draw_box(3.4, 4.8, 2.2, 1.0, "Recursive Chunking", "size=800, overlap=100\nBoundary-preserving", c_blue)
-    draw_box(6.3, 4.8, 2.2, 1.0, "Gemini Embedder", "gemini-embedding-001\n768 dimensions", c_blue)
-    draw_box(9.2, 4.8, 2.3, 1.0, "LanceDB Vector Store", "On-disk IVF-PQ / Flat\nScalar metadata filters", c_teal)
 
-    draw_arrow(2.7, 5.3, 3.4, 5.3, "Raw Text")
-    draw_arrow(5.6, 5.3, 6.3, 5.3, "Text Chunks")
-    draw_arrow(8.5, 5.3, 9.2, 5.3, "768d Vectors")
+def problem2():
+    fig, ax = canvas("Problem 2 - LLM-as-judge pipeline", "Judge and generator are configured independently. Pairwise cases run in both orders.")
+    bw, bh = 2.7, 1.25
+    box(ax, 0.4, 5.3, bw, bh, "Test suite", "JSON: input, output(s),\nexpected / reference")
+    box(ax, 4.2, 5.3, bw, bh, "Prompt builder", "rubric + score anchors,\ncriterion order fixed")
+    box(ax, 8.0, 5.3, bw, bh, "Judge model", "own provider / model /\nkey (JUDGE_*)", edge=ORANGE)
+    box(ax, 11.8, 5.3, bw, bh, "Verdict parser", "strict JSON; markdown strip;\nretry; failures counted", edge=BLUE)
+    for a, b in [(0.4, 4.2), (4.2, 8.0), (8.0, 11.8)]:
+        arrow(ax, (a + bw, 5.92), (b, 5.92))
 
-    # Bottom Row: Query & Generation Pipeline
-    draw_box(0.5, 2.0, 2.2, 1.0, "User Query (HTTP)", "FastAPI /query\nk=5, doc_id filter", c_purple)
-    draw_box(3.4, 2.0, 2.2, 1.0, "Top-k Retrieval", "Cosine Vector Search\n+ Metadata Pre-filter", c_teal)
-    draw_box(6.3, 2.0, 2.2, 1.0, "Similarity Gate", "Score >= MIN_SCORE (0.60)\nRelevance Threshold", c_amber)
+    box(ax, 4.2, 3.2, bw, bh, "Order swap (pairwise)", "run A,B then B,A;\nconsensus; flips recorded", edge=ORANGE)
+    arrow(ax, (5.55, 5.3), (5.55, 3.2 + bh), "pairs", lx=0.4, ly=0.0)
+    arrow(ax, (6.9, 4.2), (8.4, 5.3), "both orders", color=ORANGE, lx=-0.35, ly=0.25)
 
-    draw_arrow(2.7, 2.5, 3.4, 2.5, "Query Text")
-    draw_arrow(3.4+1.1, 4.8, 3.4+1.1, 3.0, "Indexed Chunks", color=c_teal, style="<|-|>")
-    draw_arrow(5.6, 2.5, 6.3, 2.5, "Top-5 Chunks")
+    box(ax, 8.0, 3.2, bw, bh, "Audit log (JSONL)", "every raw prompt + raw response,\nrole, tag, tokens, latency", edge=GREY)
+    arrow(ax, (9.35, 5.3), (9.35, 3.2 + bh), "every call logged", lx=1.0, ly=0.0)
 
-    # Branches from similarity gate
-    draw_box(9.2, 2.7, 2.3, 1.0, "Grounded Generation", "Gemini 3.1 Flash Lite\nStrict [Chunk X] Citations", c_purple)
-    draw_box(9.2, 1.0, 2.3, 1.0, "Deterministic Refusal", "'no relevant context'\nZero Hallucination Path", c_red, bg="#FEF2F2")
+    box(ax, 11.8, 3.2, bw, bh, "Verdicts", "per-criterion scores + rationale;\nper-case pass / fail", edge=BLUE)
+    arrow(ax, (13.15, 5.3), (13.15, 3.2 + bh))
 
-    draw_arrow(8.5, 2.7, 9.2, 3.2, "Score >= 0.60", color="#16A34A")
-    draw_arrow(8.5, 2.3, 9.2, 1.5, "Score < 0.60", color=c_red)
+    box(ax, 11.8, 1.0, bw, bh, "Report", "suite aggregates, bias probes,\nA/B sign test, CIs", edge=BLUE)
+    arrow(ax, (13.15, 3.2), (13.15, 1.0 + bh))
 
-    # Output Arrow
-    ax.text(10.35, 0.4, "FastAPI Response (/query)\n{ answer, cited_chunks, latency_ms }",
-            ha="center", va="center", fontsize=8, color="#0F172A", fontweight="bold",
-            bbox=dict(boxstyle="round,pad=0.2", fc="#F1F5F9", ec="#94A3B8"))
-    draw_arrow(10.35, 2.7, 10.35, 0.8, color="#475569")
-    draw_arrow(10.35, 1.0, 10.35, 0.8, color="#475569")
+    box(ax, 4.2, 1.0, bw + 1.0, bh, "Judge validation", "agreement vs labels, kappa,\ntest-retest, adversarial probes\n(run through the same pipeline)", edge=ORANGE)
+    arrow(ax, (4.2 + bw + 1.0, 1.62), (11.8, 1.62), color=ORANGE)
+    fig.savefig(OUT / "problem2_architecture.png", dpi=170, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
 
-    plt.tight_layout()
-    p = out_dir / "problem1_architecture.png"
-    plt.savefig(p, bbox_inches="tight")
-    plt.close()
-    print(f"Saved Problem 1 architecture diagram to {p}")
-
-def render_problem2_diagram():
-    fig, ax = plt.subplots(figsize=(12, 7.5), dpi=300)
-    ax.set_xlim(0, 12)
-    ax.set_ylim(0, 7.5)
-    ax.axis("off")
-    fig.patch.set_facecolor("#F8FAFC")
-
-    c_blue = "#1E40AF"
-    c_teal = "#0D9488"
-    c_amber = "#D97706"
-    c_purple = "#6D28D9"
-    c_red = "#DC2626"
-    c_box = "#FFFFFF"
-
-    # Title
-    ax.text(6, 7.1, "Problem 2: LLM-as-a-Judge Evaluation Pipeline Architecture",
-            ha="center", va="center", fontsize=15, fontweight="bold", color="#0F172A")
-    ax.text(6, 6.75, "Cross-Family Decoupling + Symmetrical Pairwise + Few-Shot Anchors + Resilient JSON Parser",
-            ha="center", va="center", fontsize=10, color="#475569")
-
-    def draw_box(x, y, w, h, title, subtitle, color, bg=c_box, style="solid"):
-        rect = patches.FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.12",
-                                      edgecolor=color, facecolor=bg, linewidth=2, linestyle=style)
-        ax.add_patch(rect)
-        ax.text(x + w/2, y + h*0.65, title, ha="center", va="center", fontsize=9.5, fontweight="bold", color=color)
-        ax.text(x + w/2, y + h*0.30, subtitle, ha="center", va="center", fontsize=8, color="#334155")
-
-    def draw_arrow(x1, y1, x2, y2, label="", color="#475569", style="-|>", rad=0.0):
-        ax.annotate("", xy=(x2, y2), xytext=(x1, y1),
-                    arrowprops=dict(arrowstyle=style, color=color, lw=1.8,
-                                    connectionstyle=f"arc3,rad={rad}"))
-        if label:
-            mx, my = (x1 + x2)/2, (y1 + y2)/2
-            ax.text(mx, my + 0.18, label, ha="center", va="center", fontsize=7.5,
-                    fontweight="bold", color=color, bbox=dict(boxstyle="round,pad=0.15", fc="#FFFFFF", ec="#CBD5E1", lw=0.8))
-
-    # Stage 1: Input Suites
-    draw_box(0.5, 5.0, 2.3, 1.2, "Test Suites (JSON)", "Pointwise / Pairwise / A/B\nHuman / Adversarial Probes", c_blue)
-
-    # Stage 2: Prompt Construction & Bias Mitigations
-    draw_box(3.5, 5.0, 2.4, 1.2, "Prompt Construction", "6-Dimensional Rubric\nFew-Shot Calibration Anchors", c_purple)
-    draw_box(3.5, 3.2, 2.4, 1.2, "Position Bias Mitigation", "Symmetrical Permutation\nA_then_B & B_then_A", c_amber)
-
-    draw_arrow(2.8, 5.6, 3.5, 5.6, "Pointwise Suite")
-    draw_arrow(1.65, 5.0, 3.5, 3.8, "Pairwise / A/B", rad=-0.2)
-
-    # Stage 3: Decoupled Judge Call
-    draw_box(6.6, 4.1, 2.4, 1.2, "Decoupled LLM Judge", "Gemini 3.1 Flash Lite\n(Cross-family vs Llama 3.2)", c_teal)
-
-    draw_arrow(5.9, 5.6, 6.6, 4.9, "Structured Prompt", rad=-0.15)
-    draw_arrow(5.9, 3.8, 6.6, 4.5, "Dual Prompts", rad=0.15)
-
-    # Stage 4: Resilient Parser & Malformed JSON Fallback
-    draw_box(9.5, 4.1, 2.2, 1.2, "Resilient Parser", "Markdown / Regex / Fallback\n0% parse failure rate", c_purple)
-    draw_arrow(9.0, 4.7, 9.5, 4.7, "Raw Text")
-
-    # Stage 5: Aggregation & Reports
-    draw_box(9.5, 1.5, 2.2, 1.2, "Statistical Report", "Cohen's Kappa + Wilson CI\nSign Test A/B Gating", c_blue)
-    draw_box(5.0, 1.5, 2.4, 1.2, "Auditable JSONL Logs", "logs/llm_calls.jsonl\nEvery prompt + raw response", c_teal)
-
-    draw_arrow(10.6, 4.1, 10.6, 2.7, "Structured Verdicts")
-    draw_arrow(6.6, 4.1, 6.2, 2.7, "Full Audit Trail")
-    draw_arrow(9.5, 2.1, 7.4, 2.1, "Verified Calls")
-
-    plt.tight_layout()
-    p = out_dir / "problem2_architecture.png"
-    plt.savefig(p, bbox_inches="tight")
-    plt.close()
-    print(f"Saved Problem 2 architecture diagram to {p}")
 
 if __name__ == "__main__":
-    render_problem1_diagram()
-    render_problem2_diagram()
+    OUT.mkdir(parents=True, exist_ok=True)
+    problem1()
+    problem2()
+    print("wrote", OUT / "problem1_architecture.png", OUT / "problem2_architecture.png")

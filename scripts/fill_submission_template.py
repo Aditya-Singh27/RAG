@@ -1,426 +1,345 @@
-"""Automated script to fill submission_template.docx with verified evaluation data,
-sourced cost metrics, architecture diagrams, and terminal screenshots.
+"""Fill submission_template.docx from the repo's result files.
+
+Rules this script enforces (so the document cannot claim more than the repo shows):
+  * every number is read from results/*.json - a missing key raises KeyError, there are NO default values;
+  * things only the candidate can supply (name, time spent, screenshots, reflections, AI-usage disclosure)
+    are left as visibly marked placeholders and are never generated;
+  * design-decision boxes contain only facts that are in the code or in the result files, plus a marked
+    slot for the candidate's own reasoning.
+
+Run:  python scripts/fill_submission_template.py   ->  submission_template_completed.docx
 """
 from __future__ import annotations
 import json
+import re
+import sys
 from pathlib import Path
-import docx
-from docx.shared import Inches, Pt, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
 
-def set_cell_text(cell, text, bold=False, color_rgb=(15, 23, 42), font_size=9.5, align=WD_ALIGN_PARAGRAPH.LEFT):
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+import docx
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.shared import Inches, Pt, RGBColor
+
+TODO = "[ TO BE COMPLETED BY CANDIDATE"
+TODO_COLOR = (180, 35, 24)
+
+
+def set_text(cell, text, bold=False, size=9.5, color=(15, 23, 42)):
     cell.text = ""
     p = cell.paragraphs[0]
-    p.alignment = align
-    run = p.add_run(text)
-    run.bold = bold
-    run.font.name = "Arial"
-    run.font.size = Pt(font_size)
-    run.font.color.rgb = RGBColor(*color_rgb)
+    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    r = p.add_run(text)
+    r.bold, r.font.name, r.font.size = bold, "Arial", Pt(size)
+    r.font.color.rgb = RGBColor(*color)
 
-def set_cell_image(cell, img_path, width=Inches(6.2)):
+
+def todo(cell, what, hints=""):
+    """Visible placeholder. `hints` lists verified facts the candidate may draw on - not an answer."""
+    msg = f"{TODO} - {what} ]"
+    if hints:
+        msg += "\nFacts available in the repo you can draw on: " + hints
+    set_text(cell, msg, size=9, color=TODO_COLOR)
+
+
+def set_image(cell, path, width=6.2):
     cell.text = ""
     p = cell.paragraphs[0]
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = p.add_run()
-    run.add_picture(str(img_path), width=width)
+    p.add_run().add_picture(str(path), width=Inches(width))
+
+
+def replace_para(doc, startswith, new_text):
+    for p in doc.paragraphs:
+        if p.text.strip().startswith(startswith):
+            for r in p.runs[1:]:
+                r._element.getparent().remove(r._element)
+            if p.runs:
+                p.runs[0].text = new_text
+            else:
+                p.add_run(new_text)
+            return
+    raise KeyError(f"paragraph not found: {startswith}")
+
+
+def ci(x, nd=3):
+    return f"[{x[0]:.{nd}f}, {x[1]:.{nd}f}]"
+
+
+def env_names(path=".env.example"):
+    names = []
+    for line in Path(path).read_text(encoding="utf-8").splitlines():
+        m = re.match(r"^([A-Z][A-Z0-9_]+)=", line.strip())
+        if m:
+            names.append(m.group(1))
+    return names
+
 
 def main():
-    rag_rep_path = Path("results/rag_evaluation_report.json")
-    judge_rep_path = Path("results/judge_evaluation_report.json")
-    cost_rep_path = Path("results/cost_comparison.json")
+    rag = json.load(open("results/rag_evaluation_report.json", encoding="utf-8"))["summary"]
+    judge = json.load(open("results/judge_evaluation_report.json", encoding="utf-8"))
+    cost = json.load(open("results/cost_comparison.json", encoding="utf-8"))
+    lat = json.load(open("results/latency_benchmark_real.json", encoding="utf-8"))
+    syn = json.load(open("results/latency_benchmark_synth.json", encoding="utf-8"))
+    base = json.load(open("results/retrieval_baselines.json", encoding="utf-8"))  # noqa: F841 (kept for provenance)
 
-    rag_rep = json.load(open(rag_rep_path, encoding="utf-8"))
-    judge_rep = json.load(open(judge_rep_path, encoding="utf-8")) if judge_rep_path.exists() else {}
-    cost_rep = json.load(open(cost_rep_path, encoding="utf-8"))
+    d = docx.Document("submission_template.docx")
+    meta, ret = rag["meta"], rag["retrieval_answerable_only"]
+    aq, ref = rag["answer_quality_answerable_only"], rag["refusal_behaviour"]
+    cfg = judge["pipeline_configuration"]
 
-    doc = docx.Document("submission_template.docx")
-    print(f"Loaded template with {len(doc.paragraphs)} paragraphs and {len(doc.tables)} tables.")
+    # ---------------- candidate details ----------------
+    t0 = d.tables[0]
+    todo(t0.rows[1].cells[1], "your full name")
+    todo(t0.rows[2].cells[1], "your email")
+    todo(t0.rows[3].cells[1], "submission date")
+    set_text(t0.rows[4].cells[1], "https://github.com/Aditya-Singh27/RAG")
+    todo(t0.rows[5].cells[1], "total time you actually spent")
+    set_text(t0.rows[6].cells[1], "LanceDB (embedded, on-disk)")
+    set_text(t0.rows[7].cells[1],
+             f"judge: {cfg['judge_model']} ({cfg['judge_provider']}) | generator: {cfg['generator_model']} "
+             f"({cfg['generator_provider']}, local Ollama)")
 
-    # -------------------------------------------------------------
-    # 0. Candidate Details (Table 0)
-    # -------------------------------------------------------------
-    t0 = doc.tables[0]
-    set_cell_text(t0.rows[1].cells[1], "Aditya Singh", bold=True)
-    set_cell_text(t0.rows[2].cells[1], "adityasingh.ai.ml@gmail.com")
-    set_cell_text(t0.rows[3].cells[1], "October 18, 2026")
-    set_cell_text(t0.rows[4].cells[1], "https://github.com/Aditya-Singh27/RAG.git")
-    set_cell_text(t0.rows[5].cells[1], "~12 h across 3 engineering sessions")
-    set_cell_text(t0.rows[6].cells[1], "LanceDB (on-disk columnar vector store with zero idle compute cost)")
-    set_cell_text(t0.rows[7].cells[1], "judge: Gemini 3.1 Flash Lite · generator: Meta Llama 3.2 (via local Ollama) [cross-family decoupled]")
+    hw = lat["hardware"]
+    names = env_names()
+    prereq = (f"Prerequisites: Python {hw['python']} on {hw['platform']} ({hw['cpu_count']} CPUs) - the machine the reported "
+              "latencies were measured on. Ollama running locally with llama3.2:latest pulled. A Gemini API key.")
+    envs = "Environment variables (names only): " + ", ".join(names)
+    store = ("Vector store chosen + one-line why: LanceDB - embedded, on-disk columnar store with upsert and cosine search, "
+             "so no always-on database server is needed.")
+    for pre, text in [("Prerequisites", prereq), ("Environment variables", envs)]:
+        for p in d.paragraphs:  # appears twice (P1 and P2): fill both
+            if p.text.strip().startswith(pre):
+                for r in p.runs[1:]:
+                    r._element.getparent().remove(r._element)
+                p.runs[0].text = text
+    replace_para(d, "Vector store chosen", store)
+    replace_para(d, "k used", f"k used: k = {rag['k']}")
+    replace_para(d, "Judge & generator configured independently",
+                 "Judge & generator configured independently? Yes - separate provider/model/base-URL/key settings: "
+                 "JUDGE_PROVIDER, JUDGE_MODEL vs GENERATOR_PROVIDER, GENERATOR_MODEL, GENERATOR_BASE_URL, GENERATOR_API_KEY "
+                 "(see .env.example and common/config.py).")
+    replace_para(d, "Judging mode used",
+                 "Judging mode used: pointwise (rubric, per-criterion scores) and pairwise A-vs-B (each pair run in both orders); "
+                 "reference-based and reference-free variants for the sycophancy probe.")
+    ab = judge["ab_comparison_verdict"]
+    replace_para(d, "Declared winner",
+                 f"Declared winner + one-line justification: {ab['declared_winner']}. Config B won {ab['wins_b']} of "
+                 f"{ab['total_cases']} cases vs {ab['wins_a']} for Config A, but the exact sign test gives p = {ab['sign_test_p']} "
+                 f"(alpha = {ab['alpha']}), so the pipeline does not declare a winner at this sample size.")
 
-    # Inline Paragraphs on Problem 1
-    for p in doc.paragraphs:
-        if "Prerequisites  [" in p.text and "runtime" in p.text:
-            p.text = "Prerequisites: Python 3.12, Windows 11 / Linux (Ubuntu 22.04+), Ollama local service with llama3.2:latest, 8GB+ RAM."
-        elif "Environment variables  [" in p.text:
-            p.text = "Environment variables: GEMINI_API_KEY, EMBED_PROVIDER, EMBED_MODEL, EMBED_DIM, RAG_GEN_PROVIDER, RAG_GEN_MODEL, LANCEDB_URI, CHUNK_SIZE, CHUNK_OVERLAP, RETRIEVAL_K, MIN_SCORE, JUDGE_PROVIDER, JUDGE_MODEL, GENERATOR_PROVIDER, GENERATOR_MODEL, GENERATOR_BASE_URL, GENERATOR_API_KEY, LLM_LOG_PATH."
-        elif "Vector store chosen + one-line why  [" in p.text:
-            p.text = "Vector store chosen + one-line why: LanceDB — on-disk Apache Arrow columnar storage eliminates the $140+/month idle memory tax of pod-based vector databases while sustaining 1.20 ms p50 retrieval on local NVMe SSD."
-        elif "k used  [" in p.text:
-            p.text = "k used: k = 5"
-        elif "Judge & generator configured independently?  [" in p.text:
-            p.text = "Judge & generator configured independently? Yes — completely decoupled via separate environment variables (JUDGE_PROVIDER=gemini vs GENERATOR_PROVIDER=openai_compat, JUDGE_MODEL=gemini-3.1-flash-lite vs GENERATOR_MODEL=llama3.2:latest, separate base URLs and API keys). Zero shared inference code."
-        elif "Judging mode used  [" in p.text:
-            p.text = "Judging mode used: Pointwise scoring (with 6-dimensional calibrated rubrics & few-shot anchors) + Symmetrical Pairwise A-vs-B (dual-order permutation with score averaging) + Reference-based and Reference-free sycophancy probes."
-        elif "Declared winner + one-line justification  [" in p.text:
-            ab_winner = judge_rep.get("ab_comparison", {}).get("declared_winner", "INCONCLUSIVE")
-            ab_p = judge_rep.get("ab_comparison", {}).get("sign_test_p", 0.1094)
-            p.text = f"Declared winner + one-line justification: {ab_winner} (Sign test two-sided p={ab_p:.4f} > alpha=0.05; Config B Grounded RAG achieved 8 wins vs 2 for Naive RAG, but pipeline strictly reports INCONCLUSIVE rather than prematurely declaring victory without statistical significance at N=10)."
+    # ---------------- diagrams ----------------
+    set_image(d.tables[1].rows[0].cells[0], "results/figures/problem1_architecture.png")
+    set_image(d.tables[21].rows[0].cells[0], "results/figures/problem2_architecture.png")
 
-    # -------------------------------------------------------------
-    # Problem 1: Setup & Code Boxes
-    # -------------------------------------------------------------
-    # Table 1: 1.1 Architecture Diagram
-    p1_diag = Path("results/figures/problem1_architecture.png")
-    if p1_diag.exists():
-        set_cell_image(doc.tables[1].rows[0].cells[0], p1_diag, width=Inches(6.2))
+    # ---------------- setup commands ----------------
+    set_text(d.tables[2].rows[0].cells[0],
+             "git clone https://github.com/Aditya-Singh27/RAG.git\ncd RAG\npython -m venv .venv\n"
+             ".venv\\Scripts\\activate        # Linux/macOS: source .venv/bin/activate\n"
+             "pip install -r requirements.txt\nollama pull llama3.2:latest\n"
+             "copy .env.example .env         # then set GEMINI_API_KEY (and model ids) in .env", size=8.5)
+    set_text(d.tables[3].rows[0].cells[0],
+             "python -m rag.ingest data/corpus\n# running it a second time re-embeds nothing (doc_hash unchanged)", size=8.5)
+    set_text(d.tables[4].rows[0].cells[0],
+             '# CLI (query is a positional argument; see rag/service.py)\n'
+             'python -m rag.service "What is IVF-PQ in LanceDB?" --k 5\n\n'
+             '# or HTTP (rag/api.py exposes POST /query, GET /health, GET /stats, POST /ingest)\n'
+             'uvicorn rag.api:app --port 8000\n'
+             'curl -X POST http://localhost:8000/query -H "Content-Type: application/json" -d "{\\"query\\": \\"What is IVF-PQ in LanceDB?\\", \\"k\\": 5}"\n'
+             '# check the request body field names against rag/api.py before submitting', size=8.5)
+    set_text(d.tables[22].rows[0].cells[0], "# same install as Problem 1 (see above)\nollama pull llama3.2:latest", size=8.5)
+    set_text(d.tables[23].rows[0].cells[0],
+             "python -m judge.run\n# writes results/judge_evaluation_report.json; every LLM call is appended to LLM_LOG_PATH (JSONL)", size=8.5)
+    set_text(d.tables[24].rows[0].cells[0],
+             "python scripts/generate_real_ab.py     # builds data/judge_suites/ab_comparison_cases.json from two prompt configs\n"
+             "python -m judge.run                    # runs the A/B comparison with the sign-test gate", size=8.5)
 
-    # Table 2: 1.2 Install
-    install_cmd = (
-        "git clone https://github.com/Aditya-Singh27/RAG.git\n"
-        "cd RAG\n"
-        "python -m venv .venv\n"
-        ".venv\\Scripts\\activate   # or source .venv/bin/activate on Linux\n"
-        "pip install -r requirements.txt\n"
-        "ollama pull llama3.2:latest\n"
-        "# Copy .env.example to .env and insert your GEMINI_API_KEY"
+    # ---------------- 1.3.1 retrieval ----------------
+    t5 = d.tables[5]
+    n = ret["hit_rate@5"]["n"]
+    set_text(t5.rows[1].cells[1], f"{ret['hit_rate@5']['mean']:.3f}", bold=True)
+    set_text(t5.rows[1].cells[2], f"Hit@5 over {n} answerable questions; Evidence recall@5 {ret['evidence_recall@5']['mean']:.3f}. "
+             "Relevant chunk = stored chunk containing a verbatim gold evidence quote. Corpus is only "
+             f"{meta['corpus_chunks']} chunks (random top-5 hits ~17.9%), so this benchmark is easy.")
+    set_text(t5.rows[2].cells[1], f"{ret['mrr']['mean']:.4f}", bold=True)
+    set_text(t5.rows[2].cells[2], f"Bootstrap 95% CI {ci(ret['mrr']['ci95'])}.")
+    set_text(t5.rows[3].cells[1], f"{ret['ndcg@5']['mean']:.4f}", bold=True)
+    set_text(t5.rows[3].cells[2], f"Bootstrap 95% CI {ci(ret['ndcg@5']['ci95'])}; ideal DCG computed from the relevant chunks in the store.")
+    set_text(t5.rows[4].cells[1], f"{ret['context_precision']['mean']:.3f} (share)  /  {ret['context_precision_rank_aware']['mean']:.3f} (rank-aware)", bold=True)
+    set_text(t5.rows[4].cells[2], "Share = fraction of the 5 retrieved chunks that are relevant (capped by how many relevant chunks exist). "
+             "Rank-aware = average precision over relevant ranks.")
+
+    # ---------------- 1.3.2 answer quality ----------------
+    t6 = d.tables[6]
+    judge_txt = f"LLM judge: {meta['judge']} ({meta['judge_provider']}), different family from generator {meta['generator']}"
+    f_, rel = aq["faithfulness"], aq["relevance"]
+    set_text(t6.rows[1].cells[1], f"{f_['mean']:.2f} / 5", bold=True)
+    set_text(t6.rows[1].cells[2], judge_txt)
+    set_text(t6.rows[1].cells[3], f"{aq['evaluated_questions']} answerable questions only; CI {ci(f_['ci95'], 2)}; histogram {f_['spread']['histogram']}. "
+             "Judge not yet validated against independent human labels for this task.")
+    set_text(t6.rows[2].cells[1], f"{rel['mean']:.2f} / 5", bold=True)
+    set_text(t6.rows[2].cells[2], judge_txt)
+    set_text(t6.rows[2].cells[3], f"All {rel['n']} scores equal 5 - this metric does not discriminate here.")
+    set_text(t6.rows[3].cells[1], f"{aq['exact_match_answerable']['mean']:.3f}", bold=True)
+    set_text(t6.rows[3].cells[2], "gold answers")
+    set_text(t6.rows[3].cells[3], aq["em_note"])
+    set_text(t6.rows[4].cells[1], f"{aq['token_f1_answerable']['mean']:.3f}", bold=True)
+    set_text(t6.rows[4].cells[2], "gold answers")
+    set_text(t6.rows[4].cells[3], f"Token F1 vs gold answer, bootstrap CI {ci(aq['token_f1_answerable']['ci95'])}; cited free-form answers are longer than gold, which lowers F1.")
+
+    # ---------------- 1.3.3 cost ----------------
+    t7 = d.tables[7]
+    for i, row in enumerate(cost["rows"], start=1):
+        set_text(t7.rows[i].cells[1], f"${row['self_hosted_ec2_usd']:.2f} (always-on instance + S3)\n${row['self_hosted_s3_only_usd']:.2f} (no instance: S3 only)", bold=True)
+        set_text(t7.rows[i].cells[2], f"${row['pinecone_pod_usd']:.2f} (pods)\n${row['pinecone_serverless_usd']:.2f} (serverless)")
+        set_text(t7.rows[i].cells[3], f"{row['ratio_vs_pod']}x cheaper than pods; vs Pinecone Serverless the break-even is "
+                 f"{row['break_even_queries_month']:,} queries/month (below that, serverless is cheaper than the fixed instance). Estimate, not measured.")
+    a = cost["assumptions"]
+    sh, mg = a["self_hosted"], a["managed"]
+    text = (
+        "Pricing assumptions (estimates from the cited vendor pages, not measurements; verify before relying on them):\n"
+        f"- Queries/month: {a['queries_per_month']['value']:,}.\n"
+        f"- Bytes per vector: {a['bytes_per_vector']['value']} - {a['bytes_per_vector']['note']}.\n"
+        f"- Self-hosted instance ${sh['instance_monthly_usd']['value']}/mo ({sh['instance_monthly_usd']['note']}); S3 storage "
+        f"${sh['storage_usd_per_gb_month']['value']}/GB-month; S3 GET ${sh['get_usd_per_1000_requests']['value']} per 1,000, "
+        f"{sh['gets_per_query']['value']} GETs/query assumed.\n"
+        + "\n".join(f"- Pinecone pods <= {t['max_vectors']:,} vectors: ${t['monthly_usd']}/mo ({t['note']})" for t in mg["tiers"])
+        + f"\n- Pinecone Serverless: storage ${mg['serverless']['storage_usd_per_gb_month']['value']}/GB-month, reads "
+        f"${mg['serverless']['usd_per_million_read_units']['value']} per million read units "
+        f"(read units per query: see assumptions file).\n"
+        "Sources and access dates are in data/pricing_assumptions.json. Note: the latency numbers below were measured on a local "
+        "disk, while the S3-only cost row assumes object-storage reads; those two have not been measured together."
     )
-    set_cell_text(doc.tables[2].rows[0].cells[0], install_cmd, font_size=8.5)
+    set_text(d.tables[8].rows[0].cells[0], text, size=8.5)
 
-    # Table 3: 1.2 Ingest a corpus
-    ingest_cmd = (
-        "# Ingests PDF, HTML, and Markdown files from data/corpus\n"
-        "# Default parameters: chunk_size=800 characters, chunk_overlap=100 characters\n"
-        "python -m rag.ingest data/corpus"
-    )
-    set_cell_text(doc.tables[3].rows[0].cells[0], ingest_cmd, font_size=8.5)
+    # ---------------- 1.3.4 latency ----------------
+    t9 = d.tables[9]
+    vs, emb = lat["vector_search_only"], lat["query_embedding_api"]
+    set_text(t9.rows[1].cells[1], f"{vs['p50_ms']:.1f} (search only)\n{emb['p50_ms']:.0f} (query embedding API)", bold=True)
+    set_text(t9.rows[1].cells[2], f"k={lat['k']}, {lat['vectors_in_store']} vectors in store (flat search), {lat['queries']} queries x {lat['repeats']} repeats, "
+             f"{hw['platform']}, {hw['cpu_count']} CPUs.")
+    set_text(t9.rows[2].cells[1], f"{vs['p95_ms']:.1f} (search only)\n{emb['p95_ms']:.0f} (query embedding API)", bold=True)
+    r100 = syn["runs"][0]
+    set_text(t9.rows[2].cells[2], f"Same run. Scale: only {r100['vectors']:,} synthetic vectors were benchmarked (flat p50 {r100['flat_exact']['p50_ms']:.0f} ms; "
+             f"IVF-PQ refine_factor=20 p50 {r100['ivf_pq']['settings']['refine_factor_20']['p50_ms']:.1f} ms at recall@5 "
+             f"{r100['ivf_pq']['settings']['refine_factor_20']['recall@5_vs_exact']:.2f}; without refine recall was "
+             f"{r100['ivf_pq']['settings']['no_refine']['recall@5_vs_exact']:.2f}). 1M and 10M were NOT measured.")
+    L = rag["latency_ms"]
+    set_text(t9.rows[3].cells[1], f"{L['total_p95']:.0f}", bold=True)
+    set_text(t9.rows[3].cells[2], f"End-to-end over {L['n']} questions (p50 {L['total_p50']:.0f} ms); dominated by generation (p95 {L['generation_p95']:.0f} ms). "
+             f"Slowest single requests: {', '.join(str(s['id']) + ' ' + format(s['total_ms'], ',.0f') + ' ms' for s in L['slowest'])}; "
+             "p95 of this few requests is close to the maximum.")
 
-    # Table 4: 1.2 Run a query
-    query_cmd = (
-        "# 1. Start HTTP Service (FastAPI):\n"
-        "uvicorn rag.api:app --host 0.0.0.0 --port 8000\n"
-        "curl -X POST http://localhost:8000/query \\\n"
-        "  -H \"Content-Type: application/json\" \\\n"
-        "  -d '{\"query\": \"What is IVF-PQ in LanceDB?\", \"k\": 5}'\n\n"
-        "# 2. Or CLI direct query:\n"
-        "python -m rag.service --query \"What is IVF-PQ in LanceDB?\" --k 5"
-    )
-    set_cell_text(doc.tables[4].rows[0].cells[0], query_cmd, font_size=8.5)
+    # ---------------- design decisions: candidate's own reasoning ----------------
+    hints = {
+        10: ("why LanceDB over the other stores", "embedded/no server; cost table (results/cost_comparison.json); 28-row store uses flat search, IVF-PQ only benchmarked on synthetic vectors"),
+        11: ("chunking size/overlap and what degraded elsewhere", "default 800/100 (rag/chunking.py). The repo contains NO chunk-size sweep - if you did not run one, say so rather than describe one"),
+        12: ("embedding model and dimension trade-off", "gemini-embedding-001 at 768 dims, query/document task types, vectors re-normalised. No comparison against another embedding model exists in the repo"),
+        13: ("how you handle no relevant context", f"stage 1 score gate: {ref['stage1_threshold_refused']} out-of-domain refused; stage 2: {ref['stage2_prompt_grounding_refused']} of the rest declined in text; false refusals {ref['false_refusals_on_answerable']}; threshold set on 7 dev negatives, evaluated on 8"),
+        14: ("how re-ingest avoids duplicates", "chunk_id = hash of doc_id|index|text; doc_hash over text + chunk params + embed model; upsert then delete stale rows (rag/store.py, rag/ingest.py); tests/test_ingest.py"),
+        15: ("trade-offs accepted and when you would switch to a managed DB", "cost table; no 1M/10M latency measurement; single-node embedded store"),
+    }
+    for i, (what, h) in hints.items():
+        todo(d.tables[i].rows[0].cells[0], f"your reasoning: {what}", h)
 
-    # -------------------------------------------------------------
-    # 1.3.1 Retrieval Metrics (Table 5)
-    # -------------------------------------------------------------
-    t5 = doc.tables[5]
-    summary = rag_rep.get("summary", {})
-    set_cell_text(t5.rows[1].cells[1], f"{summary.get('hit_rate_at_k', 1.0):.4f} (100.0%)", bold=True)
-    set_cell_text(t5.rows[1].cells[2], "22/22 answerable questions retrieved the gold source chunk in top-5 (95% CI: [0.851, 1.000])")
+    # ---------------- evidence & reflection (candidate only) ----------------
+    for i, what in [(16, "paste a REAL screenshot of one query: run the service/CLI and capture latency, chunk count, token usage"),
+                    (17, "paste a REAL screenshot: run `python -m rag.ingest data/corpus` twice; the second run should show nothing re-embedded"),
+                    (34, "paste a REAL screenshot of one raw prompt + raw response from logs/llm_calls.jsonl"),
+                    (35, "paste a REAL screenshot of the position-bias output from python -m judge.run")]:
+        todo(d.tables[i].rows[0].cells[0], what)
+    for i, what in [(18, "walk through one query in your own words, without AI help"),
+                    (19, "one thing that broke and exactly how you debugged it - your own account"),
+                    (20, "which AI tools you used and for what; what is entirely your own - state this truthfully"),
+                    (36, "explain your position-bias check in your own words, without AI help"),
+                    (37, "your own read of the adversarial probe result"),
+                    (38, "which AI tools you used and for what; what is entirely your own - state this truthfully")]:
+        todo(d.tables[i].rows[0].cells[0], what)
+    pr = judge["sycophancy_adversarial_evaluation"]["with_reference"]
+    set_text(d.tables[37].rows[0].cells[0],
+             f"{TODO} - your own read of the adversarial probe result ]\nMeasured: with a reference answer the judge was fooled in "
+             f"{pr['fooled_count']}/{pr['total_adversarial_cases']} probes (95% CI {ci(pr['fool_rate_ci95'])}); without a reference "
+             f"{judge['sycophancy_adversarial_evaluation']['without_reference']['fooled_count']}/"
+             f"{judge['sycophancy_adversarial_evaluation']['without_reference']['total_adversarial_cases']}. "
+             "With n = 8 the upper bound of the interval is still about one third.", size=9, color=TODO_COLOR)
 
-    set_cell_text(t5.rows[2].cells[1], f"{summary.get('mrr', 0.94):.4f}", bold=True)
-    set_cell_text(t5.rows[2].cells[2], "Mean Reciprocal Rank of first relevant gold chunk (20 rank 1, 1 rank 2, 1 rank 3; 95% CI: [0.865, 0.998])")
+    # ---------------- P2 rubric: read from code (judge/rubrics.py STANDARD_RUBRIC) ----------------
+    from judge.rubrics import STANDARD_RUBRIC
+    t25 = d.tables[25]
+    keys = list(STANDARD_RUBRIC)
+    while len(t25.rows) - 1 < len(keys):
+        t25.add_row()
+    for row, k in zip(t25.rows[1:], keys):
+        c = STANDARD_RUBRIC[k]
+        set_text(row.cells[0], c.name.replace("_", " "), bold=True)
+        set_text(row.cells[1], f"{c.description}\n1: {c.anchor_1}\n3: {c.anchor_3}\n5: {c.anchor_5}", size=8.5)
+        set_text(row.cells[2], f"{c.weight:.2f}")
 
-    set_cell_text(t5.rows[3].cells[1], f"{summary.get('ndcg_at_k', 0.94):.4f}", bold=True)
-    set_cell_text(t5.rows[3].cells[2], "Discounted cumulative gain normalized by ideal DCG=1.0 for single target document chunk (bounded in [0.0, 1.0])")
+    # ---------------- P2 bias table ----------------
+    t26 = d.tables[26]
+    pb, ip = judge["position_bias_evaluation"]["details"], judge["identical_pair_probe"]
+    set_text(t26.rows[1].cells[1], "Every pair is judged in both orders; consensus winner; hard flips (winner changes) and soft flips recorded. Identical-pair probe checks slot preference.")
+    set_text(t26.rows[1].cells[2], f"Single-order hard flips {pb['hard_flips']}/{pb['n_pairs']} (95% CI {ci(pb['single_order_flip_ci95'])}). No flips were observed, so there is no before->after change to report. "
+             f"Identical-pair probe: first slot won {ip['first_slot_wins']}, second {ip['second_slot_wins']}, ties {ip['ties']} of {ip['n_judgements']} (sign test p = {ip['sign_test_p']}; underpowered).")
+    vb = judge["verbosity_bias_evaluation"]
+    set_text(t26.rows[2].cells[1], "Paired pointwise probe: same content, terse vs padded; baseline rubric vs calibrated rubric.")
+    set_text(t26.rows[2].cells[2], f"Verbose minus terse score: {vb['before_mitigation']['mean_diff_verbose_minus_terse']} (CI {ci(vb['before_mitigation']['ci95'])}) -> "
+             f"{vb['after_mitigation']['mean_diff_verbose_minus_terse']} (CI {ci(vb['after_mitigation']['ci95'])}), n={vb['after_mitigation']['n']}. Both penalise the verbose answer; "
+             "the mitigation did not remove the effect, it changed its size.")
+    set_text(t26.rows[3].cells[1], "Judge and generator are different model families, configured independently.")
+    set_text(t26.rows[3].cells[2], f"No before->after measurement. Problem 1 answers (generator {meta['generator']}) were judged by "
+             f"{meta['judge']}; no same-family judge run is reported here, so the size of any self-enhancement effect is unknown.")
+    sy = judge["sycophancy_adversarial_evaluation"]
+    set_text(t26.rows[4].cells[1], "Per-criterion rationale before score; probe with a confidently wrong answer, with and without a reference answer.")
+    set_text(t26.rows[4].cells[2], f"Fooled: with reference {sy['with_reference']['fooled_count']}/{sy['with_reference']['total_adversarial_cases']}, "
+             f"without {sy['without_reference']['fooled_count']}/{sy['without_reference']['total_adversarial_cases']} (CI {ci(sy['with_reference']['fool_rate_ci95'])}). No before->after.")
+    sc = judge["score_clustering_evaluation"]
+    set_text(t26.rows[5].cells[1], "Few-shot score anchors in the judging prompt.")
+    set_text(t26.rows[5].cells[2], f"Std {sc['before_mitigation']['std']} -> {sc['after_mitigation']['std']}; distinct values {sc['before_mitigation']['distinct_values']} -> "
+             f"{sc['after_mitigation']['distinct_values']}; share at extremes {sc['before_mitigation']['frac_at_extremes']} -> {sc['after_mitigation']['frac_at_extremes']} (n={sc['after_mitigation']['n']}). "
+             "Spread across the scale improved; the standard deviation went down, so it is not 'more spread' in that sense.")
 
-    set_cell_text(t5.rows[4].cells[1], f"{summary.get('context_precision', 0.82):.4f}", bold=True)
-    set_cell_text(t5.rows[4].cells[2], "Ratio of retrieved chunks containing gold verbatim evidence quotes to total retrieved chunks (95% CI: [0.736, 0.898])")
+    # ---------------- P2 validation ----------------
+    t27, ha, tr = d.tables[27], judge["human_agreement_validation"], judge["test_retest_consistency"]
+    src = ha["label_sources"]
+    set_text(t27.rows[1].cells[1], f"{ha['agreement_rate']*100:.0f}% ({ha['confusion_matrix']['true_positive']+ha['confusion_matrix']['true_negative']}/{ha['total_cases']})", bold=True)
+    set_text(t27.rows[1].cells[2], f"n = {ha['total_cases']}, Wilson 95% CI {ci(ha['agreement_ci95_wilson'])}. The report records label_sources={src}, but data/judge_suites/human_labeled_cases.json is tagged 'author' - "
+             "these are author-written labels, not independent human labels, so re-run judge.run to refresh the report. "
+             "Replace with agreement on the 30-row blind sheet once you have labeled it and re-run.")
+    set_text(t27.rows[2].cells[1], f"{ha['cohens_kappa']}", bold=True)
+    set_text(t27.rows[2].cells[2], f"Bootstrap CI {ha['kappa_ci95_bootstrap']}; mean absolute score error {ha['mean_absolute_score_error']}. Kappa of 1.0 on 10 cases is weak evidence.")
+    set_text(t27.rows[3].cells[1], f"{tr['flip_count']}/{tr['total_cases']} verdicts flipped", bold=True)
+    set_text(t27.rows[3].cells[2], f"{tr['runs_per_case']} runs per case at temperature 0.0; {tr['judge_calls_made']} real judge calls for {tr['judgements_requested']} judgements "
+             f"(cache_suspected={tr['cache_suspected']}). Scores still varied: mean range {tr['mean_score_range']}, max {tr['max_score_range']}.")
+    set_text(t27.rows[4].cells[1], f"Fooled {sy['with_reference']['fooled_count']}/{sy['with_reference']['total_adversarial_cases']} (with reference); {sy['without_reference']['fooled_count']}/{sy['without_reference']['total_adversarial_cases']} (without)", bold=True)
+    set_text(t27.rows[4].cells[2], f"Confidently-wrong answers vs correct ones, n=8; CI upper bound {sy['with_reference']['fool_rate_ci95'][1]}.")
 
-    # -------------------------------------------------------------
-    # 1.3.2 Answer Quality (Table 6)
-    # -------------------------------------------------------------
-    t6 = doc.tables[6]
-    ans_q = summary.get("answer_quality_answerable_only", {})
-    faith_m = ans_q.get("faithfulness_mean", 4.9545)
-    corr_m = ans_q.get("correctness_mean", 4.9091)
-    f1_m = ans_q.get("f1_mean", 0.4435)
+    # ---------------- P2 A/B ----------------
+    t28 = d.tables[28]
+    set_text(t28.rows[1].cells[0], ab["label_a"])
+    set_text(t28.rows[1].cells[1], "not computed (pairwise run)")
+    set_text(t28.rows[1].cells[2], f"{ab['mean_score_a']}")
+    set_text(t28.rows[1].cells[3], f"{ab['win_rate_a']*100:.0f}% ({ab['wins_a']}/{ab['total_cases']})")
+    set_text(t28.rows[2].cells[0], ab["label_b"])
+    set_text(t28.rows[2].cells[1], "not computed (pairwise run)")
+    set_text(t28.rows[2].cells[2], f"{ab['mean_score_b']}  (diff {ab['mean_score_diff_b_minus_a']}, CI {ci(ab['score_diff_ci95'], 2)})")
+    set_text(t28.rows[2].cells[3], f"{ab['win_rate_b']*100:.0f}% ({ab['wins_b']}/{ab['total_cases']})")
 
-    set_cell_text(t6.rows[1].cells[1], f"{faith_m:.2f} / 5.0", bold=True)
-    set_cell_text(t6.rows[1].cells[2], "LLM-judge (Decoupled Llama 3.2:latest)")
-    set_cell_text(t6.rows[1].cells[3], "Scored on 22 answerable questions (95% CI: [4.86, 5.00], 21 fives, 1 four). Refusals measured separately: 8/8 pass-throughs declined in text (Wilson 95% CI: [0.676, 1.000]). Baseline coupled Gemini judge gave 4.96/5.0.")
+    # ---------------- P2 design decisions ----------------
+    h2 = {
+        29: ("which judging mode and why", "pointwise + pairwise both implemented; pairwise runs both orders (judge/bias.py)"),
+        30: ("how you parse structured verdicts and recover from malformed JSON", f"see judge/pipeline.py; parse failures counted, never defaulted; report shows judge_calls={cfg['judge_calls']}"),
+        31: ("why this judge family vs the generator family", f"judge {cfg['judge_model']}; generator {cfg['generator_model']}; Problem 1 answer judge is {meta['judge']} vs generator {meta['generator']}"),
+        32: ("which bias worried you most and how confident you are", "position: 0 flips observed in 10 pairs (CI up to 0.278), identical-pair probe underpowered; verbosity: both rubrics still penalise verbose answers"),
+        33: ("would you let this judge gate a release, and where a human stays in the loop", "small samples (n=8-10 per probe); no independent human agreement yet; sign-test gate returns INCONCLUSIVE at n=10"),
+    }
+    for i, (what, h) in h2.items():
+        todo(d.tables[i].rows[0].cells[0], f"your reasoning: {what}", h)
 
-    set_cell_text(t6.rows[2].cells[1], f"{corr_m:.2f} / 5.0", bold=True)
-    set_cell_text(t6.rows[2].cells[2], "LLM-judge (Decoupled Llama 3.2:latest)")
-    set_cell_text(t6.rows[2].cells[3], "20 fives, 2 fours across 22 answerable questions (95% CI: [4.77, 5.00]). Baseline coupled Gemini judge gave 4.84/5.0.")
+    d.save("submission_template_completed.docx")
+    left = sum(1 for t in d.tables for r in t.rows for c in r.cells if c.text.startswith(TODO))
+    print(f"saved submission_template_completed.docx; {left} placeholder cells left for the candidate")
 
-    set_cell_text(t6.rows[3].cells[1], "0.000", bold=True)
-    set_cell_text(t6.rows[3].cells[2], "gold")
-    set_cell_text(t6.rows[3].cells[3], "Exact Match is 0.000 because generative answers synthesize detailed explanations with [Chunk X] citation tags rather than raw string copies.")
-
-    set_cell_text(t6.rows[4].cells[1], f"{f1_m:.4f}", bold=True)
-    set_cell_text(t6.rows[4].cells[2], "gold")
-    set_cell_text(t6.rows[4].cells[3], "Token-level unigram harmonic mean between generated cited answers and gold reference answers (95% CI: [0.392, 0.495]).")
-
-    # -------------------------------------------------------------
-    # 1.3.3 Cost Comparison (Table 7 & Table 8)
-    # -------------------------------------------------------------
-    t7 = doc.tables[7]
-    set_cell_text(t7.rows[1].cells[1], "$24.66 / mo (EC2+S3)\n$0.13 / mo (S3 Serverless)", bold=True)
-    set_cell_text(t7.rows[1].cells[2], "$70.00 / mo (Pinecone Pods)\n$0.90 / mo (Pinecone Serverless)")
-    set_cell_text(t7.rows[1].cells[3], "2.8x savings vs Pods. Pinecone Serverless cheaper at low volume ($0.90) due to EC2 always-on baseline ($24.53).")
-
-    set_cell_text(t7.rows[2].cells[1], "$24.72 / mo (EC2+S3)\n$0.19 / mo (S3 Serverless)", bold=True)
-    set_cell_text(t7.rows[2].cells[2], "$140.00 / mo (Pinecone Pods)\n$1.55 / mo (Pinecone Serverless)")
-    set_cell_text(t7.rows[2].cells[3], "5.7x savings vs Pods ($140). Break-even query volume with Pinecone Serverless is ~3.39M queries/mo.")
-
-    set_cell_text(t7.rows[3].cells[1], "$25.31 / mo (EC2+S3)\n$0.78 / mo (S3 Serverless)", bold=True)
-    set_cell_text(t7.rows[3].cells[2], "$1,400.00 / mo (Pinecone Pods)\n$7.99 / mo (Pinecone Serverless)")
-    set_cell_text(t7.rows[3].cells[3], "55.3x savings vs Pods ($1,400). Pure serverless S3 LanceDB ($0.78) is 10.2x cheaper than Pinecone Serverless.")
-
-    # Table 8: Pricing assumptions
-    price_assumptions = (
-        "Pricing Assumptions (Verified as of October 2026 from vendor pricing pages):\n"
-        "1. Self-Hosted EC2+S3: AWS US-East-1 t4g.small (2 vCPU, 2GB RAM) always-on instance @ $0.0336/hr ($24.53/mo). "
-        "Storage on AWS S3 Standard @ $0.023/GB-month. S3 GET requests @ $0.0004 per 1,000 requests ($1.20/1M reads).\n"
-        "2. Vector Footprint: Measured exact footprint in LanceDB is 4,233 bytes/vector (includes 768d float32 embeddings, text chunk payload, metadata, and IVF-PQ index files). "
-        "At 100K vectors: 0.39 GB storage. At 1M vectors: 3.94 GB storage. At 10M vectors: 39.42 GB storage.\n"
-        "3. Managed Pods (Pinecone): Standard s1/p1 pods @ $0.096/hr ($70/mo/pod). 100K requires 1 pod ($70), 1M requires 2 pods for redundancy/capacity ($140), 10M requires 20 pods ($1,400/mo).\n"
-        "4. Pinecone Serverless: Storage @ $0.25/GB-month ($0.10/mo at 100K, $0.99/mo at 1M, $9.86/mo at 10M). Reads @ $8.25 per 1M Read Capacity Units (RCUs), assuming 100K queries/mo.\n"
-        "5. Break-Even Query Volume: At 1M vectors, EC2 LanceDB + S3 ($24.72/mo fixed) breaks even with Pinecone Serverless ($1.55/mo at 100K queries) at exactly 3,388,436 queries/month (~1.30 QPS sustained). Below 3.39M queries/mo, Pinecone Serverless or Pure S3 LanceDB ($0.19/mo) is cheaper."
-    )
-    set_cell_text(doc.tables[8].rows[0].cells[0], price_assumptions, font_size=8.5)
-
-    # -------------------------------------------------------------
-    # 1.3.4 Latency (Table 9)
-    # -------------------------------------------------------------
-    t9 = doc.tables[9]
-    set_cell_text(t9.rows[1].cells[1], "1.20 ms", bold=True)
-    set_cell_text(t9.rows[1].cells[2], "k=5, N=117 real corpus chunks, local NVMe SSD (AMD Ryzen 9, Windows 11)")
-
-    set_cell_text(t9.rows[2].cells[1], "1.84 ms", bold=True)
-    set_cell_text(t9.rows[2].cells[2], "k=5, N=117 real corpus chunks, local NVMe SSD (p99 = 2.45 ms)")
-
-    set_cell_text(t9.rows[3].cells[1], "1,450 ms", bold=True)
-    set_cell_text(t9.rows[3].cells[2], "End-to-end includes query embedding (218 ms), vector search (1.8 ms), and Gemini 3.1 Flash Lite generation (1,230 ms). At 1M vectors, flat search scales O(N*D) to ~1,890 ms; IVF-PQ with refine=20 bounds latency to 8.17 ms (p50) and 12-18 ms (p95) at 93.6% recall.")
-
-    # -------------------------------------------------------------
-    # 1.4 Design Decisions & Trade-offs (Tables 10 to 15)
-    # -------------------------------------------------------------
-    set_cell_text(doc.tables[10].rows[0].cells[0],
-        "Why LanceDB over others: LanceDB decouples compute from storage using Apache Arrow on-disk columnar formatting. "
-        "Unlike pgvector and Qdrant which require constantly allocated RAM for in-memory HNSW graphs ($140+/mo on managed pods), "
-        "LanceDB queries vectors directly from NVMe SSD or S3 block storage with zero idle compute costs. "
-        "For lightly queried enterprise document stores, this eliminates the $1,600+/yr idle pod tax while sustaining 1.20 ms p50 latency.", font_size=9)
-
-    set_cell_text(doc.tables[11].rows[0].cells[0],
-        "Chunking strategy: We evaluated chunk sizes of 400, 800, and 1,500 characters with overlaps of 0, 100, and 250 characters. "
-        "Small chunks (400 chars) suffered from context fragmentation, splitting code examples and multi-sentence technical definitions across boundaries, causing generation hallucination. "
-        "Large chunks (1,500 chars) diluted semantic density, lowering Hit@5 and inflating LLM input token costs by 2.4x. "
-        "The 800-character chunk with 100-character overlap preserved semantic boundary completeness without token bloat, achieving 100% Hit@5.", font_size=9)
-
-    set_cell_text(doc.tables[12].rows[0].cells[0],
-        "Embedding model & dimensionality: We chose gemini-embedding-001 (768 dimensions). Compared to 1536d models (text-embedding-3-small), "
-        "768d cuts vector index RAM and storage footprints by exactly 50% (saving S3 storage and I/O latency) while achieving identical 100% Hit Rate and 0.94 MRR on technical documentation. "
-        "Local models like bge-m3 were tested, but Gemini API offloads embedding compute entirely from the application container.", font_size=9)
-
-    set_cell_text(doc.tables[13].rows[0].cells[0],
-        "Handling no relevant context without hallucinating: We implemented a strict two-stage guardrail: "
-        "Stage 1 is a deterministic cosine similarity threshold gate (MIN_SCORE = 0.60); if top chunk similarity is < 0.60, the pipeline immediately returns a refusal without calling the LLM generator, eliminating API cost and hallucinations. "
-        "Stage 2 is strict in-text citation prompting requiring explicit [Chunk X] citations. Out-of-domain evaluation on 15 queries confirmed 7/15 stopped deterministically at Stage 1, "
-        "and 8/8 pass-throughs were cleanly declined in text by the generator (Wilson 95% CI: [0.676, 1.000]), achieving 15/15 (100%) end-to-end refusal with 0/22 false refusals.", font_size=9)
-
-    set_cell_text(doc.tables[14].rows[0].cells[0],
-        "Idempotent re-ingest: Re-ingestion guarantees zero duplicate vectors via a two-layer verification architecture: "
-        "1) Document-level hashing: A SHA-256 hash is computed for every source document and recorded in a persistent registry (`.ingest_registry.json`). Unchanged files are skipped entirely. "
-        "2) Primary-key deduplication: Each chunk receives a deterministic UUID derived from `sha256(file_path + str(chunk_idx) + chunk_text[:64])`. "
-        "LanceDB overwrites existing record keys upon re-ingest, guaranteeing that re-running ingestion leaves total vector count exactly unchanged (117 vectors before and after).", font_size=9)
-
-    set_cell_text(doc.tables[15].rows[0].cells[0],
-        "Trade-offs accepted and when to switch back: We knowingly accepted NVMe SSD disk read latency (1.2–15 ms) over pure in-memory HNSW RAM latency (0.2–2 ms) in exchange for a 5.7x to 55x cost reduction. "
-        "We also accept write-throughput limitations inherent in columnar file formats. "
-        "We would switch back to a managed vector DB (like Pinecone or Qdrant Cloud) if: "
-        "1) Sustained query throughput exceeds 2,500 QPS requiring distributed horizontal sharding, "
-        "2) Real-time write ingestion requires >10,000 upserts/sec with concurrent reads, or "
-        "3) Strict sub-millisecond p99 SLA is contractually mandated across multi-region active-active deployments.", font_size=9)
-
-    # Table 16 & 17: Screenshots
-    p_q = Path("results/figures/screenshot_query.png")
-    if p_q.exists():
-        set_cell_image(doc.tables[16].rows[0].cells[0], p_q, width=Inches(6.0))
-
-    p_ing = Path("results/figures/screenshot_idempotent.png")
-    if p_ing.exists():
-        set_cell_image(doc.tables[17].rows[0].cells[0], p_ing, width=Inches(6.0))
-
-    # Reflections (Tables 18 to 20)
-    set_cell_text(doc.tables[18].rows[0].cells[0],
-        "Walkthrough of one query: A client issues a POST /query request with JSON payload {'query': 'What is IVF-PQ in LanceDB?', 'k': 5}. "
-        "The FastAPI handler validates the payload via Pydantic and passes the query to RagService. "
-        "The query string is embedded into a 768-dimensional float32 vector using GeminiEmbedder. "
-        "The VectorStore executes a cosine similarity search against the LanceDB on-disk dataset, scanning IVF-PQ centroids and fetching the top 5 nearest chunk records along with metadata in 1.20 ms. "
-        "The similarity score of the top chunk (0.8126) is evaluated against MIN_SCORE (0.60). Since 0.8126 >= 0.60, the 5 chunks are formatted into numbered blocks [Chunk 1]..[Chunk 5]. "
-        "A grounded generation prompt is constructed instructing the LLM to cite facts solely from the numbered chunks. "
-        "Gemini 3.1 Flash Lite synthesizes a response citing [Chunk 1]. The API logs total latency (1,324 ms), token usage, and returns the structured response.", font_size=9)
-
-    set_cell_text(doc.tables[19].rows[0].cells[0],
-        "Something that broke first time: During initial evaluation of the 37 test queries, answer quality scores appeared artificially low (4.11 faithfulness and 4.41 correctness). "
-        "Upon inspecting the raw judge logs, I discovered that the 3B Llama judge was giving a score of 1.0 to perfectly valid out-of-domain refusals (e.g., 'The provided context does not contain...'). "
-        "Because the query was out-of-domain, no retrieved chunks contained the answer; the judge misinterpreted the absence of supporting chunks as an ungrounded hallucination rather than a correct refusal. "
-        "I debugged this by separating the evaluation into two orthogonal dimensions: answer quality scored strictly on the 22 answerable questions (where Llama judge awarded 4.95 faithfulness and 4.91 correctness), "
-        "and refusal behavior evaluated independently on the 15 out-of-domain queries (confirming 15/15 end-to-end refusals).", font_size=9)
-
-    set_cell_text(doc.tables[20].rows[0].cells[0],
-        "AI usage disclosure (Problem 1): AI coding assistants (Gemini / Claude) were utilized for drafting boilerplate configuration parsers, "
-        "formatting matplotlib charting scripts, and writing pytest harness fixtures. "
-        "All system architecture design decisions (LanceDB storage choice, two-stage refusal guardrails, chunking sizing, and SHA-256 deduplication logic), "
-        "mathematical metric corrections (bounded nDCG, Wilson score intervals, bootstrap CIs), and technical reflections were conceived, audited, and verified by me personally.", font_size=9)
-
-    # -------------------------------------------------------------
-    # Problem 2: LLM-as-a-Judge Evaluation Pipeline
-    # -------------------------------------------------------------
-    # Table 21: 2.1 Architecture Diagram
-    p2_diag = Path("results/figures/problem2_architecture.png")
-    if p2_diag.exists():
-        set_cell_image(doc.tables[21].rows[0].cells[0], p2_diag, width=Inches(6.2))
-
-    # Table 22: 2.2 Install
-    p2_install = (
-        "git clone https://github.com/Aditya-Singh27/RAG.git\n"
-        "cd RAG\n"
-        "pip install -r requirements.txt\n"
-        "# Verify Ollama is running locally for the generator model:\n"
-        "ollama run llama3.2:latest 'Hello'"
-    )
-    set_cell_text(doc.tables[22].rows[0].cells[0], p2_install, font_size=8.5)
-
-    # Table 23: 2.2 Run a suite -> produce a report
-    p2_run_suite = (
-        "# Runs full Problem 2 LLM-as-a-Judge evaluation harness:\n"
-        "python -m judge.run\n"
-        "# Auditable structured report saved to results/judge_evaluation_report.json\n"
-        "# Raw prompts and responses logged to logs/llm_calls.jsonl"
-    )
-    set_cell_text(doc.tables[23].rows[0].cells[0], p2_run_suite, font_size=8.5)
-
-    # Table 24: 2.2 Run an A/B comparison
-    p2_ab_cmd = (
-        "# Generate real model outputs for Prompt v1 (Naive) vs Prompt v2 (Grounded):\n"
-        "python scripts/generate_real_ab.py\n"
-        "# Run statistically gated A/B comparison with dual-order sign test:\n"
-        "python -m judge.run"
-    )
-    set_cell_text(doc.tables[24].rows[0].cells[0], p2_ab_cmd, font_size=8.5)
-
-    # Table 25: 2.3.1 Judging Mode & Rubric (6 rows x 3 cols)
-    t25 = doc.tables[25]
-    set_cell_text(t25.rows[1].cells[1], "Factual accuracy, logical validity, complete absence of falsehoods (1: Gross falsehood; 3: Minor inaccuracy; 5: Flawlessly accurate)")
-    set_cell_text(t25.rows[1].cells[2], "0.30")
-
-    set_cell_text(t25.rows[2].cells[1], "Strictly grounded in provided context; zero extrapolation (1: Extrapolated hallucinations; 3: Inferred; 5: 100% faithful)")
-    set_cell_text(t25.rows[2].cells[2], "0.25")
-
-    set_cell_text(t25.rows[3].cells[1], "Addresses all prompt facets without leaving critical gaps (1: Fails prompt; 3: Core answered; 5: Comprehensive)")
-    set_cell_text(t25.rows[3].cells[2], "0.15")
-
-    set_cell_text(t25.rows[4].cells[1], "Adheres to formatting constraints, word limits, tone rules (1: Blatantly ignores; 3: Partial format; 5: Perfect)")
-    set_cell_text(t25.rows[4].cells[2], "0.15")
-
-    set_cell_text(t25.rows[5].cells[1], "Conciseness, penalty for ungrounded fluff, safe content (1: Bloated fluff; 3: Slight repetition; 5: Crisp signal-to-noise)")
-    set_cell_text(t25.rows[5].cells[2], "0.15")
-
-    # Table 26: 2.3.2 Bias Handling (6 rows x 3 cols)
-    t26 = doc.tables[26]
-    set_cell_text(t26.rows[1].cells[1], "Symmetrical dual-order permutation (A_then_B and B_then_A); requires consensus agreement.")
-    set_cell_text(t26.rows[1].cells[2], "Single-order flip rate: 10.0% -> After mitigation flip rate: 0.0% (by construction)")
-
-    set_cell_text(t26.rows[2].cells[1], "Length penalty explicit in rubric; probe with padded non-informative text.")
-    set_cell_text(t26.rows[2].cells[2], "Before mitigation: diff = -1.125 -> After mitigation: diff = -0.831 (verdict: penalises verbose; Terse wins 8/8)")
-
-    set_cell_text(t26.rows[3].cells[1], "Decoupled judge and generator across independent model families (Gemini 3.1 Flash Lite judge vs Meta Llama 3.2 generator).")
-    set_cell_text(t26.rows[3].cells[2], "Self-enhancement eliminated. Answer quality verified across both decoupled Llama 3.2 (4.95) and Gemini (4.96).")
-
-    set_cell_text(t26.rows[4].cells[1], "Force per-criterion grounding rationale before score; inject confidently-wrong user belief into prompt.")
-    set_cell_text(t26.rows[4].cells[2], "Fool rate with reference: 0.0% (0/8) -> Fool rate without reference: 0.0% (0/8) (Wilson 95% CI: [0.0, 0.324])")
-
-    set_cell_text(t26.rows[5].cells[1], "Few-shot calibration anchors (Score 1 to 5 definitions) provided directly in judging prompt.")
-    set_cell_text(t26.rows[5].cells[2], "Score spread: Baseline bimodal std=1.857 (3 values) -> Calibrated std=1.422 (6 distinct rating values)")
-
-    # Table 27: 2.3.3 Judge Validation (5 rows x 3 cols)
-    t27 = doc.tables[27]
-    set_cell_text(t27.rows[1].cells[1], "100.0% (10/10)", bold=True)
-    set_cell_text(t27.rows[1].cells[2], "Sample size N=10 author-labeled calibration cases (Wilson 95% CI: [0.722, 1.000])")
-
-    set_cell_text(t27.rows[2].cells[1], "1.0000", bold=True)
-    set_cell_text(t27.rows[2].cells[2], "Cohen's Kappa kappa=1.0000 (Bootstrap 95% CI: [1.0, 1.0]), Mean Absolute Error = 0.265")
-
-    set_cell_text(t27.rows[3].cells[1], "0.0% (0/5 flipped)", bold=True)
-    set_cell_text(t27.rows[3].cells[2], "3 repeat runs at temperature=0.0; audited call count = 15/15 real judge calls, cache_suspected=False")
-
-    set_cell_text(t27.rows[4].cells[1], "NOT FOOLED (0/8)", bold=True)
-    set_cell_text(t27.rows[4].cells[2], "Verbose-but-wrong penalized 100% of the time; terse-but-correct preferred across 8/8 adversarial pairs")
-
-    # Table 28: 2.3.4 A/B Comparison (3 rows x 4 cols)
-    t28 = doc.tables[28]
-    set_cell_text(t28.rows[1].cells[0], "Config A — Naive RAG (Prompt v1, uncited)")
-    set_cell_text(t28.rows[1].cells[1], "20.0% (2/10)")
-    set_cell_text(t28.rows[1].cells[2], "2.35 / 5.0")
-    set_cell_text(t28.rows[1].cells[3], "20.0% (2 wins)")
-
-    set_cell_text(t28.rows[2].cells[0], "Config B — Grounded RAG (Prompt v2, cited + guardrail)")
-    set_cell_text(t28.rows[2].cells[1], "80.0% (8/10)")
-    set_cell_text(t28.rows[2].cells[2], "4.55 / 5.0")
-    set_cell_text(t28.rows[2].cells[3], "80.0% (8 wins)")
-
-    # Problem 2 Design Decisions (Tables 29 to 33)
-    set_cell_text(doc.tables[29].rows[0].cells[0],
-        "Which judging mode did you pick, and why: We implemented both Pointwise scoring and Pairwise A-vs-B. "
-        "Pointwise scoring with an explicit 6-dimensional rubric fits regression testing and absolute release gating, providing fine-grained diagnostic scores (e.g., distinguishing factual errors from formatting slips). "
-        "Pairwise A-vs-B fits model and prompt comparison (Prompt v1 vs Prompt v2), eliminating scale compression and calibration drift by forcing direct comparative discrimination.", font_size=9)
-
-    set_cell_text(doc.tables[30].rows[0].cells[0],
-        "Parsing structured verdicts & malformed JSON recovery: The parser employs a multi-tier fallback engine: "
-        "1) Native json.loads with markdown code block stripping (```json ... ```), "
-        "2) Greedy regular expression extraction searching for matching JSON curly brackets, "
-        "3) Fallback score extraction scanning for 'overall_score': X.X patterns. "
-        "Across all 100+ automated judge evaluations in the benchmark run, the parse failure rate was exactly 0.0% (0 parse failures).", font_size=9)
-
-    set_cell_text(doc.tables[31].rows[0].cells[0],
-        "Why this judge model family vs generator family: Using the same model family for judging and generation introduces self-enhancement bias (e.g., Gemini favoring Gemini's stylistic patterns). "
-        "We completely decoupled families: Meta Llama 3.2 (3B) serves as the open-weights generator, while Google Gemini 3.1 Flash Lite serves as the commercial judge (and vice versa in Problem 1 answer validation). "
-        "This ensures neither system grades its own idiosyncrasies.", font_size=9)
-
-    set_cell_text(doc.tables[32].rows[0].cells[0],
-        "Which bias worried you most, and how confident are you the mitigation worked: Position bias in pairwise evaluation was the most concerning, as LLMs frequently exhibit a strong primacy effect (preferring candidate A simply because it appears first). "
-        "We implemented symmetrical dual-order evaluation: every pair is evaluated as (A, B) and (B, A). "
-        "Single-order evaluation exhibited a 10.0% flip rate. Our dual-order consensus mitigation reduced the mitigated flip rate to 0.0% by construction. "
-        "Furthermore, our identical-pair probe (16 judgements on identical texts) produced 16 ties and 0 first-slot wins (sign test p=1.0), proving slot preference was completely eliminated.", font_size=9)
-
-    set_cell_text(doc.tables[33].rows[0].cells[0],
-        "Would you let this judge gate a release? Under what guardrails: Yes, but strictly under statistical gating and human-in-the-loop guardrails: "
-        "1) Sample size & significance: Releases cannot gate on small samples; a minimum of N >= 100 test cases with sign test p < 0.01 is required. "
-        "2) Zero tolerance on safety: Any failure on safety or fatal hallucination causes an immediate release block regardless of mean score. "
-        "3) Human spot-check: 10% of borderline cases (scores between 3.0 and 4.0) must be routed to human review.", font_size=9)
-
-    # Tables 34 & 35: Screenshots
-    p_audit = Path("results/figures/screenshot_audit_prompt_response.png")
-    if p_audit.exists():
-        set_cell_image(doc.tables[34].rows[0].cells[0], p_audit, width=Inches(6.0))
-
-    p_pos = Path("results/figures/screenshot_position_bias.png")
-    if p_pos.exists():
-        set_cell_image(doc.tables[35].rows[0].cells[0], p_pos, width=Inches(6.0))
-
-    # Reflections (Tables 36 to 38)
-    set_cell_text(doc.tables[36].rows[0].cells[0],
-        "Explain your position-bias check: Position bias occurs when an LLM judge systematically favors the candidate presented first (Option A) due to autoregressive attention dynamics. "
-        "To test this, we evaluate each candidate pair twice: once in order (A, B) and once in reverse order (B, A). "
-        "If the judge is unbiased, swapping the presentation order should produce the exact same preference. "
-        "A high flip rate indicates that the judge is swayed by ordering rather than content quality. "
-        "By enforcing symmetrical dual-order permutation and taking the consensus winner, ordering artifacts are neutralized.", font_size=9)
-
-    set_cell_text(doc.tables[37].rows[0].cells[0],
-        "Adversarial probe outcome: We probed the judge with pairs of verbose-but-incorrect answers vs terse-but-correct answers. "
-        "The baseline unmitigated judge favored the verbose answer due to surface length bias. "
-        "With our calibrated rubric and length penalty, the judge correctly identified factual errors in the verbose candidate and rewarded the concise candidate. "
-        "Across 8/8 adversarial probes, the judge selected the terse-but-correct answer (100% terse win rate), confirming that verbosity bias was effectively mitigated.", font_size=9)
-
-    set_cell_text(doc.tables[38].rows[0].cells[0],
-        "AI usage disclosure (Problem 2): AI tools (Gemini / Claude) assisted with drafting JSON schema validation logic and bootstrapping synthetic prompt permutations. "
-        "The core mathematical formulations (Cohen's Kappa with bootstrap CI, exact two-sided sign test, Wilson score intervals for binomial proportions), "
-        "the 6-dimensional rubric anchor definitions, and all final engineering decisions were independently developed and audited by me.", font_size=9)
-
-    out_file = "submission_template_completed.docx"
-    doc.save(out_file)
-    print(f"\n[SUCCESS] Successfully generated filled submission document: {out_file}")
 
 if __name__ == "__main__":
     main()
