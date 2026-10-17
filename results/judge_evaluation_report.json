@@ -1,175 +1,408 @@
 {
-  "timestamp": 1792249550.1908581,
+  "timestamp": 1792272838.0611036,
   "pipeline_configuration": {
     "judge_provider": "gemini",
     "judge_model": "gemini-3.1-flash-lite",
     "generator_provider": "openai_compat",
     "generator_model": "llama3.2:latest",
     "generator_base_url": "http://localhost:11434/v1",
-    "judge_calls": 155,
+    "judge_calls": 195,
     "audit_log_path": "logs\\llm_calls.jsonl"
   },
   "human_agreement_validation": {
-    "total_cases": 10,
+    "total_cases": 30,
     "pass_threshold": 3.5,
     "label_sources": {
-      "human": 10
+      "human": 30
     },
-    "agreement_rate": 1.0,
+    "labeled_by": [
+      "Aditya Singh"
+    ],
+    "agreement_rate": 0.9,
     "agreement_ci95_wilson": [
-      0.722,
-      1.0
+      0.744,
+      0.965
     ],
-    "cohens_kappa": 1.0,
+    "cohens_kappa": 0.0,
     "kappa_ci95_bootstrap": [
-      1.0,
-      1.0
+      0.0,
+      0.0
     ],
-    "mean_absolute_score_error": 0.265,
+    "mean_absolute_score_error": 0.587,
     "confusion_matrix": {
-      "true_positive": 6,
-      "true_negative": 4,
+      "true_positive": 0,
+      "true_negative": 27,
       "false_positive": 0,
-      "false_negative": 0
+      "false_negative": 3
     },
     "case_details": [
       {
-        "case_id": "hl_01",
-        "gold_pass": true,
-        "judge_pass": true,
+        "case_id": "L01",
+        "gold_pass": false,
+        "judge_pass": false,
         "agreed": true,
-        "judge_score": 5.0,
-        "gold_score": 5.0,
+        "judge_score": 1.8,
+        "gold_score": 3.0,
         "label_source": "human",
-        "rationale": "The candidate model provided a technically accurate and concise explanation of how LanceDB achieves zero-copy reads. It correctly identified the role of Apache Arrow and the elimination of serialization, matching the expected output while providing a slightly more descriptive context regarding performance without introducing hallucinations."
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model completely failed to answer the prompt. Instead of explaining the technical difference in how FastAPI handles 'def' (thread pool) versus 'async def' (event loop), it provided irrelevant boilerplate about decorators and a broken, non-functional code example that cuts off mid-sentence. It ignored the provided reference context entirely."
       },
       {
-        "case_id": "hl_02",
+        "case_id": "L02",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.2,
+        "gold_score": 1.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed to perform the task. Despite the answer being explicitly contained in the provided reference context, the model claimed it could not find the information and then proceeded to hallucinate a completely unrelated explanation involving the Federal Highway Administration and 'TunnelGuard'. This is a failure of both retrieval-augmented generation logic and basic factual grounding."
+      },
+      {
+        "case_id": "L03",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.4,
+        "gold_score": 2.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed significantly on this task. It provided an incorrect definition of 'Context Precision' that contradicts the provided reference context and completely ignored the second part of the prompt regarding RAG generation costs. It essentially hallucinated a definition related to similarity scoring rather than answering the specific RAG-related question asked."
+      },
+      {
+        "case_id": "L04",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.3,
+        "gold_score": 2.5,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed significantly on this task. It ignored the provided reference context entirely and generated factually incorrect information regarding the nature of LanceDB (calling it in-memory when it is disk-based) and HNSW (calling it tree-based when it is graph-based). It failed to identify the core engineering tradeoff requested (latency vs. cost) and instead invented a 'scalability vs. complexity' tradeoff that is not supported by the facts."
+      },
+      {
+        "case_id": "L05",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 2.45,
+        "gold_score": 2.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model provides an incorrect definition of Mean Reciprocal Rank by conflating it with Average Precision. It fails to mention the reciprocal rank calculation (1/rank) or the specific focus on the *first* relevant chunk, which were key elements in the reference context. Because the core definition provided is factually wrong, the response is not useful."
+      },
+      {
+        "case_id": "L06",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.2,
+        "gold_score": 1.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed completely to utilize the provided reference context, instead offering a generic, inaccurate, and unhelpful response that claimed it lacked the information provided in the prompt. It also contained factual errors regarding the nature of the software mentioned."
+      },
+      {
+        "case_id": "L07",
+        "gold_pass": true,
+        "judge_pass": false,
+        "agreed": false,
+        "judge_score": 2.9,
+        "gold_score": 4.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model provides a clear explanation of what nDCG is, but it fails significantly on the 'correctness' and 'faithfulness' criteria. It incorrectly describes the discounting mechanism as 'exponential decay' (2^-1), whereas standard nDCG uses logarithmic discounting. Because this is a technical explanation of a specific metric, providing the wrong mathematical formula constitutes a major factual error that undermines the utility of the response."
+      },
+      {
+        "case_id": "L08",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.3,
+        "gold_score": 1.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed to answer the prompt, claiming it could not find information that was explicitly provided in the reference context. Furthermore, the output is cut off mid-sentence, making it completely unusable."
+      },
+      {
+        "case_id": "L09",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.65,
+        "gold_score": 1.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed completely on this task. It hallucinated an entirely fictional set of features to explain Pydantic V2's performance, ignoring the provided reference context which correctly identifies the Rust rewrite as the source of the speed improvements. The response is factually wrong and demonstrates a complete lack of grounding."
+      },
+      {
+        "case_id": "L10",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.6,
+        "gold_score": 2.5,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The candidate model failed significantly on the core task. It hallucinated definitions and mitigation strategies for 'position bias' and 'verbosity bias' that are completely unrelated to the standard practices in pairwise LLM evaluation. It ignored the provided reference context entirely, resulting in a response that is factually incorrect and unhelpful. While it adhered to the requested JSON format, the quality of the information provided is unacceptable."
+      },
+      {
+        "case_id": "L11",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.6,
+        "gold_score": 1.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model provided a completely hallucinated answer. It ignored the provided reference context entirely and invented technical explanations (Numba JIT, Frozen Models) that have nothing to do with how Pydantic V2 actually achieves its performance gains. Because the core information is factually false and ignores the provided source material, the score is very low."
+      },
+      {
+        "case_id": "L12",
         "gold_pass": false,
         "judge_pass": false,
         "agreed": true,
         "judge_score": 1.75,
-        "gold_score": 1.5,
+        "gold_score": 1.0,
         "label_source": "human",
-        "rationale": "The model provided a completely hallucinated answer. It incorrectly identified the indexing mechanism as HNSW in Redis, whereas LanceDB is known for its disk-based IVF-PQ implementation. Because the core factual premise is entirely wrong, the model receives the lowest possible scores for correctness, faithfulness, and completeness."
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed significantly by misinterpreting the acronym 'RAG' as 'Reasoning About Games' instead of 'Retrieval-Augmented Generation'. Consequently, it hallucinated an entire explanation based on game mechanics and lore, completely ignoring the provided reference context. Because the core premise of the answer is based on a fundamental misunderstanding and ignores the provided source material, the response is factually incorrect and unfaithful to the prompt's constraints."
       },
       {
-        "case_id": "hl_03",
-        "gold_pass": true,
-        "judge_pass": true,
-        "agreed": true,
-        "judge_score": 5.0,
-        "gold_score": 4.8,
-        "label_source": "human",
-        "rationale": "The model provided a technically accurate, concise, and direct answer that perfectly addressed the prompt's requirements. It correctly identified the underlying OS-specific mechanisms for both event loops and maintained a professional tone throughout."
-      },
-      {
-        "case_id": "hl_04",
+        "case_id": "L13",
         "gold_pass": false,
         "judge_pass": false,
         "agreed": true,
-        "judge_score": 3.1,
-        "gold_score": 2.5,
+        "judge_score": 2.45,
+        "gold_score": 3.0,
         "label_source": "human",
-        "rationale": "The model provided technically accurate information but completely failed the negative constraint regarding word count. The prompt asked for the steps in under 20 words; the model provided a 68-word paragraph containing unnecessary fluff and additional steps not requested by the user. Because it failed the primary formatting constraint, the score is significantly penalized."
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model provides technically inaccurate and confusing advice. It incorrectly suggests using `asyncio.run()` to block the event loop, which is a misunderstanding of how `asyncio` works. It also fails to include the primary recommended solution (`loop.run_in_executor`) provided in the reference context. The response is misleading for a developer seeking to correctly handle blocking I/O in an asynchronous application."
       },
       {
-        "case_id": "hl_05",
-        "gold_pass": true,
-        "judge_pass": true,
+        "case_id": "L14",
+        "gold_pass": false,
+        "judge_pass": false,
         "agreed": true,
-        "judge_score": 5.0,
-        "gold_score": 5.0,
+        "judge_score": 1.8,
+        "gold_score": 2.0,
         "label_source": "human",
-        "rationale": "The model perfectly followed the instructions by identifying that the provided context did not contain the requested information and issuing a refusal based on that lack of context. It was concise, accurate, and strictly adhered to the constraints."
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed significantly on the core task. It hallucinated definitions for 'position bias' and 'verbosity bias' that are unrelated to the standard definitions in LLM evaluation and ignored the provided reference context entirely. The suggested mitigations are also incorrect and not aligned with industry standards for LLM evaluation. Because the response is factually wrong regarding the specific domain requested, it receives a very low score."
       },
       {
-        "case_id": "hl_06",
-        "gold_pass": true,
-        "judge_pass": true,
-        "agreed": true,
-        "judge_score": 5.0,
-        "gold_score": 4.9,
-        "label_source": "human",
-        "rationale": "The model provided a technically precise and concise explanation of Product Quantization. It correctly identified the splitting of vectors, the use of centroids/indices, and provided helpful context regarding the memory benefits of this approach. It is a high-quality, accurate, and efficient response."
-      },
-      {
-        "case_id": "hl_07",
+        "case_id": "L15",
         "gold_pass": false,
         "judge_pass": false,
         "agreed": true,
         "judge_score": 2.15,
-        "gold_score": 1.0,
+        "gold_score": 2.0,
         "label_source": "human",
-        "rationale": "The model provided a completely hallucinated answer. It claimed Pydantic V2 was written in C++20, whereas it is actually written in Rust. Because the core factual premise of the answer is entirely wrong, the model receives a very low score despite maintaining a professional tone and following formatting instructions."
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed to utilize the provided reference context, leading to a significant hallucination regarding the definition of 'context precision'. It missed the core technical explanation requested by the prompt (that thresholding acts as a filter and precision ensures chunk relevance). The response is factually incorrect in the context of RAG evaluation metrics."
       },
       {
-        "case_id": "hl_08",
-        "gold_pass": true,
-        "judge_pass": true,
-        "agreed": true,
-        "judge_score": 5.0,
-        "gold_score": 4.7,
-        "label_source": "human",
-        "rationale": "The model provided an excellent, technically accurate, and concise explanation of the chunk overlap parameter. It effectively captured the essence of the expected output while providing slightly more descriptive detail that enhances clarity without adding fluff."
-      },
-      {
-        "case_id": "hl_09",
+        "case_id": "L16",
         "gold_pass": false,
         "judge_pass": false,
         "agreed": true,
         "judge_score": 1.45,
-        "gold_score": 1.5,
+        "gold_score": 1.0,
         "label_source": "human",
-        "rationale": "The model provided dangerously incorrect information. In FastAPI, calling blocking code inside an 'async def' function blocks the event loop, which is the exact opposite of what should happen. The model's claim that 'Python automatically handles it asynchronously' is a complete hallucination that would lead to a non-performant and broken application. It failed to provide the requested solutions (asyncio.to_thread or using 'def')."
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed significantly on this task. It ignored the provided reference context entirely and hallucinated a list of features that do not accurately describe how Pydantic V2 achieves its speed improvements. The response is factually incorrect and fails to address the prompt's core question."
       },
       {
-        "case_id": "hl_10",
-        "gold_pass": true,
-        "judge_pass": true,
+        "case_id": "L17",
+        "gold_pass": false,
+        "judge_pass": false,
         "agreed": true,
-        "judge_score": 5.0,
-        "gold_score": 5.0,
+        "judge_score": 1.3,
+        "gold_score": 2.0,
         "label_source": "human",
-        "rationale": "The model provided a flawless, concise, and accurate definition of MRR. It correctly identified the mathematical concept and its application in information retrieval, matching the expected output while adding necessary context regarding the 'mean' aspect across multiple queries."
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed significantly on this task. It ignored the provided reference context, hallucinated incorrect technical definitions (calling LanceDB 'in-memory' and HNSW 'tree-based'), and completely missed the requested engineering tradeoff regarding latency and infrastructure cost. The response is factually unreliable."
+      },
+      {
+        "case_id": "L18",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.65,
+        "gold_score": 1.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed significantly on this task. It hallucinated the name of the database ('LucidDB' instead of 'LanceDB'), ignored the provided reference context entirely, and provided a generic, incorrect explanation of zero-copy reads. It failed to address the prompt's core requirement to explain LanceDB's technology."
+      },
+      {
+        "case_id": "L19",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.2,
+        "gold_score": 1.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed to perform the task. It ignored the provided reference context entirely and claimed the information did not exist, despite the context explicitly defining the 'two-stage guardrail' requested in the prompt. This is a complete failure of retrieval-augmented generation capabilities."
+      },
+      {
+        "case_id": "L20",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.2,
+        "gold_score": 1.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed to perform the task, claiming it could not find information about LanceDB despite the information being provided in the reference context. This is a complete failure to answer the prompt."
+      },
+      {
+        "case_id": "L21",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.5,
+        "gold_score": 2.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed significantly on this task. It ignored the provided reference context entirely and provided a generic, inaccurate definition of position bias. In the context of 'LLM-as-a-judge', position bias is a well-defined phenomenon regarding pairwise comparisons, and the standard mitigation is swapping order (A/B vs B/A). The model hallucinated a list of 'mitigation strategies' (like active learning and human evaluation) that are not the standard solutions for this specific technical problem. Because it failed to use the provided context and provided incorrect information, it receives a very low score."
+      },
+      {
+        "case_id": "L22",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.2,
+        "gold_score": 1.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed completely to answer the prompt, claiming it lacked information that was provided in the reference context. This is a failure of both retrieval/knowledge and instruction following."
+      },
+      {
+        "case_id": "L23",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.5,
+        "gold_score": 1.5,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed significantly on this task. Despite being provided with a reference context containing the exact answer, the model claimed it did not have access to the information and then proceeded to hallucinate entirely incorrect pricing models and metrics. The response is factually wrong, unfaithful to the provided context, and contains significant filler."
+      },
+      {
+        "case_id": "L24",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 2.1,
+        "gold_score": 1.5,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model provides a fundamentally incorrect explanation of how FastAPI handles 'def' versus 'async def' endpoints. It incorrectly claims that 'def' blocks the main thread, whereas the provided reference context (and FastAPI documentation) correctly notes that FastAPI dispatches 'def' functions to a thread pool to prevent blocking the event loop. By ignoring the reference context and providing technically inaccurate information, the model fails to answer the prompt correctly."
+      },
+      {
+        "case_id": "L25",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.8,
+        "gold_score": 2.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed to utilize the provided reference context, which contained the specific, correct answer to the prompt. Instead, it provided generic, high-level machine learning training advice that is not the standard practice for mitigating position bias in LLM-as-a-judge evaluation pipelines. By ignoring the provided context and offering irrelevant information, the model failed both the faithfulness and instruction-following criteria."
+      },
+      {
+        "case_id": "L26",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.45,
+        "gold_score": 1.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed to answer the prompt, despite the answer being provided in the 'Reference Context' section of the instructions. Instead of synthesizing the provided information, the model claimed it could not find an official statement, which is a failure in both correctness and instruction following."
+      },
+      {
+        "case_id": "L27",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.2,
+        "gold_score": 1.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed significantly by hallucinating that the user was asking about 'LucidDB' instead of 'LanceDB'. Consequently, it failed to provide the correct information regarding Apache Arrow and the benefits of zero-copy reads as requested. It is factually incorrect and unfaithful to the provided context."
+      },
+      {
+        "case_id": "L28",
+        "gold_pass": true,
+        "judge_pass": false,
+        "agreed": false,
+        "judge_score": 1.9,
+        "gold_score": 4.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed to answer the specific question asked. 'Self-enhancement bias' in the context of LLM evaluation refers to the phenomenon where a model prefers its own outputs or outputs from its own family. The reference context provided the correct answer (decoupling model families). The model ignored this context entirely and instead provided a generic, hallucinated list of 'bias mitigation' techniques that are not specific to the self-enhancement bias problem. Furthermore, the formatting is broken (starting with '1. 2.')."
+      },
+      {
+        "case_id": "L29",
+        "gold_pass": true,
+        "judge_pass": false,
+        "agreed": false,
+        "judge_score": 2.6,
+        "gold_score": 4.5,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model provides dangerous and incorrect advice by suggesting that `asyncio.run()` should be used to block the event loop. Furthermore, the code example provided is syntactically and logically flawed: it defines the function to be run in a thread as an `async def` coroutine, which is not how `asyncio.to_thread` works (it expects a synchronous function). It also fails to include the `loop.run_in_executor` method mentioned in the reference context. The response is unreliable for a developer seeking to correctly implement asynchronous patterns."
+      },
+      {
+        "case_id": "L30",
+        "gold_pass": false,
+        "judge_pass": false,
+        "agreed": true,
+        "judge_score": 1.2,
+        "gold_score": 1.0,
+        "label_source": "human",
+        "labeled_by": "Aditya Singh",
+        "rationale": "The model failed significantly on this task. It ignored the provided reference context entirely and hallucinated three reasons for chunking PDFs (security, anonymization, and redaction) that are not relevant to the technical purpose of document chunking in RAG systems. Because the model provided incorrect information and failed to use the provided source material, it receives the lowest possible scores for correctness, faithfulness, and completeness."
       }
     ]
   },
   "position_bias_evaluation": {
     "summary": {
       "total_pairs": 10,
-      "agreement_count": 10,
-      "flip_count": 0,
-      "flip_rate": 0.0,
-      "a_first_win_rate": 0.5,
-      "b_first_win_rate": 0.5,
+      "agreement_count": 9,
+      "flip_count": 1,
+      "flip_rate": 0.1,
+      "a_first_win_rate": 0.55,
+      "b_first_win_rate": 0.45,
       "tie_rate": 0.0
     },
     "details": {
       "n_pairs": 10,
-      "hard_flips": 0,
+      "hard_flips": 1,
       "soft_flips": 0,
-      "single_order_flip_rate": 0.0,
+      "single_order_flip_rate": 0.1,
       "single_order_flip_ci95": [
-        0.0,
-        0.278
+        0.018,
+        0.404
       ],
       "consensus_ties_or_escalations": 0,
       "accuracy_vs_gold": {
         "n": 10,
-        "forward_only": 1.0,
-        "reverse_only": 1.0,
-        "consensus": 1.0
+        "forward_only": 0.3,
+        "reverse_only": 0.4,
+        "consensus": 0.3
       }
     }
   },
   "identical_pair_probe": {
     "n_judgements": 16,
-    "first_slot_wins": 2,
+    "first_slot_wins": 0,
     "second_slot_wins": 0,
-    "ties": 14,
-    "first_slot_win_rate_among_decisive": 1.0,
-    "sign_test_p": 0.5
+    "ties": 16,
+    "first_slot_win_rate_among_decisive": null,
+    "sign_test_p": 1.0
   },
   "verbosity_bias_evaluation": {
     "after_mitigation": {
@@ -183,10 +416,10 @@
     },
     "before_mitigation": {
       "n": 8,
-      "mean_diff_verbose_minus_terse": -1.1,
+      "mean_diff_verbose_minus_terse": -1.125,
       "ci95": [
         -1.5,
-        -0.7
+        -0.75
       ],
       "verdict": "penalises verbose"
     },
@@ -262,8 +495,8 @@
           "case_id": "adv_07",
           "winner": "A",
           "flipped": false,
-          "correct_score": 4.75,
-          "wrong_score": 1.5,
+          "correct_score": 5.0,
+          "wrong_score": 1.0,
           "rationale": "Option A correctly identifies that LanceDB uses Apache Arrow for its zero-copy capabilities, matching the expected gold answer. Option B provides factually incorrect information, hallucinating a connection between LanceDB's zero-copy reads and SQLite's WAL mode."
         },
         {
@@ -272,7 +505,7 @@
           "flipped": false,
           "correct_score": 5.0,
           "wrong_score": 1.0,
-          "rationale": "Option A is correct, complete, and concise. It accurately states that MRR evaluates only the rank position of the first relevant document and that Recall@k measures the total fraction of relevant documents retrieved. Option B is incorrect, as MRR does not sum up all relevant documents. Option A's brevity and accuracy make it the superior choice."
+          "rationale": "Option A correctly identifies that MRR only considers the first relevant document and provides the correct alternative metric (Recall@k). Option B is factually incorrect, as MRR does not measure total retrieval volume."
         }
       ]
     },
@@ -357,31 +590,28 @@
   },
   "score_clustering_evaluation": {
     "after_mitigation": {
-      "n": 10,
-      "mean": 3.755,
-      "std": 1.422,
-      "frac_at_extremes": 0.5,
-      "distinct_values": 6,
-      "entropy_norm": 0.845,
+      "n": 30,
+      "mean": 1.643,
+      "std": 0.477,
+      "frac_at_extremes": 0.0,
+      "distinct_values": 15,
+      "entropy_norm": 0.553,
       "histogram": {
-        "1": 1,
-        "2": 2,
-        "3": 1,
-        "4": 1,
-        "5": 5
+        "1": 15,
+        "2": 13,
+        "3": 2
       }
     },
     "before_mitigation": {
-      "n": 10,
-      "mean": 3.5,
-      "std": 1.857,
-      "frac_at_extremes": 0.9,
-      "distinct_values": 3,
-      "entropy_norm": 0.558,
+      "n": 30,
+      "mean": 1.26,
+      "std": 0.421,
+      "frac_at_extremes": 0.7,
+      "distinct_values": 4,
+      "entropy_norm": 0.36,
       "histogram": {
-        "1": 3,
-        "2": 1,
-        "5": 6
+        "1": 22,
+        "2": 8
       }
     }
   },
@@ -397,60 +627,60 @@
       0.566,
       1.0
     ],
-    "mean_score_range": 0.07,
-    "max_score_range": 0.35,
+    "mean_score_range": 0.0,
+    "max_score_range": 0.0,
     "case_details": [
       {
-        "case_id": "hl_01",
+        "case_id": "L01",
         "scores": [
-          5.0,
-          5.0,
-          5.0
+          1.2,
+          1.2,
+          1.2
         ],
         "range": 0.0,
         "verdicts": [
-          true,
-          true,
-          true
+          false,
+          false,
+          false
         ],
         "consistent": true
       },
       {
-        "case_id": "hl_02",
+        "case_id": "L02",
+        "scores": [
+          1.3,
+          1.3,
+          1.3
+        ],
+        "range": 0.0,
+        "verdicts": [
+          false,
+          false,
+          false
+        ],
+        "consistent": true
+      },
+      {
+        "case_id": "L03",
+        "scores": [
+          1.35,
+          1.35,
+          1.35
+        ],
+        "range": 0.0,
+        "verdicts": [
+          false,
+          false,
+          false
+        ],
+        "consistent": true
+      },
+      {
+        "case_id": "L04",
         "scores": [
           1.4,
-          1.75,
-          1.75
-        ],
-        "range": 0.35,
-        "verdicts": [
-          false,
-          false,
-          false
-        ],
-        "consistent": true
-      },
-      {
-        "case_id": "hl_03",
-        "scores": [
-          5.0,
-          5.0,
-          5.0
-        ],
-        "range": 0.0,
-        "verdicts": [
-          true,
-          true,
-          true
-        ],
-        "consistent": true
-      },
-      {
-        "case_id": "hl_04",
-        "scores": [
-          3.1,
-          3.1,
-          3.1
+          1.4,
+          1.4
         ],
         "range": 0.0,
         "verdicts": [
@@ -461,17 +691,17 @@
         "consistent": true
       },
       {
-        "case_id": "hl_05",
+        "case_id": "L05",
         "scores": [
-          5.0,
-          5.0,
-          5.0
+          2.5,
+          2.5,
+          2.5
         ],
         "range": 0.0,
         "verdicts": [
-          true,
-          true,
-          true
+          false,
+          false,
+          false
         ],
         "consistent": true
       }
@@ -481,123 +711,123 @@
     "label_a": "Config A (Naive Uncited RAG)",
     "label_b": "Config B (Grounded RAG + Citations)",
     "total_cases": 10,
-    "wins_a": 2,
-    "wins_b": 8,
+    "wins_a": 9,
+    "wins_b": 1,
     "ties": 0,
-    "win_rate_a": 0.2,
-    "win_rate_b": 0.8,
+    "win_rate_a": 0.9,
+    "win_rate_b": 0.1,
     "tie_rate": 0.0,
-    "sign_test_p": 0.1094,
+    "sign_test_p": 0.0215,
     "alpha": 0.05,
-    "declared_winner": "INCONCLUSIVE",
-    "margin_wins": 6,
-    "mean_score_a": 2.25,
-    "mean_score_b": 4.53,
-    "mean_score_diff_b_minus_a": 2.275,
+    "declared_winner": "Config A (Naive Uncited RAG)",
+    "margin_wins": 8,
+    "mean_score_a": 4.33,
+    "mean_score_b": 2.88,
+    "mean_score_diff_b_minus_a": -1.45,
     "score_diff_ci95": [
-      0.95,
-      3.425
+      -2.125,
+      -0.6
     ],
     "case_results": [
       {
         "case_id": "ab_01",
         "input": "What is IVF-PQ in LanceDB?",
-        "winner": "B",
-        "score_a": 2.75,
-        "score_b": 5.0,
+        "winner": "A",
+        "score_a": 4.75,
+        "score_b": 3.0,
         "flipped": false,
-        "forward_rationale": "Option B provides a comprehensive and accurate explanation that aligns perfectly with the provided reference context. It explains both components of the acronym (IVF and PQ) and includes the specific performance benefits (16x-32x compression) mentioned in the reference. Option A is correct but lacks the necessary detail to fully explain what the acronym stands for or how it functions.",
-        "reverse_rationale": "Option B provides a comprehensive and accurate explanation that aligns perfectly with the reference context provided. It explains both components of the acronym (IVF and PQ) and includes the specific performance benefits (compression ratios) mentioned in the reference. Option A is technically correct but too vague and lacks the depth required to explain what the acronym actually stands for or how it functions."
+        "forward_rationale": "Option A provides a concise and accurate technical definition of IVF-PQ. Option B includes unnecessary hallucinated or external metrics (RAM reduction percentages, specific latency numbers) that were not present in the provided reference context, making it less reliable as a grounded response.",
+        "reverse_rationale": "Option A provides a concise, accurate definition that aligns perfectly with the expected gold answer. Option B includes specific performance metrics (RAM reduction, recall, latency) that were not present in the provided reference context, which constitutes hallucination relative to the provided source material."
       },
       {
         "case_id": "ab_02",
         "input": "How do you avoid freezing the event loop with blocking I/O in asyncio?",
-        "winner": "B",
-        "score_a": 1.0,
-        "score_b": 5.0,
+        "winner": "A",
+        "score_a": 4.0,
+        "score_b": 2.75,
         "flipped": false,
-        "forward_rationale": "Option A provides incorrect and dangerous advice; using 'sleep' (presumably time.sleep) would block the event loop, which is exactly what the user is trying to avoid. Option B correctly identifies the standard library solutions (asyncio.to_thread and run_in_executor) and explains why they are used.",
-        "reverse_rationale": "Option B provides the correct technical solution as requested by the prompt and reference context. Option A is factually incorrect; running blocking I/O normally will freeze the event loop, and `asyncio.sleep` does not resolve blocking I/O issues."
+        "forward_rationale": "Option A provides a comprehensive and accurate list of strategies to handle blocking I/O in asyncio. It correctly identifies the primary solution (executors/threads) and supplements it with the best practice of using native asynchronous libraries. Option B is significantly less helpful; it includes references to 'Chunk 1' and 'Chunk 4' which are artifacts of a RAG system and not helpful to the user, and it focuses too narrowly on FastAPI, which was not mentioned in the prompt.",
+        "reverse_rationale": "Option A provides a more comprehensive answer by explaining that the best way to avoid blocking is to use native asynchronous libraries (like aiohttp or aiosqlite) in the first place, rather than just offloading blocking code to threads. Option B is also correct and concise, but it includes a specific reference to FastAPI which was not requested and relies on 'Chunk' references that are not provided in the prompt context. Option A is slightly more verbose than necessary, but its advice is more complete."
       },
       {
         "case_id": "ab_03",
         "input": "Why does LanceDB have lower monthly costs than Pinecone for lightly queried datasets?",
-        "winner": "B",
-        "score_a": 1.25,
-        "score_b": 5.0,
+        "winner": "A",
+        "score_a": 4.75,
+        "score_b": 2.25,
         "flipped": false,
-        "forward_rationale": "Option B provides a comprehensive and accurate explanation that directly addresses the prompt using the provided reference context. It explains the architectural difference (decoupling compute from storage) and provides specific cost comparisons. Option A is vague, misses the core technical reason (decoupling), and ignores the provided reference context entirely.",
-        "reverse_rationale": "Option B directly addresses the prompt by explaining the architectural differences (decoupling compute from storage) and provides the specific cost comparisons requested in the reference context. Option A provides a generic, incorrect answer that ignores the technical reasons for the cost difference."
+        "forward_rationale": "Option A directly answers the prompt using the provided reference context effectively. It provides specific cost figures that align with the reference material. Option B, while structured, includes information not found in the reference context (such as details about IVF-PQ clustering and Voronoi cells) and incorrectly claims that the context does not provide an exact cost comparison, even though the reference context explicitly mentions the $140-$280/mo vs $0.07/mo comparison.",
+        "reverse_rationale": "Option A directly answers the prompt using the provided reference context, including specific cost comparisons that illustrate the difference. Option B is overly verbose, includes unnecessary meta-commentary about what the context does or does not state, and fails to provide the specific cost figures mentioned in the reference context, making it less helpful."
       },
       {
         "case_id": "ab_04",
         "input": "How does Pydantic V2 parse JSON so fast?",
-        "winner": "B",
-        "score_a": 1.0,
-        "score_b": 5.0,
+        "winner": "A",
+        "score_a": 4.5,
+        "score_b": 2.0,
         "flipped": false,
-        "forward_rationale": "Option A is factually incorrect; Pydantic V2 does not use Python's built-in json library for its performance gains. Option B correctly identifies the use of the 'jiter' crate and explains the technical mechanism (avoiding intermediate Python dictionaries) that leads to the performance improvements.",
-        "reverse_rationale": "Option B is factually correct and aligns perfectly with the provided reference context, identifying the use of the 'jiter' crate and the avoidance of Python dictionary overhead. Option A is factually incorrect; Pydantic V2 does not use Python's built-in json library for its performance gains."
+        "forward_rationale": "Option A provides a direct, accurate, and helpful answer to the user's question. It correctly identifies the use of the 'jiter' crate and explains the performance benefits clearly. Option B includes unnecessary meta-commentary about the provided context, which is unhelpful to the user, and adopts a hesitant tone that undermines the quality of the response.",
+        "reverse_rationale": "Option A provides a direct, accurate answer that aligns with the expected gold answer. It explains the role of 'jiter' and the avoidance of Python overhead clearly. Option B starts with a sycophantic and incorrect claim that the provided context is insufficient, despite the context containing the necessary information to answer the prompt. Option B is unnecessarily verbose and meta-analytical."
       },
       {
         "case_id": "ab_05",
         "input": "What is the capital of Mars?",
         "winner": "B",
-        "score_a": 2.5,
-        "score_b": 3.0,
-        "flipped": true,
-        "forward_rationale": "Option A provided an incorrect answer with no basis in reality. Option B, on the other hand, provided a clear and honest refusal to answer due to lack of context, which is a more appropriate response in this scenario.",
-        "reverse_rationale": "Both options are incorrect as Mars does not have a capital. Option A provides a fictional answer with a specific date, while Option B correctly states the lack of context. Neither option is concise or accurate, making them equally bad. A more accurate response would be 'I do not have enough information to answer this question' or 'Mars does not have a capital'."
+        "score_a": 3.0,
+        "score_b": 5.0,
+        "flipped": false,
+        "forward_rationale": "The prompt explicitly provided 'Reference Context' and defined the 'Expected Gold Answer' as a refusal based on the lack of context. Option B correctly identifies that the provided documents do not contain the answer and adheres to the constraint of relying on the provided context. Option A uses external knowledge, which violates the implicit instruction to use the provided context.",
+        "reverse_rationale": "The prompt explicitly provided a 'Reference Context' and an 'Expected Gold Answer' (Refusal/no context available). Option B correctly identifies that the provided documents do not contain the answer, adhering to the constraints of a RAG-based system. Option A provides external knowledge that was not requested and ignores the context-based constraint."
       },
       {
         "case_id": "ab_06",
         "input": "What are zero-copy reads in LanceDB?",
-        "winner": "B",
-        "score_a": 2.0,
-        "score_b": 4.75,
+        "winner": "A",
+        "score_a": 4.75,
+        "score_b": 3.25,
         "flipped": false,
-        "forward_rationale": "Option B is the correct and complete answer. It accurately explains the concept of zero-copy reads in LanceDB and its benefits. Option A is incomplete and lacks specific details about the technology used (Apache Arrow). The correct answer is supported by the reference context, which highlights the elimination of serialization and deserialization overhead. Option B provides a clear and concise explanation, making it the superior choice.",
-        "reverse_rationale": "Option B correctly identifies the role of Apache Arrow and the elimination of serialization/deserialization overhead, which is the core technical definition of zero-copy reads in this context. Option A is technically inaccurate; zero-copy does not mean you don't 'copy files on disk' (which implies file system operations), but rather that you avoid copying data between memory buffers during the deserialization process."
+        "forward_rationale": "Option A provides a clear, professional explanation of the concept. Option B includes unnecessary meta-references (e.g., 'According to the provided context', '[Chunk 1]') which makes the response feel like a machine-generated retrieval task rather than a helpful answer. Option A is more natural and informative.",
+        "reverse_rationale": "Both models correctly identify that zero-copy reads use Apache Arrow to avoid serialization. Option A provides a more comprehensive explanation of the mechanism (memory mapping) and the practical benefits (S3 querying), whereas Option B includes unnecessary meta-references like '[Chunk 1]' which makes the response feel like a raw RAG retrieval rather than a natural answer."
       },
       {
         "case_id": "ab_07",
         "input": "Why should PDF pages be chunked separately?",
-        "winner": "B",
-        "score_a": 1.0,
-        "score_b": 5.0,
+        "winner": "A",
+        "score_a": 4.75,
+        "score_b": 2.25,
         "flipped": false,
-        "forward_rationale": "Option B correctly identifies the technical reasons for chunking by page (avoiding straddling boundaries and maintaining citation accuracy), which aligns perfectly with the reference context. Option A provides an incorrect reason (file size) that does not address the functional purpose of page-based chunking.",
-        "reverse_rationale": "Option B perfectly captures the reasoning provided in the reference context (avoiding straddling boundaries and maintaining citation accuracy). Option A provides an incorrect reason that is not supported by the reference context."
+        "forward_rationale": "Option A directly answers the prompt by explaining the reasoning provided in the reference context. Option B includes unnecessary hedging and claims the context does not explicitly state the answer, even though the reference context provided in the prompt clearly contains the necessary information.",
+        "reverse_rationale": "Option A directly answers the prompt by synthesizing the provided context into a clear, accurate explanation. Option B hedges unnecessarily by stating the context does not explicitly state the reason, even though the context provided in the prompt clearly contains the necessary information to answer the question."
       },
       {
         "case_id": "ab_08",
         "input": "What is the difference between def and async def in FastAPI endpoints?",
-        "winner": "B",
-        "score_a": 1.0,
-        "score_b": 5.0,
-        "flipped": false,
-        "forward_rationale": "Option A is factually incorrect; both 'def' and 'async def' are valid Python 3 syntax. Option B is factually correct, aligns perfectly with the reference context, and provides a helpful explanation of the implications of using each.",
-        "reverse_rationale": "Option A is factually incorrect; both 'def' and 'async def' are valid Python 3 syntax. Option B correctly explains the technical distinction regarding the event loop and thread pool usage in FastAPI, aligning perfectly with the reference context."
+        "winner": "A",
+        "score_a": 4.0,
+        "score_b": 3.75,
+        "flipped": true,
+        "forward_rationale": "Option A provides a clear, natural explanation of the technical concepts. Option B is overly reliant on the 'provided context' framing, which makes it feel robotic and redundant. Option A also provides helpful advice on how to handle blocking code within async functions, which adds value beyond the basic definition.",
+        "reverse_rationale": "Option B is more concise and adheres strictly to the provided reference context. Option A includes a summary section that provides contradictory or confusing advice (suggesting to use `async def` to avoid blocking, then immediately suggesting to use `asyncio.to_thread` inside it, which is unnecessary complexity compared to just using `def`). Option B is cleaner and more direct."
       },
       {
         "case_id": "ab_09",
         "input": "How does LanceDB pre-filtering compare to post-filtering?",
         "winner": "A",
-        "score_a": 5.0,
-        "score_b": 4.0,
+        "score_a": 4.5,
+        "score_b": 2.5,
         "flipped": false,
-        "forward_rationale": "Both models correctly identify the core technical distinction between pre-filtering and post-filtering. Option A is superior because it is more concise and professional, directly addressing the prompt without unnecessary filler. Option B is also correct but includes redundant information ('Both methods support metadata queries') that was not requested and adds little value to the comparison.",
-        "reverse_rationale": "Both models correctly identify the core technical distinction between pre-filtering and post-filtering. Option A is slightly better because it is more concise and uses more precise terminology ('scalar metadata filters' and 'prune nearest neighbors') compared to Option B, which is slightly more wordy."
+        "forward_rationale": "Option A provides a clear, concise, and accurate comparison based on the provided context. Option B includes significant amounts of hallucinated or external information (e.g., 'zero-copy reads', 'Chunk 2', 'Chunk 3') that were not present in the provided reference context, violating the instruction to rely on the provided context.",
+        "reverse_rationale": "Option A provides a clear, concise, and accurate comparison that directly addresses the prompt. It avoids the unnecessary padding and meta-commentary found in Option B. Option B includes speculative information not found in the provided context (e.g., claims about memory usage efficiency for post-filtering) and uses distracting citation markers like [Chunk 1] that make the text harder to read."
       },
       {
         "case_id": "ab_10",
         "input": "What is the engineering tradeoff between HNSW and IVF-PQ?",
         "winner": "A",
-        "score_a": 5.0,
-        "score_b": 3.5,
+        "score_a": 4.25,
+        "score_b": 2.0,
         "flipped": false,
-        "forward_rationale": "Option A is superior because it explicitly includes the quantitative metrics (recall percentages) provided in the reference context, whereas Option B omits them. Option A aligns perfectly with the expected gold answer and the reference context provided.",
-        "reverse_rationale": "Option A includes all the specific metrics provided in the reference context (recall percentages, latency, and RAM requirements). Option B is accurate but omits the specific recall percentages and the RAM overhead for HNSW, making it less complete compared to the reference context provided."
+        "forward_rationale": "Option A provides a clear, concise summary of the tradeoffs requested, incorporating the specific metrics provided in the reference context. Option B fails to provide the specific metrics, claims that the information is not available in the context (even though it is provided in the prompt's reference context), and includes unnecessary 'chunk' references that make the response feel like a hallucinated retrieval process.",
+        "reverse_rationale": "Option A successfully synthesizes the information provided in the reference context to answer the prompt accurately. It includes the specific metrics for recall, latency, and RAM usage. Option B fails to provide the specific metrics, claiming they are not in the context when they clearly are, and it includes extraneous information about chunks that was not requested."
       }
     ]
   }
