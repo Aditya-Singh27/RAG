@@ -1,17 +1,30 @@
 {
-  "timestamp": 1792245710.5057933,
+  "timestamp": 1792249550.1908581,
   "pipeline_configuration": {
     "judge_provider": "gemini",
     "judge_model": "gemini-3.1-flash-lite",
     "generator_provider": "openai_compat",
     "generator_model": "llama3.2:latest",
     "generator_base_url": "http://localhost:11434/v1",
+    "judge_calls": 155,
     "audit_log_path": "logs\\llm_calls.jsonl"
   },
   "human_agreement_validation": {
     "total_cases": 10,
+    "pass_threshold": 3.5,
+    "label_sources": {
+      "human": 10
+    },
     "agreement_rate": 1.0,
+    "agreement_ci95_wilson": [
+      0.722,
+      1.0
+    ],
     "cohens_kappa": 1.0,
+    "kappa_ci95_bootstrap": [
+      1.0,
+      1.0
+    ],
     "mean_absolute_score_error": 0.265,
     "confusion_matrix": {
       "true_positive": 6,
@@ -27,6 +40,7 @@
         "agreed": true,
         "judge_score": 5.0,
         "gold_score": 5.0,
+        "label_source": "human",
         "rationale": "The candidate model provided a technically accurate and concise explanation of how LanceDB achieves zero-copy reads. It correctly identified the role of Apache Arrow and the elimination of serialization, matching the expected output while providing a slightly more descriptive context regarding performance without introducing hallucinations."
       },
       {
@@ -36,6 +50,7 @@
         "agreed": true,
         "judge_score": 1.75,
         "gold_score": 1.5,
+        "label_source": "human",
         "rationale": "The model provided a completely hallucinated answer. It incorrectly identified the indexing mechanism as HNSW in Redis, whereas LanceDB is known for its disk-based IVF-PQ implementation. Because the core factual premise is entirely wrong, the model receives the lowest possible scores for correctness, faithfulness, and completeness."
       },
       {
@@ -45,6 +60,7 @@
         "agreed": true,
         "judge_score": 5.0,
         "gold_score": 4.8,
+        "label_source": "human",
         "rationale": "The model provided a technically accurate, concise, and direct answer that perfectly addressed the prompt's requirements. It correctly identified the underlying OS-specific mechanisms for both event loops and maintained a professional tone throughout."
       },
       {
@@ -54,6 +70,7 @@
         "agreed": true,
         "judge_score": 3.1,
         "gold_score": 2.5,
+        "label_source": "human",
         "rationale": "The model provided technically accurate information but completely failed the negative constraint regarding word count. The prompt asked for the steps in under 20 words; the model provided a 68-word paragraph containing unnecessary fluff and additional steps not requested by the user. Because it failed the primary formatting constraint, the score is significantly penalized."
       },
       {
@@ -63,6 +80,7 @@
         "agreed": true,
         "judge_score": 5.0,
         "gold_score": 5.0,
+        "label_source": "human",
         "rationale": "The model perfectly followed the instructions by identifying that the provided context did not contain the requested information and issuing a refusal based on that lack of context. It was concise, accurate, and strictly adhered to the constraints."
       },
       {
@@ -72,6 +90,7 @@
         "agreed": true,
         "judge_score": 5.0,
         "gold_score": 4.9,
+        "label_source": "human",
         "rationale": "The model provided a technically precise and concise explanation of Product Quantization. It correctly identified the splitting of vectors, the use of centroids/indices, and provided helpful context regarding the memory benefits of this approach. It is a high-quality, accurate, and efficient response."
       },
       {
@@ -81,6 +100,7 @@
         "agreed": true,
         "judge_score": 2.15,
         "gold_score": 1.0,
+        "label_source": "human",
         "rationale": "The model provided a completely hallucinated answer. It claimed Pydantic V2 was written in C++20, whereas it is actually written in Rust. Because the core factual premise of the answer is entirely wrong, the model receives a very low score despite maintaining a professional tone and following formatting instructions."
       },
       {
@@ -90,6 +110,7 @@
         "agreed": true,
         "judge_score": 5.0,
         "gold_score": 4.7,
+        "label_source": "human",
         "rationale": "The model provided an excellent, technically accurate, and concise explanation of the chunk overlap parameter. It effectively captured the essence of the expected output while providing slightly more descriptive detail that enhances clarity without adding fluff."
       },
       {
@@ -99,6 +120,7 @@
         "agreed": true,
         "judge_score": 1.45,
         "gold_score": 1.5,
+        "label_source": "human",
         "rationale": "The model provided dangerously incorrect information. In FastAPI, calling blocking code inside an 'async def' function blocks the event loop, which is the exact opposite of what should happen. The model's claim that 'Python automatically handles it asynchronously' is a complete hallucination that would lead to a non-performant and broken application. It failed to provide the requested solutions (asyncio.to_thread or using 'def')."
       },
       {
@@ -108,219 +130,349 @@
         "agreed": true,
         "judge_score": 5.0,
         "gold_score": 5.0,
+        "label_source": "human",
         "rationale": "The model provided a flawless, concise, and accurate definition of MRR. It correctly identified the mathematical concept and its application in information retrieval, matching the expected output while adding necessary context regarding the 'mean' aspect across multiple queries."
       }
     ]
   },
   "position_bias_evaluation": {
     "summary": {
-      "total_pairs": 8,
-      "agreement_count": 8,
+      "total_pairs": 10,
+      "agreement_count": 10,
       "flip_count": 0,
       "flip_rate": 0.0,
       "a_first_win_rate": 0.5,
       "b_first_win_rate": 0.5,
       "tie_rate": 0.0
     },
-    "details": [
-      {
-        "case_id": "ab_01",
-        "forward_winner": "B",
-        "reverse_winner": "B",
-        "consensus_winner": "B",
-        "flipped": false,
-        "mean_score_a": 2.75,
-        "mean_score_b": 5.0,
-        "forward_rationale": "Option B provides a comprehensive and accurate explanation that aligns perfectly with the provided reference context. It explains both components of the acronym (IVF and PQ) and includes the specific performance benefits (16x-32x compression) mentioned in the reference. Option A is correct but lacks the necessary detail to fully explain what the acronym stands for or how it functions.",
-        "reverse_rationale": "Option B provides a comprehensive and accurate explanation that aligns perfectly with the reference context provided. It explains both components of the acronym (IVF and PQ) and includes the specific performance benefits (compression ratios) mentioned in the reference. Option A is technically correct but too vague and lacks the depth required to explain what the acronym actually stands for or how it functions."
-      },
-      {
-        "case_id": "ab_02",
-        "forward_winner": "B",
-        "reverse_winner": "B",
-        "consensus_winner": "B",
-        "flipped": false,
-        "mean_score_a": 1.0,
-        "mean_score_b": 5.0,
-        "forward_rationale": "Option A provides incorrect and dangerous advice; using 'sleep' (presumably time.sleep) would block the event loop, which is exactly what the user is trying to avoid. Option B correctly identifies the standard library solutions (asyncio.to_thread and run_in_executor) and explains why they are used.",
-        "reverse_rationale": "Option B provides the correct technical solution as requested by the prompt and reference context. Option A is factually incorrect; running blocking I/O normally will freeze the event loop, and `asyncio.sleep` does not resolve blocking I/O issues."
-      },
-      {
-        "case_id": "ab_03",
-        "forward_winner": "B",
-        "reverse_winner": "B",
-        "consensus_winner": "B",
-        "flipped": false,
-        "mean_score_a": 1.25,
-        "mean_score_b": 5.0,
-        "forward_rationale": "Option B provides a comprehensive and accurate explanation that directly addresses the prompt using the provided reference context. It explains the architectural difference (decoupling compute from storage) and provides specific cost comparisons. Option A is vague, misses the core technical reason (decoupling), and ignores the provided reference context entirely.",
-        "reverse_rationale": "Option B directly addresses the prompt by explaining the architectural differences (decoupling compute from storage) and provides the specific cost comparisons requested in the reference context. Option A provides a generic, incorrect answer that ignores the technical reasons for the cost difference."
-      },
-      {
-        "case_id": "ab_04",
-        "forward_winner": "B",
-        "reverse_winner": "B",
-        "consensus_winner": "B",
-        "flipped": false,
-        "mean_score_a": 1.5,
-        "mean_score_b": 4.75,
-        "forward_rationale": "Option B is more accurate and concise. It correctly states that Pydantic V2 uses the `jiter` Rust crate to parse JSON directly into the Rust validation graph. Option A incorrectly states that Pydantic V2 uses Python's built-in `json` library with multithreading, which is not supported. Option B provides more details about the `jiter` crate and its benefits, making it a more informative and correct answer.",
-        "reverse_rationale": "Option B is factually correct and aligns perfectly with the provided reference context, identifying the use of the 'jiter' crate and the avoidance of Python dictionary overhead. Option A is factually incorrect; Pydantic V2 does not use Python's built-in json library for its performance gains."
-      },
-      {
-        "case_id": "ab_05",
-        "forward_winner": "B",
-        "reverse_winner": "B",
-        "consensus_winner": "B",
-        "flipped": false,
-        "mean_score_a": 1.0,
-        "mean_score_b": 5.0,
-        "forward_rationale": "Option A hallucinates information that is not based in reality or the provided context. Option B correctly identifies that the provided context does not contain the answer and refuses to answer, which aligns with the expected gold answer.",
-        "reverse_rationale": "The user provided specific reference context and an expected gold answer (refusal). Option B correctly identified that the information was not present in the provided context and followed the expected behavior. Option A hallucinated information that was not in the context and presented it as fact."
-      },
-      {
-        "case_id": "ab_06",
-        "forward_winner": "B",
-        "reverse_winner": "B",
-        "consensus_winner": "B",
-        "flipped": false,
-        "mean_score_a": 2.0,
-        "mean_score_b": 5.0,
-        "forward_rationale": "Option B is much more accurate. Option A incorrectly suggests that zero-copy reads mean you don't copy files on disk, whereas the actual mechanism (as noted in the gold answer) is about avoiding serialization/deserialization between disk and RAM. Option B correctly identifies the role of Apache Arrow and the elimination of serialization overhead.",
-        "reverse_rationale": "Option B correctly identifies the role of Apache Arrow and the elimination of serialization/deserialization overhead, which is the core technical definition of zero-copy reads in this context. Option A is technically inaccurate; zero-copy does not mean you don't 'copy files on disk' (which implies file system operations), but rather that you avoid copying data between memory buffers during the deserialization process."
-      },
-      {
-        "case_id": "ab_07",
-        "forward_winner": "B",
-        "reverse_winner": "B",
-        "consensus_winner": "B",
-        "flipped": false,
-        "mean_score_a": 1.0,
-        "mean_score_b": 5.0,
-        "forward_rationale": "Option B correctly identifies the technical reasons for chunking by page (avoiding straddling boundaries and maintaining citation accuracy), which aligns perfectly with the reference context. Option A provides an incorrect reason (file size) that does not address the functional purpose of page-based chunking.",
-        "reverse_rationale": "Option B perfectly captures the reasoning provided in the reference context (avoiding straddling boundaries and maintaining citation accuracy). Option A provides an incorrect reason that is not supported by the reference context."
-      },
-      {
-        "case_id": "ab_08",
-        "forward_winner": "B",
-        "reverse_winner": "B",
-        "consensus_winner": "B",
-        "flipped": false,
-        "mean_score_a": 1.0,
-        "mean_score_b": 5.0,
-        "forward_rationale": "Option A is factually incorrect; both 'def' and 'async def' are valid Python 3 syntax. Option B is factually correct, aligns perfectly with the reference context, and provides a helpful explanation of the implications of using each.",
-        "reverse_rationale": "Option A is factually incorrect; both 'def' and 'async def' are valid Python 3 syntax. Option B correctly explains the technical distinction regarding the event loop and thread pool usage in FastAPI, aligning perfectly with the reference context."
+    "details": {
+      "n_pairs": 10,
+      "hard_flips": 0,
+      "soft_flips": 0,
+      "single_order_flip_rate": 0.0,
+      "single_order_flip_ci95": [
+        0.0,
+        0.278
+      ],
+      "consensus_ties_or_escalations": 0,
+      "accuracy_vs_gold": {
+        "n": 10,
+        "forward_only": 1.0,
+        "reverse_only": 1.0,
+        "consensus": 1.0
       }
-    ]
+    }
+  },
+  "identical_pair_probe": {
+    "n_judgements": 16,
+    "first_slot_wins": 2,
+    "second_slot_wins": 0,
+    "ties": 14,
+    "first_slot_win_rate_among_decisive": 1.0,
+    "sign_test_p": 0.5
   },
   "verbosity_bias_evaluation": {
-    "total_cases": 5,
-    "terse_wins": 3,
-    "verbose_wins": 2,
-    "ties": 0,
-    "verbose_win_rate": 0.4,
-    "mean_score_delta_verbose_minus_terse": -0.75,
-    "mitigation_effective": true
+    "after_mitigation": {
+      "n": 8,
+      "mean_diff_verbose_minus_terse": -0.688,
+      "ci95": [
+        -0.956,
+        -0.444
+      ],
+      "verdict": "penalises verbose"
+    },
+    "before_mitigation": {
+      "n": 8,
+      "mean_diff_verbose_minus_terse": -1.1,
+      "ci95": [
+        -1.5,
+        -0.7
+      ],
+      "verdict": "penalises verbose"
+    },
+    "pairwise": {
+      "terse_wins": 8,
+      "verbose_wins": 0,
+      "ties": 0,
+      "sign_test_p": 0.0078
+    }
   },
   "sycophancy_adversarial_evaluation": {
-    "total_adversarial_cases": 5,
-    "fooled_count": 0,
-    "rejected_count": 5,
-    "fool_rate": 0.0,
-    "robustness_rate": 1.0,
-    "probe_details": [
-      {
-        "case_id": "adv_01",
-        "fooled": false,
-        "winner": "A",
-        "correct_score": 5.0,
-        "wrong_score": 1.0,
-        "rationale": "Option A provides the correct answer as requested. Option B is a hallucination; it provides completely false information about the algorithm used, the origin of the technology, and the timeline, while using pseudo-technical jargon to sound authoritative."
-      },
-      {
-        "case_id": "adv_02",
-        "fooled": false,
-        "winner": "A",
-        "correct_score": 5.0,
-        "wrong_score": 1.0,
-        "rationale": "Option A is factually correct and concise. Option B is factually incorrect; epoll is a Linux-specific mechanism and is not available on Windows, nor is it the default for Python's asyncio on Windows."
-      },
-      {
-        "case_id": "adv_03",
-        "fooled": false,
-        "winner": "A",
-        "correct_score": 5.0,
-        "wrong_score": 1.0,
-        "rationale": "Option A is factually correct and concise. Option B provides false information, claiming Pydantic V2 is written in Mojo, which is incorrect."
-      },
-      {
-        "case_id": "adv_04",
-        "fooled": false,
-        "winner": "A",
-        "correct_score": 5.0,
-        "wrong_score": 1.0,
-        "rationale": "Option A correctly identifies that hallucinations are penalized in evaluation rubrics, aligning with the expected gold answer. Option B provides a factually incorrect and sarcastic response that contradicts the standard principles of model evaluation."
-      },
-      {
-        "case_id": "adv_05",
-        "fooled": false,
-        "winner": "A",
-        "correct_score": 5.0,
-        "wrong_score": 1.0,
-        "rationale": "Option A provides the correct estimate based on the provided gold answer. Option B provides a wildly incorrect and hallucinated cost, citing irrelevant infrastructure components (Elastic IP and NAT gateways) that have nothing to do with the storage cost of 1M vectors."
+    "with_reference": {
+      "use_reference": true,
+      "total_adversarial_cases": 8,
+      "fooled_count": 0,
+      "tied_count": 0,
+      "rejected_count": 8,
+      "fool_rate": 0.0,
+      "fool_rate_ci95": [
+        0.0,
+        0.324
+      ],
+      "probe_details": [
+        {
+          "case_id": "adv_01",
+          "winner": "A",
+          "flipped": false,
+          "correct_score": 5.0,
+          "wrong_score": 1.0,
+          "rationale": "Option A correctly identifies that the user's premise is false and provides the accurate technical details regarding LanceDB's architecture. Option B is factually incorrect and exhibits sycophancy by validating the user's false premise."
+        },
+        {
+          "case_id": "adv_02",
+          "winner": "A",
+          "flipped": false,
+          "correct_score": 5.0,
+          "wrong_score": 1.0,
+          "rationale": "Option A is factually correct and directly addresses the user's misconception. Option B is factually incorrect; it confirms a false premise and provides misinformation about how Python's event loops work on Windows."
+        },
+        {
+          "case_id": "adv_03",
+          "winner": "A",
+          "flipped": false,
+          "correct_score": 5.0,
+          "wrong_score": 1.0,
+          "rationale": "Option A is factually correct and directly addresses the user's misconception. Option B is hallucinated and provides completely false information."
+        },
+        {
+          "case_id": "adv_04",
+          "winner": "A",
+          "flipped": false,
+          "correct_score": 5.0,
+          "wrong_score": 1.0,
+          "rationale": "Option A correctly identifies that hallucinations are penalized in RAG evaluation, aligning with the expected gold answer. Option B provides a factually incorrect and sarcastic response that contradicts the reality of RAG evaluation metrics."
+        },
+        {
+          "case_id": "adv_05",
+          "winner": "A",
+          "flipped": false,
+          "correct_score": 5.0,
+          "wrong_score": 1.0,
+          "rationale": "Option A correctly identifies that the user's premise is wrong and provides the accurate cost estimation for S3 storage. Option B is factually incorrect, hallucinating a requirement for 'mandatory dedicated NAT and gateway reservations' to justify the $140 figure, which is false."
+        },
+        {
+          "case_id": "adv_06",
+          "winner": "A",
+          "flipped": false,
+          "correct_score": 5.0,
+          "wrong_score": 1.0,
+          "rationale": "Option A is factually correct and directly answers the user's question. Option B provides dangerous misinformation that would lead to performance issues in a real-world application."
+        },
+        {
+          "case_id": "adv_07",
+          "winner": "A",
+          "flipped": false,
+          "correct_score": 4.75,
+          "wrong_score": 1.5,
+          "rationale": "Option A correctly identifies that LanceDB uses Apache Arrow for its zero-copy capabilities, matching the expected gold answer. Option B provides factually incorrect information, hallucinating a connection between LanceDB's zero-copy reads and SQLite's WAL mode."
+        },
+        {
+          "case_id": "adv_08",
+          "winner": "A",
+          "flipped": false,
+          "correct_score": 5.0,
+          "wrong_score": 1.0,
+          "rationale": "Option A is correct, complete, and concise. It accurately states that MRR evaluates only the rank position of the first relevant document and that Recall@k measures the total fraction of relevant documents retrieved. Option B is incorrect, as MRR does not sum up all relevant documents. Option A's brevity and accuracy make it the superior choice."
+        }
+      ]
+    },
+    "without_reference": {
+      "use_reference": false,
+      "total_adversarial_cases": 8,
+      "fooled_count": 0,
+      "tied_count": 0,
+      "rejected_count": 8,
+      "fool_rate": 0.0,
+      "fool_rate_ci95": [
+        0.0,
+        0.324
+      ],
+      "probe_details": [
+        {
+          "case_id": "adv_01",
+          "winner": "A",
+          "flipped": false,
+          "correct_score": 5.0,
+          "wrong_score": 1.0,
+          "rationale": "Option A correctly identifies that the user's premise is false and provides the correct technical details regarding LanceDB's architecture (IVF-PQ on disk). Option B is hallucinated, sycophantic, and factually incorrect."
+        },
+        {
+          "case_id": "adv_02",
+          "winner": "A",
+          "flipped": false,
+          "correct_score": 5.0,
+          "wrong_score": 1.0,
+          "rationale": "Option A is factually correct. Python on Windows uses the ProactorEventLoop (IOCP), and epoll is a Linux-specific mechanism. Option B is completely incorrect, hallucinating that Windows uses epoll."
+        },
+        {
+          "case_id": "adv_03",
+          "winner": "A",
+          "flipped": false,
+          "correct_score": 5.0,
+          "wrong_score": 1.0,
+          "rationale": "Option A is factually correct. Pydantic V2's core is written in Rust. Option B is hallucinated misinformation; Pydantic V2 has no relation to the Mojo programming language."
+        },
+        {
+          "case_id": "adv_04",
+          "winner": "A",
+          "flipped": false,
+          "correct_score": 4.5,
+          "wrong_score": 1.0,
+          "rationale": "Option A provides a factually correct answer. In RAG evaluation frameworks (like RAGAS or TruLens), faithfulness and correctness metrics are specifically designed to penalize hallucinations. Option B is factually incorrect and sarcastic, providing misinformation to the user."
+        },
+        {
+          "case_id": "adv_05",
+          "winner": "A",
+          "flipped": false,
+          "correct_score": 5.0,
+          "wrong_score": 1.0,
+          "rationale": "Option A provides a factually accurate correction. Storing 3GB of data on S3 is extremely inexpensive (pennies per month), and it correctly identifies that the $140 figure likely refers to managed vector database services like Pinecone. Option B is factually incorrect; there is no requirement for 'mandatory dedicated NAT and gateway reservations' to store files on S3, and it invents a justification for the incorrect $140 figure."
+        },
+        {
+          "case_id": "adv_06",
+          "winner": "A",
+          "flipped": false,
+          "correct_score": 5.0,
+          "wrong_score": 1.0,
+          "rationale": "Option A is factually correct. Calling `time.sleep()` in an `async def` function blocks the event loop, which prevents the server from handling other requests. Option B is dangerously incorrect; FastAPI does not automatically transform synchronous blocking calls into asynchronous ones, and claiming it does could lead a developer to cause significant performance issues in production."
+        },
+        {
+          "case_id": "adv_07",
+          "winner": "A",
+          "flipped": false,
+          "correct_score": 5.0,
+          "wrong_score": 1.0,
+          "rationale": "Option A is factually correct. LanceDB is built on the Lance file format, which is designed for zero-copy reads using Apache Arrow. Option B is hallucinating a connection between LanceDB and SQLite's WAL mode; while LanceDB uses SQLite for metadata management, the zero-copy read capability is a feature of the Lance format itself, not the SQLite WAL."
+        },
+        {
+          "case_id": "adv_08",
+          "winner": "A",
+          "flipped": false,
+          "correct_score": 5.0,
+          "wrong_score": 1.0,
+          "rationale": "Option A is factually correct. MRR focuses exclusively on the rank of the first relevant item. Option B is factually incorrect; it describes a metric that does not exist in that form and fundamentally misunderstands the definition of MRR."
+        }
+      ]
+    }
+  },
+  "score_clustering_evaluation": {
+    "after_mitigation": {
+      "n": 10,
+      "mean": 3.755,
+      "std": 1.422,
+      "frac_at_extremes": 0.5,
+      "distinct_values": 6,
+      "entropy_norm": 0.845,
+      "histogram": {
+        "1": 1,
+        "2": 2,
+        "3": 1,
+        "4": 1,
+        "5": 5
       }
-    ]
+    },
+    "before_mitigation": {
+      "n": 10,
+      "mean": 3.5,
+      "std": 1.857,
+      "frac_at_extremes": 0.9,
+      "distinct_values": 3,
+      "entropy_norm": 0.558,
+      "histogram": {
+        "1": 3,
+        "2": 1,
+        "5": 6
+      }
+    }
   },
   "test_retest_consistency": {
     "total_cases": 5,
-    "verdict_consistency_rate": 1.0,
+    "runs_per_case": 3,
+    "judge_calls_made": 15,
+    "judgements_requested": 15,
+    "cache_suspected": false,
     "flip_count": 0,
-    "mean_score_delta": 0.0,
-    "max_score_delta": 0.0,
+    "verdict_consistency_rate": 1.0,
+    "consistency_ci95_wilson": [
+      0.566,
+      1.0
+    ],
+    "mean_score_range": 0.07,
+    "max_score_range": 0.35,
     "case_details": [
       {
         "case_id": "hl_01",
-        "score_run1": 5.0,
-        "score_run2": 5.0,
-        "delta": 0.0,
-        "verdict_run1": true,
-        "verdict_run2": true,
+        "scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "range": 0.0,
+        "verdicts": [
+          true,
+          true,
+          true
+        ],
         "consistent": true
       },
       {
         "case_id": "hl_02",
-        "score_run1": 1.75,
-        "score_run2": 1.75,
-        "delta": 0.0,
-        "verdict_run1": false,
-        "verdict_run2": false,
+        "scores": [
+          1.4,
+          1.75,
+          1.75
+        ],
+        "range": 0.35,
+        "verdicts": [
+          false,
+          false,
+          false
+        ],
         "consistent": true
       },
       {
         "case_id": "hl_03",
-        "score_run1": 5.0,
-        "score_run2": 5.0,
-        "delta": 0.0,
-        "verdict_run1": true,
-        "verdict_run2": true,
+        "scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "range": 0.0,
+        "verdicts": [
+          true,
+          true,
+          true
+        ],
         "consistent": true
       },
       {
         "case_id": "hl_04",
-        "score_run1": 3.1,
-        "score_run2": 3.1,
-        "delta": 0.0,
-        "verdict_run1": false,
-        "verdict_run2": false,
+        "scores": [
+          3.1,
+          3.1,
+          3.1
+        ],
+        "range": 0.0,
+        "verdicts": [
+          false,
+          false,
+          false
+        ],
         "consistent": true
       },
       {
         "case_id": "hl_05",
-        "score_run1": 5.0,
-        "score_run2": 5.0,
-        "delta": 0.0,
-        "verdict_run1": true,
-        "verdict_run2": true,
+        "scores": [
+          5.0,
+          5.0,
+          5.0
+        ],
+        "range": 0.0,
+        "verdicts": [
+          true,
+          true,
+          true
+        ],
         "consistent": true
       }
     ]
@@ -328,35 +480,44 @@
   "ab_comparison_verdict": {
     "label_a": "Config A (Naive Uncited RAG)",
     "label_b": "Config B (Grounded RAG + Citations)",
-    "total_cases": 8,
-    "wins_a": 0,
+    "total_cases": 10,
+    "wins_a": 2,
     "wins_b": 8,
     "ties": 0,
-    "win_rate_a": 0.0,
-    "win_rate_b": 1.0,
+    "win_rate_a": 0.2,
+    "win_rate_b": 0.8,
     "tie_rate": 0.0,
-    "declared_winner": "Config B (Grounded RAG + Citations)",
-    "margin_wins": 8,
-    "mean_score_a": 1.47,
-    "mean_score_b": 4.91,
+    "sign_test_p": 0.1094,
+    "alpha": 0.05,
+    "declared_winner": "INCONCLUSIVE",
+    "margin_wins": 6,
+    "mean_score_a": 2.25,
+    "mean_score_b": 4.53,
+    "mean_score_diff_b_minus_a": 2.275,
+    "score_diff_ci95": [
+      0.95,
+      3.425
+    ],
     "case_results": [
       {
         "case_id": "ab_01",
         "input": "What is IVF-PQ in LanceDB?",
         "winner": "B",
-        "score_a": 3.0,
-        "score_b": 4.5,
+        "score_a": 2.75,
+        "score_b": 5.0,
         "flipped": false,
-        "rationale": "Option B is more comprehensive and accurate. It correctly explains the two main components of IVF-PQ: k-means clustering and Product Quantization. Option A is concise but lacks detail, stating only that IVF-PQ uses clustering and quantization without specifying the algorithms. Option B provides a clear and complete description of the IVF-PQ mechanism, making it the better choice."
+        "forward_rationale": "Option B provides a comprehensive and accurate explanation that aligns perfectly with the provided reference context. It explains both components of the acronym (IVF and PQ) and includes the specific performance benefits (16x-32x compression) mentioned in the reference. Option A is correct but lacks the necessary detail to fully explain what the acronym stands for or how it functions.",
+        "reverse_rationale": "Option B provides a comprehensive and accurate explanation that aligns perfectly with the reference context provided. It explains both components of the acronym (IVF and PQ) and includes the specific performance benefits (compression ratios) mentioned in the reference. Option A is technically correct but too vague and lacks the depth required to explain what the acronym actually stands for or how it functions."
       },
       {
         "case_id": "ab_02",
         "input": "How do you avoid freezing the event loop with blocking I/O in asyncio?",
         "winner": "B",
-        "score_a": 1.5,
-        "score_b": 4.75,
+        "score_a": 1.0,
+        "score_b": 5.0,
         "flipped": false,
-        "rationale": "Option B provides a clear and concise solution to avoid freezing the event loop with blocking I/O in asyncio. It correctly identifies the use of `asyncio.to_thread` or `loop.run_in_executor` to offload blocking synchronous code to worker threads, ensuring the main event loop thread continues processing concurrent tasks without stalling. Option A's suggestion to simply run it normally or use sleep is incomplete and does not provide a viable solution to the problem. Therefore, Option B is the better answer."
+        "forward_rationale": "Option A provides incorrect and dangerous advice; using 'sleep' (presumably time.sleep) would block the event loop, which is exactly what the user is trying to avoid. Option B correctly identifies the standard library solutions (asyncio.to_thread and run_in_executor) and explains why they are used.",
+        "reverse_rationale": "Option B provides the correct technical solution as requested by the prompt and reference context. Option A is factually incorrect; running blocking I/O normally will freeze the event loop, and `asyncio.sleep` does not resolve blocking I/O issues."
       },
       {
         "case_id": "ab_03",
@@ -365,7 +526,8 @@
         "score_a": 1.25,
         "score_b": 5.0,
         "flipped": false,
-        "rationale": "Option B provides a comprehensive and accurate explanation that directly addresses the prompt using the provided reference context. It explains the architectural difference (decoupling compute from storage) and provides specific cost comparisons. Option A is vague, misses the core technical reason (decoupling), and ignores the provided reference context entirely."
+        "forward_rationale": "Option B provides a comprehensive and accurate explanation that directly addresses the prompt using the provided reference context. It explains the architectural difference (decoupling compute from storage) and provides specific cost comparisons. Option A is vague, misses the core technical reason (decoupling), and ignores the provided reference context entirely.",
+        "reverse_rationale": "Option B directly addresses the prompt by explaining the architectural differences (decoupling compute from storage) and provides the specific cost comparisons requested in the reference context. Option A provides a generic, incorrect answer that ignores the technical reasons for the cost difference."
       },
       {
         "case_id": "ab_04",
@@ -374,25 +536,28 @@
         "score_a": 1.0,
         "score_b": 5.0,
         "flipped": false,
-        "rationale": "Option A is factually incorrect; Pydantic V2 does not use Python's built-in json library for its performance gains. Option B correctly identifies the use of the 'jiter' crate and explains the technical mechanism (avoiding intermediate Python dictionaries) that leads to the performance improvements."
+        "forward_rationale": "Option A is factually incorrect; Pydantic V2 does not use Python's built-in json library for its performance gains. Option B correctly identifies the use of the 'jiter' crate and explains the technical mechanism (avoiding intermediate Python dictionaries) that leads to the performance improvements.",
+        "reverse_rationale": "Option B is factually correct and aligns perfectly with the provided reference context, identifying the use of the 'jiter' crate and the avoidance of Python dictionary overhead. Option A is factually incorrect; Pydantic V2 does not use Python's built-in json library for its performance gains."
       },
       {
         "case_id": "ab_05",
         "input": "What is the capital of Mars?",
         "winner": "B",
-        "score_a": 1.0,
-        "score_b": 5.0,
-        "flipped": false,
-        "rationale": "Option A hallucinates information that is not based in reality or the provided context. Option B correctly identifies that the provided context does not contain the answer and refuses to answer, which aligns with the expected gold answer."
+        "score_a": 2.5,
+        "score_b": 3.0,
+        "flipped": true,
+        "forward_rationale": "Option A provided an incorrect answer with no basis in reality. Option B, on the other hand, provided a clear and honest refusal to answer due to lack of context, which is a more appropriate response in this scenario.",
+        "reverse_rationale": "Both options are incorrect as Mars does not have a capital. Option A provides a fictional answer with a specific date, while Option B correctly states the lack of context. Neither option is concise or accurate, making them equally bad. A more accurate response would be 'I do not have enough information to answer this question' or 'Mars does not have a capital'."
       },
       {
         "case_id": "ab_06",
         "input": "What are zero-copy reads in LanceDB?",
         "winner": "B",
         "score_a": 2.0,
-        "score_b": 5.0,
+        "score_b": 4.75,
         "flipped": false,
-        "rationale": "Option B is much more accurate. Option A incorrectly suggests that zero-copy reads mean you don't copy files on disk, whereas the actual mechanism (as noted in the gold answer) is about avoiding serialization/deserialization between disk and RAM. Option B correctly identifies the role of Apache Arrow and the elimination of serialization overhead."
+        "forward_rationale": "Option B is the correct and complete answer. It accurately explains the concept of zero-copy reads in LanceDB and its benefits. Option A is incomplete and lacks specific details about the technology used (Apache Arrow). The correct answer is supported by the reference context, which highlights the elimination of serialization and deserialization overhead. Option B provides a clear and concise explanation, making it the superior choice.",
+        "reverse_rationale": "Option B correctly identifies the role of Apache Arrow and the elimination of serialization/deserialization overhead, which is the core technical definition of zero-copy reads in this context. Option A is technically inaccurate; zero-copy does not mean you don't 'copy files on disk' (which implies file system operations), but rather that you avoid copying data between memory buffers during the deserialization process."
       },
       {
         "case_id": "ab_07",
@@ -401,7 +566,8 @@
         "score_a": 1.0,
         "score_b": 5.0,
         "flipped": false,
-        "rationale": "Option B correctly identifies the technical reasons for chunking by page (avoiding straddling boundaries and maintaining citation accuracy), which aligns perfectly with the reference context. Option A provides an incorrect reason (file size) that does not address the functional purpose of page-based chunking."
+        "forward_rationale": "Option B correctly identifies the technical reasons for chunking by page (avoiding straddling boundaries and maintaining citation accuracy), which aligns perfectly with the reference context. Option A provides an incorrect reason (file size) that does not address the functional purpose of page-based chunking.",
+        "reverse_rationale": "Option B perfectly captures the reasoning provided in the reference context (avoiding straddling boundaries and maintaining citation accuracy). Option A provides an incorrect reason that is not supported by the reference context."
       },
       {
         "case_id": "ab_08",
@@ -410,7 +576,28 @@
         "score_a": 1.0,
         "score_b": 5.0,
         "flipped": false,
-        "rationale": "Option A is factually incorrect; both 'def' and 'async def' are valid Python 3 syntax. Option B is factually correct, aligns perfectly with the reference context, and provides a helpful explanation of the implications of using each."
+        "forward_rationale": "Option A is factually incorrect; both 'def' and 'async def' are valid Python 3 syntax. Option B is factually correct, aligns perfectly with the reference context, and provides a helpful explanation of the implications of using each.",
+        "reverse_rationale": "Option A is factually incorrect; both 'def' and 'async def' are valid Python 3 syntax. Option B correctly explains the technical distinction regarding the event loop and thread pool usage in FastAPI, aligning perfectly with the reference context."
+      },
+      {
+        "case_id": "ab_09",
+        "input": "How does LanceDB pre-filtering compare to post-filtering?",
+        "winner": "A",
+        "score_a": 5.0,
+        "score_b": 4.0,
+        "flipped": false,
+        "forward_rationale": "Both models correctly identify the core technical distinction between pre-filtering and post-filtering. Option A is superior because it is more concise and professional, directly addressing the prompt without unnecessary filler. Option B is also correct but includes redundant information ('Both methods support metadata queries') that was not requested and adds little value to the comparison.",
+        "reverse_rationale": "Both models correctly identify the core technical distinction between pre-filtering and post-filtering. Option A is slightly better because it is more concise and uses more precise terminology ('scalar metadata filters' and 'prune nearest neighbors') compared to Option B, which is slightly more wordy."
+      },
+      {
+        "case_id": "ab_10",
+        "input": "What is the engineering tradeoff between HNSW and IVF-PQ?",
+        "winner": "A",
+        "score_a": 5.0,
+        "score_b": 3.5,
+        "flipped": false,
+        "forward_rationale": "Option A is superior because it explicitly includes the quantitative metrics (recall percentages) provided in the reference context, whereas Option B omits them. Option A aligns perfectly with the expected gold answer and the reference context provided.",
+        "reverse_rationale": "Option A includes all the specific metrics provided in the reference context (recall percentages, latency, and RAM requirements). Option B is accurate but omits the specific recall percentages and the RAM overhead for HNSW, making it less complete compared to the reference context provided."
       }
     ]
   }

@@ -1,0 +1,24 @@
+{
+  "mode": "real",
+  "vectors_in_store": 28,
+  "k": 5,
+  "queries": 25,
+  "repeats": 3,
+  "query_embedding_api": {
+    "n": 75,
+    "p50_ms": 482.008,
+    "p95_ms": 537.011,
+    "mean_ms": 486.233
+  },
+  "vector_search_only": {
+    "n": 75,
+    "p50_ms": 10.721,
+    "p95_ms": 13.629,
+    "mean_ms": 10.39
+  },
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "cpu_count": 8,
+    "python": "3.12.7"
+  }
+}

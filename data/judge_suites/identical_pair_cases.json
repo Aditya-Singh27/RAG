@@ -1,0 +1,50 @@
+[
+  {
+    "id": "ident_01",
+    "input": "What is the primary indexing mechanism in LanceDB?",
+    "output": "LanceDB uses IVF-PQ (Inverted File with Product Quantization) to partition vectors into Voronoi cells via k-means clustering and compress vectors using Product Quantization.",
+    "expected_output": "LanceDB uses IVF-PQ."
+  },
+  {
+    "id": "ident_02",
+    "input": "How does LanceDB achieve zero-copy reads?",
+    "output": "LanceDB achieves zero-copy reads through Apache Arrow, avoiding memory serialization penalties between disk and RAM.",
+    "expected_output": "Apache Arrow enables zero-copy reads."
+  },
+  {
+    "id": "ident_03",
+    "input": "What event loop does Python 3.8+ default to on Windows?",
+    "output": "On Windows, Python 3.8+ defaults to ProactorEventLoop backed by Windows I/O Completion Ports (IOCP).",
+    "expected_output": "ProactorEventLoop backed by IOCP."
+  },
+  {
+    "id": "ident_04",
+    "input": "How does Pydantic V2 achieve high parsing performance?",
+    "output": "Pydantic V2 rewrote its core validation engine in Rust (pydantic-core), compiling Python type annotations into a static Rust validation graph.",
+    "expected_output": "Core rewritten in Rust (pydantic-core)."
+  },
+  {
+    "id": "ident_05",
+    "input": "What is Mean Reciprocal Rank (MRR)?",
+    "output": "Mean Reciprocal Rank evaluates the rank position of the first relevant chunk, calculated as the average of 1/rank across queries.",
+    "expected_output": "MRR is the average of reciprocal ranks of the first relevant hit."
+  },
+  {
+    "id": "ident_06",
+    "input": "Why should PDF documents be chunked per page?",
+    "output": "PDF documents should be chunked per-page to preserve exact page citation metadata and avoid splitting text across page boundaries.",
+    "expected_output": "Preserve exact page metadata and prevent boundary straddling."
+  },
+  {
+    "id": "ident_07",
+    "input": "How should blocking synchronous code be run inside an asyncio event loop?",
+    "output": "Blocking synchronous code should be offloaded to worker threads via loop.run_in_executor(None, func) or asyncio.to_thread(func).",
+    "expected_output": "Offload to worker threads with asyncio.to_thread or run_in_executor."
+  },
+  {
+    "id": "ident_08",
+    "input": "What is the difference between def and async def in FastAPI?",
+    "output": "In FastAPI, async def endpoints execute on the main event loop thread, while def endpoints are automatically dispatched to anyio worker threads.",
+    "expected_output": "async def runs on main thread; def is dispatched to worker threads."
+  }
+]

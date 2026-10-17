@@ -1,227 +1,121 @@
-"""Judge Validation Suite and A/B Comparison Runner (Problem 2).
-Implements all validation requirements:
-1. Agreement with human/gold labels (Agreement rate, Cohen's kappa, confusion matrix)
-2. Test-retest consistency (Run-1 vs Run-2 flip rate, score variance)
-3. Adversarial probe validation (verbose-wrong vs terse-correct, sycophancy probe)
-4. A/B comparison declaring a winner between two configurations.
-"""
+"""Judge validation + A/B runner (Problem 2). Statistics live in judge/stats.py."""
 from __future__ import annotations
-import math
+from collections import Counter
 from typing import Any
 import numpy as np
 
-from judge.models import TestCase, PointwiseVerdict
+from judge.models import TestCase
 from judge.pipeline import JudgePipeline
 from judge.bias import BiasMitigationHarness
+from judge.stats import (cohens_kappa, kappa_bootstrap_ci, paired_bootstrap_diff,
+                         sign_test_p, wilson_ci)
 
 
-def compute_cohens_kappa(rater_a: list[bool], rater_b: list[bool]) -> float:
-    """Calculates Cohen's Kappa for binary classifications (e.g. PASS vs FAIL)."""
-    assert len(rater_a) == len(rater_b), "Raters must have same number of ratings"
-    n = len(rater_a)
-    if n == 0:
-        return 1.0
+def compute_cohens_kappa(a: list[bool], b: list[bool]):
+    """Kept for backwards compatibility; None means undefined (see stats.cohens_kappa)."""
+    return cohens_kappa(a, b)
 
-    # Contingency table
-    # a: both True, b: A True B False, c: A False B True, d: both False
-    tp = sum(1 for a, b in zip(rater_a, rater_b) if a and b)
-    fp = sum(1 for a, b in zip(rater_a, rater_b) if not a and b)
-    fn = sum(1 for a, b in zip(rater_a, rater_b) if a and not b)
-    tn = sum(1 for a, b in zip(rater_a, rater_b) if not a and not b)
 
-    observed_agreement = (tp + tn) / n
-
-    p_a_true = (tp + fn) / n
-    p_b_true = (tp + fp) / n
-    p_a_false = 1.0 - p_a_true
-    p_b_false = 1.0 - p_b_true
-
-    expected_agreement = (p_a_true * p_b_true) + (p_a_false * p_b_false)
-
-    if expected_agreement == 1.0:
-        return 1.0
-    return (observed_agreement - expected_agreement) / (1.0 - expected_agreement)
+def _call_count(pipeline) -> int | None:
+    """Best-effort: find a wrapped LLM client that counts its calls (LoggedLLM.calls)."""
+    for v in (pipeline, *vars(pipeline).values()):
+        c = getattr(v, "calls", None)
+        if isinstance(c, int):
+            return c
+    return None
 
 
 class JudgeValidator:
     def __init__(self, pipeline: JudgePipeline, bias_harness: BiasMitigationHarness):
-        self.pipeline = pipeline
-        self.harness = bias_harness
+        self.pipeline, self.harness = pipeline, bias_harness
 
-    def validate_human_agreement(
-        self,
-        labeled_cases: list[dict[str, Any]],
-        pass_threshold: float = 3.5,
-    ) -> dict[str, Any]:
-        """Evaluates judge verdicts against expert gold labels."""
-        gold_labels = []
-        judge_labels = []
-        score_deltas = []
-
-        details = []
+    def validate_human_agreement(self, labeled_cases, pass_threshold: float = 3.5) -> dict[str, Any]:
+        """Each case needs gold_pass. Add `label_source` ('human' | 'llm' | 'author') - it is echoed in the
+        report so the README cannot claim human agreement for labels that were not human."""
+        gold, judge, deltas, details = [], [], [], []
         for c in labeled_cases:
-            tc = TestCase(
-                id=c["id"],
-                input=c["input"],
-                model_output=c["model_output"],
-                expected_output=c.get("expected_output"),
-                reference_context=c.get("reference_context"),
-            )
+            tc = TestCase(id=c["id"], input=c["input"], model_output=c["model_output"],
+                          expected_output=c.get("expected_output"), reference_context=c.get("reference_context"))
             v = self.pipeline.evaluate_pointwise(tc, pass_threshold=pass_threshold)
-            
-            gold_pass = bool(c["gold_pass"])
-            judge_pass = v.passed
-            gold_labels.append(gold_pass)
-            judge_labels.append(judge_pass)
-
+            g = bool(c["gold_pass"])
+            gold.append(g)
+            judge.append(v.passed)
             if "gold_score" in c:
-                score_deltas.append(abs(v.overall_score - float(c["gold_score"])))
-
-            details.append({
-                "case_id": c["id"],
-                "gold_pass": gold_pass,
-                "judge_pass": judge_pass,
-                "agreed": (gold_pass == judge_pass),
-                "judge_score": v.overall_score,
-                "gold_score": c.get("gold_score"),
-                "rationale": v.overall_rationale,
-            })
-
-        agreements = sum(1 for g, j in zip(gold_labels, judge_labels) if g == j)
-        agreement_rate = agreements / len(labeled_cases) if labeled_cases else 0.0
-        kappa = compute_cohens_kappa(gold_labels, judge_labels)
-        mean_score_error = float(np.mean(score_deltas)) if score_deltas else 0.0
-
+                deltas.append(abs(v.overall_score - float(c["gold_score"])))
+            details.append({"case_id": c["id"], "gold_pass": g, "judge_pass": v.passed, "agreed": g == v.passed,
+                            "judge_score": v.overall_score, "gold_score": c.get("gold_score"),
+                            "label_source": c.get("label_source", "unspecified"), "rationale": v.overall_rationale})
+        n = len(labeled_cases)
+        agree = sum(g == j for g, j in zip(gold, judge))
+        k = cohens_kappa(gold, judge)
+        klo, khi = kappa_bootstrap_ci(gold, judge)
+        cm = Counter((g, j) for g, j in zip(gold, judge))
         return {
-            "total_cases": len(labeled_cases),
-            "agreement_rate": round(agreement_rate, 4),
-            "cohens_kappa": round(kappa, 4),
-            "mean_absolute_score_error": round(mean_score_error, 3),
-            "confusion_matrix": {
-                "true_positive": sum(1 for g, j in zip(gold_labels, judge_labels) if g and j),
-                "true_negative": sum(1 for g, j in zip(gold_labels, judge_labels) if not g and not j),
-                "false_positive": sum(1 for g, j in zip(gold_labels, judge_labels) if not g and j),
-                "false_negative": sum(1 for g, j in zip(gold_labels, judge_labels) if g and not j),
-            },
-            "case_details": details,
-        }
+            "total_cases": n, "pass_threshold": pass_threshold,
+            "label_sources": dict(Counter(d["label_source"] for d in details)),
+            "agreement_rate": round(agree / n, 4) if n else 0.0,
+            "agreement_ci95_wilson": [round(x, 3) for x in wilson_ci(agree, n)],
+            "cohens_kappa": None if k is None else round(k, 4),
+            "kappa_ci95_bootstrap": [None if x is None else round(x, 3) for x in (klo, khi)],
+            "mean_absolute_score_error": round(float(np.mean(deltas)), 3) if deltas else None,
+            "confusion_matrix": {"true_positive": cm[(True, True)], "true_negative": cm[(False, False)],
+                                 "false_positive": cm[(False, True)], "false_negative": cm[(True, False)]},
+            "case_details": details}
 
-    def validate_test_retest_consistency(
-        self,
-        test_cases: list[TestCase],
-        runs: int = 2,
-    ) -> dict[str, Any]:
-        """Evaluates variance across repeated runs at temperature=0.0."""
-        run_1_scores = []
-        run_2_scores = []
-        flip_count = 0
-
-        details = []
+    def validate_test_retest_consistency(self, test_cases: list[TestCase], runs: int = 3) -> dict[str, Any]:
+        """Judge each case `runs` times. Records how many LLM calls were really made: if that is
+        fewer than cases*runs, a cache is serving repeats and the consistency numbers are void."""
+        before = _call_count(self.pipeline)
+        details, flips, deltas = [], 0, []
         for tc in test_cases:
-            v1 = self.pipeline.evaluate_pointwise(tc)
-            v2 = self.pipeline.evaluate_pointwise(tc)
+            vs = [self.pipeline.evaluate_pointwise(tc) for _ in range(runs)]
+            sc = [v.overall_score for v in vs]
+            passed = [v.passed for v in vs]
+            flip = len(set(passed)) > 1
+            flips += flip
+            deltas.append(max(sc) - min(sc))
+            details.append({"case_id": tc.id, "scores": sc, "range": round(max(sc) - min(sc), 3),
+                            "verdicts": passed, "consistent": not flip})
+        after = _call_count(self.pipeline)
+        n = len(test_cases)
+        made = None if before is None or after is None else after - before
+        # a pointwise judgement may use >1 call (parse retry), so only FEWER calls than judgements is suspicious
+        cache = None if made is None else made < n * runs
+        return {"total_cases": n, "runs_per_case": runs, "judge_calls_made": made, "judgements_requested": n * runs,
+                "cache_suspected": cache, "flip_count": flips,
+                "verdict_consistency_rate": round((n - flips) / n, 4) if n else None,
+                "consistency_ci95_wilson": [round(x, 3) for x in wilson_ci(n - flips, n)],
+                "mean_score_range": round(float(np.mean(deltas)), 4) if deltas else None,
+                "max_score_range": round(float(np.max(deltas)), 4) if deltas else None,
+                "case_details": details}
 
-            run_1_scores.append(v1.overall_score)
-            run_2_scores.append(v2.overall_score)
-
-            flipped = (v1.passed != v2.passed)
-            if flipped:
-                flip_count += 1
-
-            details.append({
-                "case_id": tc.id,
-                "score_run1": v1.overall_score,
-                "score_run2": v2.overall_score,
-                "delta": round(abs(v1.overall_score - v2.overall_score), 2),
-                "verdict_run1": v1.passed,
-                "verdict_run2": v2.passed,
-                "consistent": not flipped,
-            })
-
-        diffs = [abs(s1 - s2) for s1, s2 in zip(run_1_scores, run_2_scores)]
-        consistency_rate = (len(test_cases) - flip_count) / len(test_cases) if test_cases else 1.0
-
-        return {
-            "total_cases": len(test_cases),
-            "verdict_consistency_rate": round(consistency_rate, 4),
-            "flip_count": flip_count,
-            "mean_score_delta": round(float(np.mean(diffs)), 4),
-            "max_score_delta": round(float(np.max(diffs)), 4),
-            "case_details": details,
-        }
-
-    def run_ab_comparison(
-        self,
-        comparison_cases: list[dict[str, Any]],
-        label_a: str = "Config A (Baseline)",
-        label_b: str = "Config B (Improved)",
-    ) -> dict[str, Any]:
-        """Compares two configurations (Prompt v1 vs v2, or Model A vs Model B)
-        using symmetrical pairwise evaluations to neutralize position bias."""
-        results = []
-        wins_a = 0
-        wins_b = 0
-        ties = 0
-
-        scores_a = []
-        scores_b = []
-
+    def run_ab_comparison(self, comparison_cases, label_a="Config A", label_b="Config B", alpha: float = 0.05):
+        """Declares a winner only if the sign test on non-tied cases is significant at `alpha`;
+        otherwise reports INCONCLUSIVE. Cases: {id, input, output_a, output_b, expected_output?}."""
+        rows, wa, wb, ties, sa, sb = [], 0, 0, 0, [], []
         for c in comparison_cases:
-            res = self.harness.evaluate_symmetrical_pairwise(
-                case_id=c["id"],
-                user_input=c["input"],
-                output_a=c["output_a"],
-                output_b=c["output_b"],
-                expected_output=c.get("expected_output"),
-                reference_context=c.get("reference_context"),
-            )
-            if res.consensus_winner == "A":
-                wins_a += 1
-            elif res.consensus_winner == "B":
-                wins_b += 1
-            else:
-                ties += 1
-
-            scores_a.append(res.mean_score_a)
-            scores_b.append(res.mean_score_b)
-            results.append({
-                "case_id": c["id"],
-                "input": c["input"],
-                "winner": res.consensus_winner,
-                "score_a": res.mean_score_a,
-                "score_b": res.mean_score_b,
-                "flipped": res.flipped,
-                "rationale": res.forward_rationale,
-            })
-
+            r = self.harness.evaluate_symmetrical_pairwise(c["id"], c["input"], c["output_a"], c["output_b"],
+                                                           c.get("expected_output"), c.get("reference_context"))
+            wa += r.consensus_winner == "A"
+            wb += r.consensus_winner == "B"
+            ties += r.consensus_winner == "TIE"
+            sa.append(r.mean_score_a)
+            sb.append(r.mean_score_b)
+            rows.append({"case_id": c["id"], "input": c["input"], "winner": r.consensus_winner,
+                         "score_a": r.mean_score_a, "score_b": r.mean_score_b, "flipped": r.flipped,
+                         "forward_rationale": r.forward_rationale, "reverse_rationale": r.reverse_rationale})
         n = len(comparison_cases)
-        win_rate_a = round(wins_a / n, 4) if n else 0.0
-        win_rate_b = round(wins_b / n, 4) if n else 0.0
-        tie_rate = round(ties / n, 4) if n else 0.0
-
-        if wins_b > wins_a:
-            winner = label_b
-            margin = wins_b - wins_a
-        elif wins_a > wins_b:
-            winner = label_a
-            margin = wins_a - wins_b
+        p = sign_test_p(wa, wb)
+        md, lo, hi = paired_bootstrap_diff(sa, sb)
+        if wa == wb or p >= alpha:
+            winner = "INCONCLUSIVE"
         else:
-            winner = "TIE"
-            margin = 0
-
-        return {
-            "label_a": label_a,
-            "label_b": label_b,
-            "total_cases": n,
-            "wins_a": wins_a,
-            "wins_b": wins_b,
-            "ties": ties,
-            "win_rate_a": win_rate_a,
-            "win_rate_b": win_rate_b,
-            "tie_rate": tie_rate,
-            "declared_winner": winner,
-            "margin_wins": margin,
-            "mean_score_a": round(float(np.mean(scores_a)), 2) if scores_a else 0.0,
-            "mean_score_b": round(float(np.mean(scores_b)), 2) if scores_b else 0.0,
-            "case_results": results,
-        }
+            winner = label_b if wb > wa else label_a
+        return {"label_a": label_a, "label_b": label_b, "total_cases": n, "wins_a": wa, "wins_b": wb, "ties": ties,
+                "win_rate_a": round(wa / n, 4) if n else 0.0, "win_rate_b": round(wb / n, 4) if n else 0.0,
+                "tie_rate": round(ties / n, 4) if n else 0.0, "sign_test_p": round(p, 4), "alpha": alpha,
+                "declared_winner": winner, "margin_wins": abs(wb - wa),
+                "mean_score_a": round(float(np.mean(sa)), 2) if sa else 0.0,
+                "mean_score_b": round(float(np.mean(sb)), 2) if sb else 0.0,
+                "mean_score_diff_b_minus_a": round(md, 3), "score_diff_ci95": [round(lo, 3), round(hi, 3)],
+                "case_results": rows}

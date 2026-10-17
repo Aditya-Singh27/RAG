@@ -1,0 +1,49 @@
+{
+  "mode": "synthetic",
+  "note": "clustered Gaussian vectors; random queries from the same clusters",
+  "hardware": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "cpu_count": 8,
+    "python": "3.12.7"
+  },
+  "runs": [
+    {
+      "vectors": 100000,
+      "dim": 768,
+      "k": 5,
+      "disk_bytes": 307400275,
+      "bytes_per_vector_on_disk": 3074.0,
+      "raw_float32_bytes_per_vector": 3072,
+      "build_seconds": 1.6,
+      "flat_exact": {
+        "n": 100,
+        "p50_ms": 189.03,
+        "p95_ms": 210.253,
+        "mean_ms": 190.805
+      },
+      "index_build_seconds": 119.5,
+      "ivf_pq": {
+        "num_partitions_requested": 316,
+        "num_sub_vectors": 96,
+        "nprobes": 20,
+        "disk_bytes_with_index": 319036292,
+        "settings": {
+          "no_refine": {
+            "n": 100,
+            "p50_ms": 6.142,
+            "p95_ms": 8.154,
+            "mean_ms": 6.311,
+            "recall@5_vs_exact": 0.234
+          },
+          "refine_factor_20": {
+            "n": 100,
+            "p50_ms": 8.17,
+            "p95_ms": 9.213,
+            "mean_ms": 8.151,
+            "recall@5_vs_exact": 0.936
+          }
+        }
+      }
+    }
+  ]
+}

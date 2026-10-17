@@ -12,6 +12,10 @@
       "Product Quantization",
       "k-means",
       "voronoi"
+    ],
+    "evidence": [
+      "The primary indexing mechanism in LanceDB is IVF-PQ (Inverted File with Product Quantization).",
+      "IVF partitions the vector space into voronoi cells using k-means clustering."
     ]
   },
   {
@@ -26,6 +30,9 @@
       "Apache Arrow",
       "serialization",
       "SSD"
+    ],
+    "evidence": [
+      "A critical feature of LanceDB is zero-copy reads via Apache Arrow. Data transfers between disk and RAM avoid serialization penalties"
     ]
   },
   {
@@ -40,6 +47,9 @@
       "post-filtering",
       "metadata constraints",
       "recall"
+    ],
+    "evidence": [
+      "Pre-filtering prevents low recall caused by restrictive metadata constraints, which frequently degrades post-filtering."
     ]
   },
   {
@@ -57,6 +67,10 @@
       "S3",
       "$0.07",
       "1M"
+    ],
+    "evidence": [
+      "At approximately $70 per pod-month, an idle or lightly queried index costs $140 to $280 per month.",
+      "At 1M vectors (3 GB storage): S3 storage costs roughly $0.07/month."
     ]
   },
   {
@@ -72,6 +86,9 @@
       "tradeoff",
       "latency",
       "HNSW"
+    ],
+    "evidence": [
+      "LanceDB achieves 5-15ms on NVMe SSD compared to 2-5ms for pure in-memory HNSW"
     ]
   },
   {
@@ -87,6 +104,10 @@
       ". ",
       "paragraphs",
       "sentences"
+    ],
+    "evidence": [
+      "recursive character splitting uses a hierarchy of natural separators",
+      "Double newlines (`\\n\\n`) to preserve paragraph boundaries"
     ]
   },
   {
@@ -101,6 +122,9 @@
       "straddle",
       "page citation",
       "metadata"
+    ],
+    "evidence": [
+      "To preserve exact citation metadata, chunking should occur per-page so chunks never straddle page boundaries."
     ]
   },
   {
@@ -115,6 +139,10 @@
       "reciprocal rank",
       "first relevant",
       "rank position"
+    ],
+    "evidence": [
+      "MRR evaluates the rank position of the first relevant chunk.",
+      "MRR heavily penalizes search systems that bury the correct answer below irrelevant distractors."
     ]
   },
   {
@@ -129,6 +157,10 @@
       "logarithmic discounting",
       "IDCG",
       "graded relevance"
+    ],
+    "evidence": [
+      "nDCG evaluates graded relevance and penalizes relevant results appearing lower in the ranking using logarithmic discounting",
+      "Where IDCG is the Ideal DCG obtained by sorting items by true relevance."
     ]
   },
   {
@@ -144,6 +176,9 @@
       "IOCP",
       "Windows",
       "epoll"
+    ],
+    "evidence": [
+      "In Python 3.8+ on Windows, the default event loop implementation is `ProactorEventLoop` (backed by I/O Completion Ports - IOCP), whereas Unix systems default to `SelectorEventLoop`"
     ]
   },
   {
@@ -158,6 +193,9 @@
       "to_thread",
       "thread pool",
       "freeze the event loop"
+    ],
+    "evidence": [
+      "The recommended pattern is offloading blocking functions using `loop.run_in_executor(None, sync_func, *args)` or `asyncio.to_thread(sync_func, *args)`."
     ]
   },
   {
@@ -172,6 +210,9 @@
       "pydantic-core",
       "validation graph",
       "jiter"
+    ],
+    "evidence": [
+      "The core validation engine was rewritten in Rust (`pydantic-core`). Python type hints are compiled at model declaration time into a static validation graph in Rust."
     ]
   },
   {
@@ -187,6 +228,10 @@
       "flip rate",
       "agreement",
       "both orders"
+    ],
+    "evidence": [
+      "When presenting two model outputs (Model A vs Model B) to a judge, judges frequently favor the first candidate (Option A) due to primacy effects",
+      "Run every evaluation pair twice with swapped order: Order 1 (A then B) and Order 2 (B then A). Measure the position flip rate."
     ]
   },
   {
@@ -202,6 +247,9 @@
       "decouple",
       "Gemini",
       "Llama"
+    ],
+    "evidence": [
+      "Strictly decouple the judge model family from the generator model family (e.g. Gemini judging Llama 3.2, or an ensemble of independent models)."
     ]
   },
   {
@@ -217,6 +265,10 @@
       "thread pool",
       "event loop",
       "anyio"
+    ],
+    "evidence": [
+      "async def : Executed directly on the main event loop thread. If an async endpoint executes blocking I/O",
+      "def : Automatically dispatched by FastAPI to an external thread pool (anyio worker threads)."
     ]
   },
   {
@@ -231,6 +283,10 @@
       "similarity score thresholding",
       "no-context",
       "strict citation"
+    ],
+    "evidence": [
+      "If the top retrieved chunk has a cosine similarity score below a tuned threshold (e.g. 0.35), the pipeline must bypass the LLM generator entirely. It returns a deterministic refusal message",
+      "Strict Citation Enforcement : The generator system prompt instructs the model to cite chunk markers [Chunk X]"
     ]
   },
   {
@@ -247,6 +303,10 @@
       "80-95%",
       "RAM",
       "recall"
+    ],
+    "evidence": [
+      "HNSW provides exceptional recall (95-99%) and low query latency (1-3ms), but consumes immense RAM",
+      "IVF-PQ can operate directly from disk or compressed memory, reducing RAM requirements by 80-95%"
     ]
   },
   {
@@ -261,6 +321,9 @@
       "distractors",
       "token consumption",
       "hallucinations"
+    ],
+    "evidence": [
+      "Context Precision evaluates whether all retrieved chunks in the context window are relevant to the query. High precision ensures that the generator LLM is not distracted by noisy or extraneous chunks"
     ]
   },
   {
@@ -277,6 +340,10 @@
       "S3",
       "RAM",
       "always-on"
+    ],
+    "evidence": [
+      "LanceDB is designed to query disk-based vector indices with minimal memory overhead.",
+      "LanceDB stores compressed IVF-PQ vectors on block storage (local NVMe SSD or cloud object stores like AWS S3)."
     ]
   },
   {
@@ -292,6 +359,10 @@
       "grounded",
       "distracting noise",
       "citations"
+    ],
+    "evidence": [
+      "If the top retrieved chunk has a cosine similarity score below a tuned threshold (e.g. 0.35), the pipeline must bypass the LLM generator entirely.",
+      "Context Precision evaluates whether all retrieved chunks in the context window are relevant to the query."
     ]
   },
   {
@@ -306,6 +377,10 @@
       "verbosity bias",
       "swapping order",
       "rubric"
+    ],
+    "evidence": [
+      "Run every evaluation pair twice with swapped order: Order 1 (A then B) and Order 2 (B then A).",
+      "Define explicit rubrics that penalize unsupported elaboration."
     ]
   },
   {
@@ -321,6 +396,10 @@
       "blocking I/O",
       "event loop",
       "thread pool"
+    ],
+    "evidence": [
+      "async def : Executed directly on the main event loop thread. If an async endpoint executes blocking I/O",
+      "def : Automatically dispatched by FastAPI to an external thread pool (anyio worker threads)."
     ]
   },
   {
@@ -332,7 +411,8 @@
     "category": "out_of_domain",
     "keywords": [
       "do not have enough relevant context"
-    ]
+    ],
+    "evidence": []
   },
   {
     "id": "q24",
@@ -343,7 +423,8 @@
     "category": "out_of_domain",
     "keywords": [
       "do not have enough relevant context"
-    ]
+    ],
+    "evidence": []
   },
   {
     "id": "q25",
@@ -354,6 +435,7 @@
     "category": "out_of_domain",
     "keywords": [
       "do not have enough relevant context"
-    ]
+    ],
+    "evidence": []
   }
 ]

@@ -1,389 +1,245 @@
-"""Comprehensive RAG Evaluation Harness (Problem 1).
-Evaluates all three required layers:
-1. Retrieval IR Metrics: Recall@k / Hit Rate, MRR, nDCG@k, Context Precision
-2. Answer Quality: Faithfulness/Groundedness, Answer Relevance (LLM judge), Token F1 / EM
-3. Cost & Latency: Empirical p50/p95 latency and monthly cost projections at 100K/1M/10M scale vs managed DBs.
+"""RAG evaluation harness (Problem 1) - v2.
+
+Retrieval : chunk-level relevance from `evidence` quotes; answerable questions only.
+Refusal   : out-of-domain refusal accuracy and false-refusal rate reported separately.
+Answers   : LLM judge (faithfulness, correctness vs gold, relevance, citation accuracy) with NO silent
+            defaults: unparsable verdicts are counted and excluded, never turned into a score.
+Latency   : p50/p95 with sample sizes. Cost lives in eval/cost_model.py (needs sourced prices).
+
+eval_questions.json item:
+  {id, query, category: in_domain|cross_doc|out_of_domain, gold_answer, doc_id?, evidence: [verbatim quotes]}
 """
 from __future__ import annotations
 import json
-import math
-import os
 import re
 import string
 import sys
-import time
-from dataclasses import dataclass, asdict
+from collections import Counter
 from pathlib import Path
-from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-import numpy as np
-
-from common.config import RagConfig, JudgeConfig
-from common.llm import LLMClient, make_llm
-from rag.service import RagService, RagResult
-
+from eval.metrics import (bootstrap_ci, context_precision, context_precision_ap, count_relevant_in_corpus,
+                          evidence_recall, hit_at_k, ndcg_at_k, percentile, reciprocal_rank, relevance_flags)
+from judge.stats import score_spread, wilson_ci
 
 RESULTS_DIR = Path("results")
-RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+REFUSAL = "i do not have enough relevant context"
+ANSWERABLE = ("in_domain", "cross_doc")
 
 
+# ----------------------------------------------------------------------------- text metrics
 def normalize_answer(s: str) -> str:
-    """Lower text and remove punctuation, articles and extra whitespace."""
-    def remove_articles(text):
-        return re.sub(r"\b(a|an|the)\b", " ", text)
-
-    def white_space_fix(text):
-        return " ".join(text.split())
-
-    def remove_punc(text):
-        exclude = set(string.punctuation)
-        return "".join(ch for ch in text if ch not in exclude)
-
-    return white_space_fix(remove_articles(remove_punc(s.lower())))
+    s = "".join(ch for ch in s.lower() if ch not in set(string.punctuation))
+    return " ".join(re.sub(r"\b(a|an|the)\b", " ", s).split())
 
 
-def compute_f1(prediction: str, ground_truth: str) -> tuple[float, float, float]:
-    pred_tokens = normalize_answer(prediction).split()
-    gold_tokens = normalize_answer(ground_truth).split()
-    
-    if not pred_tokens or not gold_tokens:
-        return (1.0, 1.0, 1.0) if pred_tokens == gold_tokens else (0.0, 0.0, 0.0)
-
-    common = {}
-    for t in pred_tokens:
-        if t in gold_tokens:
-            common[t] = common.get(t, 0) + 1
-
-    same_count = sum(min(pred_tokens.count(k), gold_tokens.count(k)) for k in common)
-    if same_count == 0:
-        return 0.0, 0.0, 0.0
-
-    precision = 1.0 * same_count / len(pred_tokens)
-    recall = 1.0 * same_count / len(gold_tokens)
-    f1 = (2 * precision * recall) / (precision + recall)
-    return precision, recall, f1
+def token_f1(pred: str, gold: str) -> float:
+    p, g = normalize_answer(pred).split(), normalize_answer(gold).split()
+    if not p or not g:
+        return float(p == g)
+    common = Counter(p) & Counter(g)
+    same = sum(common.values())
+    if same == 0:
+        return 0.0
+    pr, rc = same / len(p), same / len(g)
+    return 2 * pr * rc / (pr + rc)
 
 
-def compute_em(prediction: str, ground_truth: str) -> float:
-    return float(normalize_answer(prediction) == normalize_answer(ground_truth))
+def exact_match(pred: str, gold: str) -> float:
+    return float(normalize_answer(pred) == normalize_answer(gold))
 
 
-# --- IR Metrics ---
-
-def compute_reciprocal_rank(retrieved_doc_ids: list[str], target_doc_id: str | None) -> float:
-    if not target_doc_id:
-        return 1.0 if not retrieved_doc_ids else 0.0
-    for rank, doc_id in enumerate(retrieved_doc_ids, start=1):
-        if doc_id == target_doc_id:
-            return 1.0 / rank
-    return 0.0
+def is_refusal(answer: str, no_context: bool) -> bool:
+    return bool(no_context) or REFUSAL in answer.lower()
 
 
-def compute_ndcg(retrieved_doc_ids: list[str], target_doc_id: str | None, k: int = 5) -> float:
-    if not target_doc_id:
-        return 1.0 if not retrieved_doc_ids else 0.0
-    dcg = 0.0
-    for i, doc_id in enumerate(retrieved_doc_ids[:k], start=1):
-        rel = 1.0 if doc_id == target_doc_id else 0.0
-        dcg += (2.0 ** rel - 1.0) / math.log2(i + 1)
-    idcg = (2.0 ** 1.0 - 1.0) / math.log2(1 + 1)
-    return dcg / idcg if idcg > 0 else 0.0
-
-
-def compute_context_precision(retrieved_chunks: list[dict], target_doc_id: str | None) -> float:
-    if not target_doc_id:
-        return 1.0 if not retrieved_chunks else 0.0
-    relevant_count = 0
-    precision_sum = 0.0
-    for i, c in enumerate(retrieved_chunks, start=1):
-        if c.get("doc_id") == target_doc_id:
-            relevant_count += 1
-            precision_sum += relevant_count / i
-    return precision_sum / relevant_count if relevant_count > 0 else 0.0
-
-
-# --- LLM-as-Judge for Faithfulness & Answer Relevance ---
-
-JUDGE_PROMPT_TEMPLATE = """You are an expert impartial AI evaluator.
-Evaluate the following generated answer against the retrieved context and user question.
+# ----------------------------------------------------------------------------- LLM judge
+JUDGE_PROMPT = """You are a strict evaluator of a retrieval-augmented answer. Judge ONLY from the material below.
 
 Question: {query}
+Question type: {qtype}
+Reference answer (written by a human from the source documents): {gold}
 
-Retrieved Context Excerpts:
+Retrieved context, numbered as shown to the answering model:
 {context}
 
-Generated Answer:
+Answer under evaluation:
 {answer}
 
-Rate on two criteria from 1 to 5:
-1. Faithfulness (1-5): Does the answer contain ONLY claims directly supported by the context?
-   5 = Completely faithful, no hallucinations or ungrounded facts.
-   3 = Minor ungrounded extrapolation or unsupported detail.
-   1 = Severe hallucinations or directly contradicts context.
-   Note: If context was insufficient and the model honestly stated it does not have enough context, rate 5.
+Score each criterion 1-5 (integers). Quote the shortest phrase that justifies each score.
+- faithfulness: every claim in the answer is supported by the retrieved context. Unsupported claims lower the score,
+  even if true in the real world. 5 = all claims supported, 1 = mostly unsupported or contradicted.
+- correctness: agreement with the reference answer on the key facts. A refusal on an answerable question is 1.
+  For an out-of-domain question (reference = refusal) a refusal is 5 and any substantive answer is 1.
+- relevance: the answer addresses what was asked, without padding.
+- citation_accuracy: each [Chunk N] marker points to a chunk that supports the sentence it follows.
+  If the answer has no citations and is not a refusal, give 1. If it is a refusal, give null.
 
-2. Answer Relevance (1-5): Does the answer directly address the user's question?
-   5 = Directly, accurately, and completely addresses what was asked.
-   3 = Partially answers the question or includes excessive irrelevant information.
-   1 = Off-topic or fails to answer the question.
-   Note: If the question was out-of-domain and the model correctly gave the no-context refusal, rate 5.
+Return ONLY JSON:
+{{"faithfulness": int, "faithfulness_evidence": str, "correctness": int, "correctness_evidence": str,
+  "relevance": int, "relevance_evidence": str, "citation_accuracy": int|null, "citation_evidence": str}}"""
 
-Output your verdict strictly as valid JSON in this exact schema:
-{{
-  "faithfulness_score": 5,
-  "faithfulness_rationale": "...",
-  "relevance_score": 5,
-  "relevance_rationale": "..."
-}}
-Do NOT output any markdown backticks or commentary outside the JSON.
-"""
+SCORE_KEYS = ("faithfulness", "correctness", "relevance")
 
 
-def judge_answer(judge_llm: LLMClient, query: str, context: str, answer: str) -> dict[str, Any]:
-    prompt = JUDGE_PROMPT_TEMPLATE.format(query=query, context=context, answer=answer)
-    response = judge_llm.generate(prompt=prompt, temperature=0.0, max_tokens=512)
-    text = response.text.strip()
-    # Strip markdown code blocks if any
-    clean_json = re.sub(r"^```(?:json)?\s*", "", text, flags=re.MULTILINE)
-    clean_json = re.sub(r"\s*```$", "", clean_json, flags=re.MULTILINE).strip()
+def parse_judge_json(text: str) -> dict | None:
+    """Strict: returns None unless every required score is an int in 1..5."""
+    t = re.sub(r"^```(?:json)?|```$", "", text.strip(), flags=re.MULTILINE).strip()
+    m = re.search(r"\{.*\}", t, flags=re.DOTALL)
+    if not m:
+        return None
     try:
-        return json.loads(clean_json)
-    except Exception:
-        # Fallback regex parsing
-        f_score = re.search(r'"faithfulness_score":\s*(\d+)', clean_json)
-        r_score = re.search(r'"relevance_score":\s*(\d+)', clean_json)
-        return {
-            "faithfulness_score": int(f_score.group(1)) if f_score else 4,
-            "faithfulness_rationale": "Parsed via regex fallback",
-            "relevance_score": int(r_score.group(1)) if r_score else 4,
-            "relevance_rationale": "Parsed via regex fallback",
-        }
+        d = json.loads(m.group(0))
+    except json.JSONDecodeError:
+        return None
+    for k in SCORE_KEYS:
+        if not isinstance(d.get(k), int) or isinstance(d.get(k), bool) or not 1 <= d[k] <= 5:
+            return None
+    ca = d.get("citation_accuracy")
+    if ca is not None and (not isinstance(ca, int) or not 1 <= ca <= 5):
+        return None
+    return d
 
 
-# --- Cost Modeling ---
-
-def compute_cost_projections():
-    """Generates cost comparison across 100K, 1M, 10M vectors.
-    Assumptions:
-    - 768-dimensional float32 vectors (3,072 bytes raw per vector)
-    - Storage with IVF-PQ metadata & indices: ~3.5 KB per vector
-    - 100K vectors: ~350 MB
-    - 1M vectors: ~3.5 GB
-    - 10M vectors: ~35 GB
-    - AWS S3 Standard: $0.023 / GB / month
-    - Pinecone Pod: Standard s1 pod ($70/pod/mo) holds ~1M 768d vectors; 10M requires 10 pods + replica = 20 pods ($1,400/mo)
-    - Pinecone Serverless: $0.25 / GB / month storage + $0.008 per 1,000 query units
-    - AWS OpenSearch (Self-hosted managed): m6g.large.search (2 vCPU, 8 GB RAM) at $90/mo for 1M; r6g.2xlarge ($720/mo) for 10M
-    """
-    scales = [
-        {"vectors": 100_000, "label": "100K"},
-        {"vectors": 1_000_000, "label": "1M"},
-        {"vectors": 10_000_000, "label": "10M"},
-    ]
-    comparison = []
-    for s in scales:
-        n = s["vectors"]
-        gb = (n * 3500) / (1024 ** 3)
-        
-        # LanceDB (Local SSD)
-        lancedb_local_monthly = 0.0  # Shared application volume / NVMe
-        # LanceDB (AWS S3)
-        lancedb_s3_monthly = round(gb * 0.023, 2)
-        
-        # Pinecone Pod-based
-        if n <= 100_000:
-            pinecone_pod = 70.0  # 1 pod min
-        elif n <= 1_000_000:
-            pinecone_pod = 140.0 # 2 pods (primary + replica)
-        else:
-            pinecone_pod = 1400.0 # 10 pods * 2 replicas = 20 pods
-            
-        # Pinecone Serverless
-        # Assuming 10,000 queries/month
-        pinecone_serverless = round(gb * 0.25 + (10_000 / 1000) * 0.008, 2)
-
-        # AWS OpenSearch (Managed)
-        if n <= 100_000:
-            opensearch = 85.0
-        elif n <= 1_000_000:
-            opensearch = 180.0
-        else:
-            opensearch = 1450.0
-
-        comparison.append({
-            "vector_count": s["label"],
-            "raw_storage_gb": round(gb, 2),
-            "lancedb_local_cost_per_month": f"${lancedb_local_monthly:.2f}",
-            "lancedb_s3_cost_per_month": f"${lancedb_s3_monthly:.2f}",
-            "pinecone_serverless_cost_per_month": f"${pinecone_serverless:.2f}",
-            "pinecone_pod_cost_per_month": f"${pinecone_pod:.2f}",
-            "aws_opensearch_cost_per_month": f"${opensearch:.2f}",
-            "cost_saving_factor_vs_pod": f"{pinecone_pod / max(lancedb_s3_monthly, 0.01):.1f}x",
-        })
-    return comparison
+def judge_answer(judge_llm, item: dict, chunks: list[dict], answer: str) -> dict | None:
+    ctx = "\n\n".join(f"[Chunk {i}] {c.get('text', '')}" for i, c in enumerate(chunks, 1)) or "(no context retrieved)"
+    prompt = JUDGE_PROMPT.format(query=item["query"], qtype=item["category"], gold=item["gold_answer"],
+                                 context=ctx, answer=answer)
+    for attempt in range(2):
+        r = judge_llm.generate(prompt=prompt, temperature=0.0, max_tokens=700, tag=f"rag_eval:{item['id']}:{attempt}")
+        v = parse_judge_json(r.text)
+        if v is not None:
+            return v
+        prompt += "\n\nYour previous reply was not valid JSON with integer scores 1-5. Reply with ONLY the JSON object."
+    return None
 
 
-def run_rag_evaluation(eval_questions_path: str = "data/eval_questions.json"):
-    print("=" * 60)
-    print("Starting Comprehensive RAG Evaluation (Problem 1)")
-    print("=" * 60)
+def citation_validity(answer: str, n_chunks: int) -> float | None:
+    cited = [int(x) for x in re.findall(r"\[Chunk\s+(\d+)", answer)]
+    return None if not cited else sum(1 <= c <= n_chunks for c in cited) / len(cited)
 
-    cfg = RagConfig.from_env()
-    jcfg = JudgeConfig.from_env()
+
+# ----------------------------------------------------------------------------- aggregation
+def _ci(values):
+    m, lo, hi = bootstrap_ci(values)
+    return {"mean": round(m, 4), "ci95": [round(lo, 4), round(hi, 4)], "n": len(values)}
+
+
+def build_summary(cases: list[dict], k: int, meta: dict) -> dict:
+    ans = [c for c in cases if c["category"] in ANSWERABLE]
+    ood = [c for c in cases if c["category"] == "out_of_domain"]
+    ir = lambda key: [c["retrieval_metrics"][key] for c in ans]
+    judged = lambda key, rows=ans: [c["answer_metrics"][key] for c in rows if c["answer_metrics"].get(key) is not None]
+    refused_ans = sum(c["refused"] for c in ans)
+    refused_ood = sum(c["refused"] for c in ood)
+    unparsed = sum(c["answer_metrics"]["judge_parse_failed"] for c in cases)
+    per_cat = {cat: {"n": len([c for c in ans if c["category"] == cat]),
+                     "hit": round(sum(c["retrieval_metrics"]["hit"] for c in ans if c["category"] == cat) /
+                                  max(1, len([c for c in ans if c["category"] == cat])), 3),
+                     "mrr": round(sum(c["retrieval_metrics"]["reciprocal_rank"] for c in ans if c["category"] == cat) /
+                                  max(1, len([c for c in ans if c["category"] == cat])), 3)}
+               for cat in ANSWERABLE}
+    tot = [c["total_ms"] for c in cases]
+    gen = [c["generation_ms"] for c in cases if c["generation_ms"] > 0]
+    slow = sorted(cases, key=lambda c: -c["total_ms"])[:3]
+    return {
+        "meta": meta, "k": k, "n_questions": len(cases), "n_answerable": len(ans), "n_out_of_domain": len(ood),
+        "retrieval_answerable_only": {
+            f"hit_rate@{k}": _ci(ir("hit")), "mrr": _ci(ir("reciprocal_rank")), f"ndcg@{k}": _ci(ir("ndcg")),
+            f"evidence_recall@{k}": _ci(ir("evidence_recall")),
+            "context_precision": _ci(ir("context_precision")), "context_precision_rank_aware": _ci(ir("context_precision_ap")),
+            "by_category": per_cat},
+        "refusal_behaviour": {
+            "out_of_domain_refused": f"{refused_ood}/{len(ood)}",
+            "out_of_domain_refusal_rate_ci95_wilson": [round(x, 3) for x in wilson_ci(refused_ood, len(ood))],
+            "false_refusals_on_answerable": f"{refused_ans}/{len(ans)}",
+            "false_refusal_rate_ci95_wilson": [round(x, 3) for x in wilson_ci(refused_ans, len(ans))],
+            "note": f"threshold was chosen on a dev set of its own; only {len(ood)} OOD questions here"},
+        "answer_quality": {
+            "judge_parse_failures": f"{unparsed}/{len(cases)} (excluded, not defaulted)",
+            "faithfulness": {**_ci(judged("faithfulness", cases)), "spread": score_spread(judged("faithfulness", cases))},
+            "correctness_vs_gold": {**_ci(judged("correctness", cases)), "spread": score_spread(judged("correctness", cases))},
+            "relevance": {**_ci(judged("relevance", cases)), "spread": score_spread(judged("relevance", cases))},
+            "citation_accuracy": _ci(judged("citation_accuracy", cases)) if judged("citation_accuracy", cases) else None,
+            "citation_marker_validity": _ci([c["citation_validity"] for c in cases if c["citation_validity"] is not None]),
+            "token_f1_answerable": _ci([c["answer_metrics"]["f1"] for c in ans]),
+            "exact_match_answerable": _ci([c["answer_metrics"]["exact_match"] for c in ans]),
+            "em_note": "EM is near-meaningless for free-form answers; kept because the template asks for it"},
+        "latency_ms": {
+            "n": len(cases),
+            "retrieval_incl_query_embedding_p50": round(percentile([c["retrieval_ms"] for c in cases], 50), 1),
+            "retrieval_incl_query_embedding_p95": round(percentile([c["retrieval_ms"] for c in cases], 95), 1),
+            "generation_p50": round(percentile(gen, 50), 1) if gen else None,
+            "generation_p95": round(percentile(gen, 95), 1) if gen else None,
+            "total_p50": round(percentile(tot, 50), 1), "total_p95": round(percentile(tot, 95), 1),
+            "slowest": [{"id": c["id"], "total_ms": round(c["total_ms"])} for c in slow],
+            "note": "retrieval here includes the query-embedding API call; run eval/bench_latency.py for vector-search-only latency. p95 of ~25 requests is effectively the 2nd-slowest."},
+        "tokens": {"generator_input": sum(c["input_tokens"] for c in cases),
+                   "generator_output": sum(c["output_tokens"] for c in cases)},
+    }
+
+
+# ----------------------------------------------------------------------------- run
+def load_corpus_texts(lancedb_uri: str) -> list[str]:
+    import lancedb
+    return [r["text"] for r in lancedb.connect(lancedb_uri).open_table("chunks").to_arrow().select(["text"]).to_pylist()]
+
+
+def run_rag_evaluation(path: str = "data/eval_questions.json"):
+    from common.config import RagConfig, JudgeConfig
+    from common.llm import LoggedLLM, make_llm
+    from rag.service import RagService
+
+    cfg, jcfg = RagConfig.from_env(), JudgeConfig.from_env()
     service = RagService(config=cfg)
-    judge_llm = make_llm(jcfg.judge_provider, jcfg.judge_model)
+    judge = LoggedLLM(make_llm(jcfg.judge_provider, jcfg.judge_model), "logs/rag_eval_judge.jsonl", "rag_answer_judge")
+    questions = json.load(open(path, encoding="utf-8"))
+    corpus = load_corpus_texts(cfg.lancedb_uri)
+    same = (jcfg.judge_provider, jcfg.judge_model) == (cfg.gen_provider, cfg.gen_model)
+    if same:
+        print("WARNING: judge and generator are the same model - faithfulness scores are self-graded.")
+    missing = [q["id"] for q in questions if q["category"] in ANSWERABLE and not q.get("evidence")]
+    if missing:
+        raise SystemExit(f"questions without `evidence` quotes (chunk-level labels required): {missing}")
 
-    with open(eval_questions_path, "r", encoding="utf-8") as f:
-        questions = json.load(f)
+    cases = []
+    for i, q in enumerate(questions, 1):
+        res = service.query(q["query"])
+        texts = [c.get("text", "") for c in res.retrieved_chunks]
+        answerable = q["category"] in ANSWERABLE
+        flags = relevance_flags(texts, q["evidence"]) if answerable else []
+        n_rel = count_relevant_in_corpus(corpus, q["evidence"]) if answerable else 0
+        if answerable and n_rel == 0:
+            raise SystemExit(f"{q['id']}: evidence quote not found in any stored chunk - fix the quote or re-ingest")
+        rm = ({"hit": hit_at_k(flags, cfg.k), "reciprocal_rank": reciprocal_rank(flags, cfg.k),
+               "ndcg": ndcg_at_k(flags, n_rel, cfg.k), "evidence_recall": evidence_recall(texts, q["evidence"], cfg.k),
+               "context_precision": context_precision(flags, cfg.k), "context_precision_ap": context_precision_ap(flags, cfg.k),
+               "relevant_chunks_in_corpus": n_rel} if answerable else {})
+        v = judge_answer(judge, q, res.retrieved_chunks, res.answer)
+        am = {"exact_match": exact_match(res.answer, q["gold_answer"]), "f1": token_f1(res.answer, q["gold_answer"]),
+              "judge_parse_failed": v is None,
+              **{k2: (v or {}).get(k2) for k2 in (*SCORE_KEYS, "citation_accuracy")},
+              "judge_evidence": {k2: (v or {}).get(k2 + "_evidence") for k2 in ("faithfulness", "correctness", "relevance", "citation")}}
+        cases.append({"id": q["id"], "query": q["query"], "category": q["category"], "gold_answer": q["gold_answer"],
+                      "model_answer": res.answer, "citations": res.citations, "refused": is_refusal(res.answer, res.no_context),
+                      "no_context_triggered": res.no_context, "citation_validity": citation_validity(res.answer, len(texts)),
+                      "retrieval_ms": res.retrieval_ms, "generation_ms": res.generation_ms, "total_ms": res.total_ms,
+                      "input_tokens": res.input_tokens, "output_tokens": res.output_tokens,
+                      "retrieval_metrics": rm, "answer_metrics": am})
+        print(f"[{i}/{len(questions)}] {q['id']} {q['category']}: refused={cases[-1]['refused']} "
+              f"hit={rm.get('hit')} f={am['faithfulness']} c={am['correctness']}", flush=True)
 
-    print(f"Loaded {len(questions)} evaluation cases.")
-
-    results_per_case = []
-    retrieval_latencies = []
-    total_latencies = []
-
-    mrr_list = []
-    ndcg_list = []
-    hit_rate_list = []
-    context_precision_list = []
-    em_list = []
-    f1_list = []
-    faithfulness_scores = []
-    relevance_scores = []
-
-    for i, item in enumerate(questions, 1):
-        qid = item["id"]
-        query = item["query"]
-        gold_ans = item["gold_answer"]
-        target_doc = item["doc_id"]
-        category = item["category"]
-
-        print(f"\n[{i}/{len(questions)}] ({category}) {query}", flush=True)
-
-        rag_res = service.query(query)
-
-        retrieval_latencies.append(rag_res.retrieval_ms)
-        total_latencies.append(rag_res.total_ms)
-
-        retrieved_doc_ids = [c.get("doc_id") for c in rag_res.retrieved_chunks]
-
-        # 1. Retrieval Metrics
-        if category == "out_of_domain":
-            # For OOD: correct behavior is no_context == True
-            is_hit = 1.0 if rag_res.no_context else 0.0
-            rr = 1.0 if rag_res.no_context else 0.0
-            ndcg = 1.0 if rag_res.no_context else 0.0
-            c_prec = 1.0 if rag_res.no_context else 0.0
-        else:
-            is_hit = 1.0 if target_doc in retrieved_doc_ids else 0.0
-            rr = compute_reciprocal_rank(retrieved_doc_ids, target_doc)
-            ndcg = compute_ndcg(retrieved_doc_ids, target_doc, k=cfg.k)
-            c_prec = compute_context_precision(rag_res.retrieved_chunks, target_doc)
-
-        hit_rate_list.append(is_hit)
-        mrr_list.append(rr)
-        ndcg_list.append(ndcg)
-        context_precision_list.append(c_prec)
-
-        # 2. Answer Metrics
-        em = compute_em(rag_res.answer, gold_ans)
-        _, _, f1 = compute_f1(rag_res.answer, gold_ans)
-        em_list.append(em)
-        f1_list.append(f1)
-
-        # 3. LLM Judge
-        context_text = "\n\n".join([c.get("text", "") for c in rag_res.retrieved_chunks])
-        judge_verdict = judge_answer(judge_llm, query, context_text, rag_res.answer)
-        f_score = judge_verdict.get("faithfulness_score", 5)
-        r_score = judge_verdict.get("relevance_score", 5)
-        faithfulness_scores.append(f_score)
-        relevance_scores.append(r_score)
-
-        print(f"  -> Answer: {rag_res.answer[:80]}...")
-        print(f"  -> Hit={is_hit:.0f}, MRR={rr:.2f}, nDCG={ndcg:.2f}, F1={f1:.2f}, Faithfulness={f_score}/5, Relevance={r_score}/5")
-
-        results_per_case.append({
-            "id": qid,
-            "query": query,
-            "category": category,
-            "target_doc": target_doc,
-            "gold_answer": gold_ans,
-            "model_answer": rag_res.answer,
-            "citations": rag_res.citations,
-            "no_context_triggered": rag_res.no_context,
-            "retrieval_ms": rag_res.retrieval_ms,
-            "generation_ms": rag_res.generation_ms,
-            "total_ms": rag_res.total_ms,
-            "input_tokens": rag_res.input_tokens,
-            "output_tokens": rag_res.output_tokens,
-            "retrieval_metrics": {
-                "hit": is_hit,
-                "reciprocal_rank": rr,
-                "ndcg": ndcg,
-                "context_precision": c_prec,
-            },
-            "answer_metrics": {
-                "exact_match": em,
-                "f1": f1,
-                "faithfulness_score": f_score,
-                "faithfulness_rationale": judge_verdict.get("faithfulness_rationale", ""),
-                "relevance_score": r_score,
-                "relevance_rationale": judge_verdict.get("relevance_rationale", ""),
-            }
-        })
-
-    # Summary Aggregation
-    summary = {
-        "dataset_size": len(questions),
-        "retrieval_evaluation": {
-            "hit_rate_at_k": round(float(np.mean(hit_rate_list)), 4),
-            "mrr": round(float(np.mean(mrr_list)), 4),
-            "ndcg_at_k": round(float(np.mean(ndcg_list)), 4),
-            "context_precision": round(float(np.mean(context_precision_list)), 4),
-        },
-        "answer_evaluation": {
-            "mean_faithfulness_1_to_5": round(float(np.mean(faithfulness_scores)), 2),
-            "mean_relevance_1_to_5": round(float(np.mean(relevance_scores)), 2),
-            "exact_match": round(float(np.mean(em_list)), 4),
-            "mean_f1": round(float(np.mean(f1_list)), 4),
-        },
-        "latency_benchmarks_ms": {
-            "retrieval_p50": round(float(np.percentile(retrieval_latencies, 50)), 2),
-            "retrieval_p95": round(float(np.percentile(retrieval_latencies, 95)), 2),
-            "total_p50": round(float(np.percentile(total_latencies, 50)), 2),
-            "total_p95": round(float(np.percentile(total_latencies, 95)), 2),
-        },
-        "cost_projections": compute_cost_projections(),
-    }
-
-    output_payload = {
-        "summary": summary,
-        "cases": results_per_case,
-    }
-
-    out_file = RESULTS_DIR / "rag_evaluation_report.json"
-    with open(out_file, "w", encoding="utf-8") as f:
-        json.dump(output_payload, f, indent=2)
-
-    print("\n" + "=" * 60)
-    print("RAG EVALUATION SUMMARY REPORT")
-    print("=" * 60)
-    print(f"Retrieval HitRate@k:     {summary['retrieval_evaluation']['hit_rate_at_k'] * 100:.1f}%")
-    print(f"Retrieval MRR:           {summary['retrieval_evaluation']['mrr']:.4f}")
-    print(f"Retrieval nDCG@k:        {summary['retrieval_evaluation']['ndcg_at_k']:.4f}")
-    print(f"Context Precision:       {summary['retrieval_evaluation']['context_precision']:.4f}")
-    print(f"Answer Faithfulness:     {summary['answer_evaluation']['mean_faithfulness_1_to_5']:.2f} / 5.0")
-    print(f"Answer Relevance:        {summary['answer_evaluation']['mean_relevance_1_to_5']:.2f} / 5.0")
-    print(f"Token F1 Score:          {summary['answer_evaluation']['mean_f1']:.4f}")
-    print(f"Retrieval Latency (p50): {summary['latency_benchmarks_ms']['retrieval_p50']:.1f} ms")
-    print(f"Retrieval Latency (p95): {summary['latency_benchmarks_ms']['retrieval_p95']:.1f} ms")
-    print(f"Total Latency (p50):     {summary['latency_benchmarks_ms']['total_p50']:.1f} ms")
-    print(f"Total Latency (p95):     {summary['latency_benchmarks_ms']['total_p95']:.1f} ms")
-    print(f"\nFull report written to: {out_file}")
-
-    return output_payload
+    meta = {"embed_model": cfg.embed_model, "embed_dim": cfg.embed_dim, "chunk_size": cfg.chunk_size,
+            "chunk_overlap": cfg.chunk_overlap, "min_score": cfg.min_score, "generator": cfg.gen_model,
+            "judge": jcfg.judge_model, "judge_equals_generator": same,
+            "judge_calls": judge.calls, "judge_input_tokens": judge.input_tokens, "judge_output_tokens": judge.output_tokens,
+            "corpus_chunks": len(corpus)}
+    out = {"summary": build_summary(cases, cfg.k, meta), "cases": cases}
+    RESULTS_DIR.mkdir(exist_ok=True)
+    (RESULTS_DIR / "rag_evaluation_report.json").write_text(json.dumps(out, indent=2), encoding="utf-8")
+    print(json.dumps(out["summary"], indent=2))
+    return out
 
 
 if __name__ == "__main__":

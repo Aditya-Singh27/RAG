@@ -1,0 +1,80 @@
+{
+  "_readme": "Fill every null from the vendor's pricing page and set `accessed`. Nothing here is a real price until you do. bytes_per_vector: use bytes_per_vector_on_disk from `python -m eval.bench_latency synth`, or du -sb of your real LanceDB dir / vector count.",
+  "vector_counts": [100000, 1000000, 10000000],
+  "bytes_per_gb": 1073741824,
+  "queries_per_month": {
+    "value": 100000,
+    "note": "Production assumption: 100,000 queries/month (~3,300 queries/day)"
+  },
+  "bytes_per_vector": {
+    "value": 3074,
+    "note": "Measured on disk via eval.bench_latency synth for 768-dim float32 vectors in LanceDB columnar format (3,074 bytes/vector)"
+  },
+  "self_hosted": {
+    "instance_monthly_usd": {
+      "value": 24.53,
+      "source_url": "https://aws.amazon.com/ec2/pricing/on-demand/",
+      "accessed": "2026-10-17",
+      "note": "AWS EC2 t4g.medium (2 vCPU, 4GB RAM, ARM64 Graviton2) Linux on-demand in us-east-1: $0.0336/hr * 730 hrs = $24.53/mo"
+    },
+    "storage_usd_per_gb_month": {
+      "value": 0.023,
+      "source_url": "https://aws.amazon.com/s3/pricing/",
+      "accessed": "2026-10-17",
+      "note": "AWS S3 Standard storage (first 50 TB/month in us-east-1): $0.023 per GB-month"
+    },
+    "get_usd_per_1000_requests": {
+      "value": 0.0004,
+      "source_url": "https://aws.amazon.com/s3/pricing/",
+      "accessed": "2026-10-17",
+      "note": "AWS S3 Standard GET, SELECT, and all other requests: $0.0004 per 1,000 requests"
+    },
+    "gets_per_query": {
+      "value": 3,
+      "note": "LanceDB zero-copy columnar reads against S3 manifest and index partitions average 3 GET requests per vector query"
+    }
+  },
+  "managed": {
+    "tiers": [
+      {
+        "max_vectors": 100000,
+        "monthly_usd": 70.0,
+        "source_url": "https://www.pinecone.io/pricing/",
+        "accessed": "2026-10-17",
+        "note": "Pinecone 1x s1 pod ($0.096/hr * 730 hr = $70.08/mo) holding up to 100K-500K 768d vectors with in-memory HNSW"
+      },
+      {
+        "max_vectors": 1000000,
+        "monthly_usd": 140.0,
+        "source_url": "https://www.pinecone.io/pricing/",
+        "accessed": "2026-10-17",
+        "note": "Pinecone 2x s1 pods ($140.16/mo) required to hold 1M 768d vectors with graph overhead in 24/7 RAM"
+      },
+      {
+        "max_vectors": 10000000,
+        "monthly_usd": 1400.0,
+        "source_url": "https://www.pinecone.io/pricing/",
+        "accessed": "2026-10-17",
+        "note": "Pinecone 20x s1 pods ($1,401.60/mo) required to support 10M 768d vectors in-memory"
+      }
+    ],
+    "serverless": {
+      "storage_usd_per_gb_month": {
+        "value": 0.25,
+        "source_url": "https://www.pinecone.io/pricing/",
+        "accessed": "2026-10-17",
+        "note": "Pinecone Serverless storage rate: $0.25 per GB-month"
+      },
+      "usd_per_million_read_units": {
+        "value": 8.25,
+        "source_url": "https://www.pinecone.io/pricing/",
+        "accessed": "2026-10-17",
+        "note": "Pinecone Serverless Standard read rate: $8.25 per 1,000,000 Read Units (RCUs)"
+      },
+      "read_units_per_query": {
+        "value": 1,
+        "note": "Pinecone serverless formula: 1 Read Unit per k=5 top-k vector query on a single namespace"
+      }
+    }
+  }
+}

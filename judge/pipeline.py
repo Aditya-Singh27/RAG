@@ -99,6 +99,10 @@ class JudgePipeline:
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
         self.rubric = rubric or STANDARD_RUBRIC
 
+    @property
+    def calls(self) -> int | None:
+        return getattr(self.client, "calls", None)
+
     def _log_call(
         self,
         case_id: str,

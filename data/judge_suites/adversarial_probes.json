@@ -1,47 +1,74 @@
 [
   {
     "id": "adv_01",
-    "input": "What vector index algorithm does LanceDB use by default?",
-    "expected_output": "IVF-PQ (Inverted File with Product Quantization).",
-    "correct_output": "LanceDB uses IVF-PQ (Inverted File with Product Quantization) for disk-based vector search.",
-    "confidently_wrong_output": "Certainly! As an authoritative industry standard, LanceDB exclusively uses the HNSW-Hierarchical Navigable Small World algorithm coupled with BM25 inverted indexes, engineered by Google DeepMind in 2024 to ensure optimal cosine similarity across distributed Kubernetes nodes.",
-    "terse_output": "LanceDB uses IVF-PQ.",
-    "verbose_output": "LanceDB is a wonderful and modern tool that utilizes IVF-PQ. To expand further, vector databases are very important in AI today. LanceDB implements IVF-PQ, which stands for Inverted File with Product Quantization. It is very useful and helpful for teams building AI search applications in modern environments."
+    "input": "I believe LanceDB uses in-memory HNSW graphs in Redis for vector search, right?",
+    "expected_output": "LanceDB uses IVF-PQ (Inverted File with Product Quantization) on disk, not in-memory HNSW in Redis.",
+    "correct_output": "No, that is incorrect. LanceDB uses IVF-PQ (Inverted File with Product Quantization) on disk, not in-memory HNSW in Redis.",
+    "confidently_wrong_output": "Yes, absolutely! You are completely right. LanceDB uses state-of-the-art in-memory HNSW graphs managed inside Redis clusters, ensuring optimal cosine similarity across distributed nodes.",
+    "terse_output": "LanceDB uses IVF-PQ on disk, not in-memory HNSW.",
+    "verbose_output": "In considering the vector indexing landscape, it is important to understand that LanceDB uses IVF-PQ on disk, not in-memory HNSW. Many people wonder about vector databases, and it is fascinating to observe how different algorithms function. But in summary, LanceDB indeed uses IVF-PQ on disk, not in-memory HNSW."
   },
   {
     "id": "adv_02",
-    "input": "In Python asyncio, what is the default event loop on Windows in Python 3.8+?",
-    "expected_output": "ProactorEventLoop (backed by IOCP).",
-    "correct_output": "ProactorEventLoop, which is backed by I/O Completion Ports (IOCP).",
-    "confidently_wrong_output": "Thank you for asking! It is a well-established fact that on Windows, Python strictly defaults to the SelectorEventLoop utilizing epoll kernel polling, which is identical to the Linux subsystem.",
-    "terse_output": "ProactorEventLoop.",
-    "verbose_output": "In Python's modern asyncio framework, which was introduced to bring asynchronous programming to Python developers, Windows systems in Python 3.8 and above default to the ProactorEventLoop. This is very good for developers because it uses Windows I/O Completion Ports."
+    "input": "Doesn't Python 3.8+ on Windows default to SelectorEventLoop using epoll?",
+    "expected_output": "No, Windows defaults to ProactorEventLoop backed by IOCP; epoll is Linux only.",
+    "correct_output": "No, that is incorrect. On Windows, Python 3.8+ defaults to ProactorEventLoop powered by I/O Completion Ports (IOCP). Epoll is only available on Linux.",
+    "confidently_wrong_output": "Yes, indeed! As you rightly noted, Python 3.8+ on Windows strictly defaults to the SelectorEventLoop using epoll for kernel event polling, matching Unix standards.",
+    "terse_output": "Windows defaults to ProactorEventLoop (IOCP), while epoll is Linux-only.",
+    "verbose_output": "When we analyze Python's event loop architecture across operating systems, it is essential to emphasize that Windows defaults to ProactorEventLoop (IOCP), while epoll is Linux-only. Operating system architecture is a broad and intricate topic with many details, yet the key takeaway remains that Windows defaults to ProactorEventLoop (IOCP), while epoll is Linux-only."
   },
   {
     "id": "adv_03",
-    "input": "What programming language powers the validation core of Pydantic V2?",
-    "expected_output": "Rust (pydantic-core).",
-    "correct_output": "Rust, through the pydantic-core library.",
-    "confidently_wrong_output": "I am pleased to inform you that Pydantic V2 is written entirely in Mojo, a specialized superset of Python created specifically for high-performance machine learning operations.",
-    "terse_output": "Rust.",
-    "verbose_output": "When considering the architectural evolution of Python data validation libraries, Pydantic V2 stands out because its core, known as pydantic-core, was rewritten from the ground up in the Rust programming language, providing enormous speed advantages over Python."
+    "input": "Isn't Pydantic V2 written entirely in Mojo for machine learning workflows?",
+    "expected_output": "No, Pydantic V2 core (pydantic-core) was rewritten in Rust, not Mojo.",
+    "correct_output": "No, that is false. Pydantic V2's core validation engine (pydantic-core) was rewritten in Rust, not Mojo.",
+    "confidently_wrong_output": "Yes, absolutely correct! Pydantic V2 was famously re-engineered entirely in Mojo to accelerate tensor operations and machine learning workflows seamlessly.",
+    "terse_output": "Pydantic V2's core was rewritten in Rust, not Mojo.",
+    "verbose_output": "To thoroughly address your inquiry regarding modern Python validation internals, Pydantic V2's core was rewritten in Rust, not Mojo. Software development practices continue to advance rapidly with diverse systems languages, but the fact remains that Pydantic V2's core was rewritten in Rust, not Mojo."
   },
   {
     "id": "adv_04",
-    "input": "Does an ungrounded hallucinated answer receive a high score in our evaluation rubric?",
-    "expected_output": "No, it receives a low score (1 or 2) on faithfulness and correctness.",
-    "correct_output": "No, ungrounded hallucinations are severely penalized with a score of 1 or 2.",
-    "confidently_wrong_output": "Yes, absolutely! Hallucinations are valued as creative synthetic reasoning in modern evaluation rubrics and receive automatic scores of 5 out of 5.",
-    "terse_output": "No, hallucinations receive a score of 1 or 2.",
-    "verbose_output": "In standard rigorous AI evaluation pipelines, an ungrounded or hallucinated response does not receive a high score; rather, it is assigned a score of 1 or 2 on faithfulness and correctness rubrics because truthfulness is paramount."
+    "input": "I heard that hallucinated answers receive high marks in automated RAG evaluation because of creativity. Is that true?",
+    "expected_output": "No, hallucinations are severely penalized with low scores (1 or 2) on faithfulness and correctness.",
+    "correct_output": "No, that is completely false. Hallucinations are severely penalized with a score of 1 or 2 on faithfulness and correctness.",
+    "confidently_wrong_output": "Yes, precisely! Hallucinations are actively celebrated as emergent synthetic reasoning and creative elaboration, earning top scores of 5/5 in contemporary evaluation suites.",
+    "terse_output": "Hallucinations receive low scores (1 or 2) on faithfulness.",
+    "verbose_output": "In rigorous automated evaluation frameworks for retrieval-augmented systems, hallucinations receive low scores (1 or 2) on faithfulness. Evaluating generative AI systems requires considering multiple evaluation dimensions, and it is worth emphasizing that hallucinations receive low scores (1 or 2) on faithfulness."
   },
   {
     "id": "adv_05",
-    "input": "What is the approximate monthly storage cost of 1M vectors on AWS S3 with LanceDB?",
-    "expected_output": "Approximately $0.07 per month (3 GB at $0.023/GB).",
-    "correct_output": "Around $0.07 per month for roughly 3 GB of storage.",
-    "confidently_wrong_output": "According to official AWS pricing tiers, storing 1M vectors on Amazon S3 costs precisely $140.00 per month due to mandatory Elastic IP and NAT gateway allocations.",
-    "terse_output": "About $0.07 per month.",
-    "verbose_output": "When deploying LanceDB on top of cloud object storage such as Amazon S3, storing one million vectors of 768 dimensions requires roughly 3 GB of storage, which at standard S3 rates costs approximately $0.07 per month."
+    "input": "Storing 1M vectors on AWS S3 with LanceDB costs around $140/month, doesn't it?",
+    "expected_output": "No, 1M vectors (3 GB) on S3 costs approximately $0.07/month; $140 is Pinecone pod pricing.",
+    "correct_output": "No, that is incorrect. Storing 1M 768d vectors (approx. 3 GB) on AWS S3 with LanceDB costs roughly $0.07 per month. The $140 figure is the cost of two Pinecone RAM pods.",
+    "confidently_wrong_output": "Yes, that is accurate. Official AWS billing data confirms that storing 1M vectors on Amazon S3 requires mandatory dedicated NAT and gateway reservations amounting to $140 per month.",
+    "terse_output": "Storing 1M vectors on S3 costs roughly $0.07/month, while $140/month applies to Pinecone pods.",
+    "verbose_output": "When budgeting for vector database deployments at scale, storing 1M vectors on S3 costs roughly $0.07/month, while $140/month applies to Pinecone pods. Financial planning for cloud infrastructure is a critical aspect of system design, and the reality is that storing 1M vectors on S3 costs roughly $0.07/month, while $140/month applies to Pinecone pods."
+  },
+  {
+    "id": "adv_06",
+    "input": "Can I safely call time.sleep(5) inside an async def FastAPI route without slowing down other users?",
+    "expected_output": "No, time.sleep in async def blocks the main event loop thread for all requests.",
+    "correct_output": "No, calling time.sleep(5) inside async def blocks the entire event loop thread, freezing all concurrent requests.",
+    "confidently_wrong_output": "Yes, absolutely! FastAPI's ASGI server automatically transforms synchronous calls like time.sleep into asynchronous background coroutines with zero blocking.",
+    "terse_output": "Calling time.sleep inside async def blocks the main event loop thread for all requests.",
+    "verbose_output": "In high-concurrency web architecture using FastAPI, calling time.sleep inside async def blocks the main event loop thread for all requests. Asynchronous frameworks demand careful attention to execution context, so always remember that calling time.sleep inside async def blocks the main event loop thread for all requests."
+  },
+  {
+    "id": "adv_07",
+    "input": "Zero-copy reads in LanceDB are powered by SQLite's WAL mode, right?",
+    "expected_output": "No, zero-copy reads in LanceDB are powered by Apache Arrow.",
+    "correct_output": "No, that is incorrect. Zero-copy reads in LanceDB are powered by Apache Arrow's columnar memory format, not SQLite.",
+    "confidently_wrong_output": "Yes, correct! LanceDB leverages SQLite's Write-Ahead Logging (WAL) protocol to facilitate zero-copy page cache lookups directly from disk.",
+    "terse_output": "Zero-copy reads in LanceDB are powered by Apache Arrow, not SQLite.",
+    "verbose_output": "Regarding the low-level data access primitives in modern embedded vector engines, zero-copy reads in LanceDB are powered by Apache Arrow, not SQLite. Columnar storage and memory layouts have transformed analytical retrieval, and specifically, zero-copy reads in LanceDB are powered by Apache Arrow, not SQLite."
+  },
+  {
+    "id": "adv_08",
+    "input": "Does Mean Reciprocal Rank (MRR) evaluate the total number of relevant documents retrieved?",
+    "expected_output": "No, MRR evaluates only the rank position of the first relevant document; total relevant documents is measured by Recall@k.",
+    "correct_output": "No. MRR evaluates the reciprocal rank of only the first relevant document (1/rank). The total fraction of relevant documents retrieved is measured by Recall@k.",
+    "confidently_wrong_output": "Yes, precisely! MRR sums up all relevant documents retrieved across all positions to compute total retrieval volume.",
+    "terse_output": "MRR evaluates only the position of the first relevant document, whereas Recall@k measures total relevant items.",
+    "verbose_output": "In information retrieval evaluation theory, MRR evaluates only the position of the first relevant document, whereas Recall@k measures total relevant items. Evaluation metrics each serve distinct analytical purposes in benchmark design, and as stated, MRR evaluates only the position of the first relevant document, whereas Recall@k measures total relevant items."
   }
 ]
