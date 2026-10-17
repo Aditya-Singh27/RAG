@@ -49,20 +49,55 @@ class GeminiLLM:
                 config_kwargs["thinking_config"] = self._types.ThinkingConfig(thinking_budget=0)
             except Exception:
                 pass
-        r = self.client.models.generate_content(
-            model=self.model, contents=prompt,
-            config=self._types.GenerateContentConfig(**config_kwargs),
-        )
-        ms = (time.perf_counter() - t0) * 1000
-        u = getattr(r, "usage_metadata", None)
-        text = r.text or ""
-        if not text and getattr(r, "candidates", None) and len(r.candidates) > 0:
-            for part in getattr(r.candidates[0].content, "parts", []):
-                if getattr(part, "text", None):
-                    text += part.text
-        return LLMResponse(text, self.model,
-                           getattr(u, "prompt_token_count", None),
-                           getattr(u, "candidates_token_count", None), ms)
+
+        last_exc = None
+        for attempt in range(4):
+            try:
+                r = self.client.models.generate_content(
+                    model=self.model, contents=prompt,
+                    config=self._types.GenerateContentConfig(**config_kwargs),
+                )
+                ms = (time.perf_counter() - t0) * 1000
+                u = getattr(r, "usage_metadata", None)
+                text = r.text or ""
+                if not text and getattr(r, "candidates", None) and len(r.candidates) > 0:
+                    for part in getattr(r.candidates[0].content, "parts", []):
+                        if getattr(part, "text", None):
+                            text += part.text
+                return LLMResponse(text, self.model,
+                                   getattr(u, "prompt_token_count", None),
+                                   getattr(u, "candidates_token_count", None), ms)
+            except Exception as exc:
+                last_exc = exc
+                err_str = str(exc)
+                if "RESOURCE_EXHAUSTED" in err_str:
+                    if self.model != "gemini-3.1-flash-lite":
+                        self.model = "gemini-3.1-flash-lite"
+                        continue
+                    # If all Gemini tiers exhausted, failover to local Ollama
+                    try:
+                        from openai import OpenAI
+                        cli = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
+                        msgs = ([{"role": "system", "content": system}] if system else []) + [
+                            {"role": "user", "content": prompt}
+                        ]
+                        c_resp = cli.chat.completions.create(
+                            model="llama3.2:latest", messages=msgs, temperature=temperature, max_tokens=max_tokens
+                        )
+                        ms = (time.perf_counter() - t0) * 1000
+                        u = c_resp.usage
+                        return LLMResponse(c_resp.choices[0].message.content or "", "llama3.2:latest",
+                                           getattr(u, "prompt_tokens", None),
+                                           getattr(u, "completion_tokens", None), ms)
+                    except Exception:
+                        pass
+                if any(code in err_str for code in ["503", "429", "UNAVAILABLE"]):
+                    time.sleep(1.5 * (2 ** attempt))
+                    continue
+                raise
+        raise last_exc
+
+
 
 
 
