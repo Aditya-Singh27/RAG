@@ -367,19 +367,23 @@
   },
   {
     "id": "q21",
-    "query": "How does position bias interact with verbosity bias in pairwise LLM evaluation?",
-    "gold_answer": "Judges may prefer the first candidate due to position bias and also prefer longer candidates due to verbosity bias. Swapping candidate order (A/B and B/A) and penalizing ungrounded length in the rubric prevents verbose answers from winning simply by being presented first.",
+    "query": "What are position bias and verbosity bias in pairwise LLM evaluation, and what are their respective mitigations?",
+    "gold_answer": "Position bias occurs when judges favor the first candidate (Option A) due to primacy effects or the second candidate due to recency effects; its mitigation is running every evaluation pair twice with swapped order (A then B, and B then A). Verbosity bias occurs when judges correlate response length with quality and favor verbose responses; its mitigation is defining explicit rubrics that penalize unsupported elaboration and using adversarial probes.",
     "doc_id": "llm_as_judge_biases.html",
     "doc_type": "html",
     "category": "cross_doc",
     "keywords": [
       "position bias",
       "verbosity bias",
-      "swapping order",
-      "rubric"
+      "swapped order",
+      "primacy",
+      "rubrics",
+      "unsupported elaboration"
     ],
     "evidence": [
+      "When presenting two model outputs (Model A vs Model B) to a judge, judges frequently favor the first candidate (Option A) due to primacy effects",
       "Run every evaluation pair twice with swapped order: Order 1 (A then B) and Order 2 (B then A).",
+      "Judges inherently correlate response length with thoroughness and quality.",
       "Define explicit rubrics that penalize unsupported elaboration."
     ]
   },
@@ -429,6 +433,150 @@
   {
     "id": "q25",
     "query": "What are the rules for castling in competitive chess tournaments?",
+    "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+    "doc_id": null,
+    "doc_type": null,
+    "category": "out_of_domain",
+    "keywords": [
+      "do not have enough relevant context"
+    ],
+    "evidence": []
+  },
+  {
+    "id": "q26",
+    "query": "What is the mathematical formula for calculating dead tuple bloat and autovacuum cost limit thresholds in PostgreSQL?",
+    "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+    "doc_id": null,
+    "doc_type": null,
+    "category": "out_of_domain",
+    "keywords": [
+      "do not have enough relevant context"
+    ],
+    "evidence": []
+  },
+  {
+    "id": "q27",
+    "query": "How does Redis Sentinel handle split-brain scenarios and achieve leader election quorum during master failover?",
+    "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+    "doc_id": null,
+    "doc_type": null,
+    "category": "out_of_domain",
+    "keywords": [
+      "do not have enough relevant context"
+    ],
+    "evidence": []
+  },
+  {
+    "id": "q28",
+    "query": "How does SQLite implement B-tree page rebalancing and cell pointer arrays during database inserts?",
+    "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+    "doc_id": null,
+    "doc_type": null,
+    "category": "out_of_domain",
+    "keywords": [
+      "do not have enough relevant context"
+    ],
+    "evidence": []
+  },
+  {
+    "id": "q29",
+    "query": "How does Low-Rank Adaptation (LoRA) choose rank r and alpha scaling factors during parameter-efficient fine-tuning?",
+    "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+    "doc_id": null,
+    "doc_type": null,
+    "category": "out_of_domain",
+    "keywords": [
+      "do not have enough relevant context"
+    ],
+    "evidence": []
+  },
+  {
+    "id": "q30",
+    "query": "What is the mathematical definition of Rotary Position Embedding (RoPE) complex rotation applied to attention keys and queries?",
+    "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+    "doc_id": null,
+    "doc_type": null,
+    "category": "out_of_domain",
+    "keywords": [
+      "do not have enough relevant context"
+    ],
+    "evidence": []
+  },
+  {
+    "id": "q31",
+    "query": "How does FlashAttention-2 tile Q, K, and V blocks to avoid HBM memory access bottlenecks on NVIDIA GPUs?",
+    "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+    "doc_id": null,
+    "doc_type": null,
+    "category": "out_of_domain",
+    "keywords": [
+      "do not have enough relevant context"
+    ],
+    "evidence": []
+  },
+  {
+    "id": "q32",
+    "query": "How does the CPython Global Interpreter Lock (GIL) release mechanism work when calling C extensions with Py_BEGIN_ALLOW_THREADS?",
+    "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+    "doc_id": null,
+    "doc_type": null,
+    "category": "out_of_domain",
+    "keywords": [
+      "do not have enough relevant context"
+    ],
+    "evidence": []
+  },
+  {
+    "id": "q33",
+    "query": "How does Kubernetes Horizontal Pod Autoscaler compute desired replica count using custom Prometheus queries?",
+    "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+    "doc_id": null,
+    "doc_type": null,
+    "category": "out_of_domain",
+    "keywords": [
+      "do not have enough relevant context"
+    ],
+    "evidence": []
+  },
+  {
+    "id": "q34",
+    "query": "How does etcd's Raft consensus implementation handle log compaction and leader heartbeat timeouts?",
+    "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+    "doc_id": null,
+    "doc_type": null,
+    "category": "out_of_domain",
+    "keywords": [
+      "do not have enough relevant context"
+    ],
+    "evidence": []
+  },
+  {
+    "id": "q35",
+    "query": "How does Apache Kafka configure min.insync.replicas and acks=all to guarantee zero message loss during partition rebalancing?",
+    "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+    "doc_id": null,
+    "doc_type": null,
+    "category": "out_of_domain",
+    "keywords": [
+      "do not have enough relevant context"
+    ],
+    "evidence": []
+  },
+  {
+    "id": "q36",
+    "query": "How do bloom filters in RocksDB reduce read amplification during multi-level SSTable lookups?",
+    "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
+    "doc_id": null,
+    "doc_type": null,
+    "category": "out_of_domain",
+    "keywords": [
+      "do not have enough relevant context"
+    ],
+    "evidence": []
+  },
+  {
+    "id": "q37",
+    "query": "How does Google's ScaNN library use anisotropic vector quantization to optimize maximum inner product search?",
     "gold_answer": "I do not have enough relevant context in the provided documents to answer this question.",
     "doc_id": null,
     "doc_type": null,

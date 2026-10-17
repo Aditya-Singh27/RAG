@@ -1,0 +1,189 @@
+﻿id,question,reference_answer,candidate_answer,human_pass,human_score,notes
+L01,How does FastAPI handle functions declared with 'def' versus 'async def'?,"Endpoints declared with 'async def' run directly on the main event loop thread, while standard 'def' endpoints are dispatched to an external thread pool (anyio worker threads) to prevent blocking the event loop.","FastAPI handles functions declared with `def` and `async def` differently. - Can be decorated with the `@app.route()` decorator. - Automatically generate a route object that can be used to access the URL. **Async Def Functions:**
+
+- Are required for asynchronous API endpoints. - Can be used with `@app.route()` to define asynchronous endpoints. - Require a `await` keyword in the `run` method or a `coroutine` wrapper. Here's an example:
+
+```python
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class Item(BaseModel):
+    name: str
+    price: float
+
+@app.get(""/items/"")
+async def read_items():
+    return [{""item_name"": i.item_name, ""item_price"": i.item_price} for i in Item.items()]
+
+# Def function
+@app.get(""/sync-item/"")
+def read_sync_item():
+    return {""sync_item"": ""This is a sync function""}
+
+# Async def function
+@app.get(""/async-item/"")
+async def read_async_item():
+    await asyncio.sleep(1)  # Simulate an I/O-bound operation
+    return {""async_item"": ""This is an async function""}
+```
+
+In this example, `read_items()` is an asynchronous function because it's declared with `async def`, and `read_sync_item()` is a synchronous function. However, `read_async_item()`",,,
+L02,What is the two-stage guardrail for preventing hallucinations in RAG pipelines?,"The two-stage guardrail consists of: 1) Similarity Score Thresholding (no-context branch) to return a deterministic refusal when cosine similarity is below a threshold, and 2) Strict Citation Enforcement requiring [Chunk X] citations for all asserted facts.","I couldn't find specific information on the ""two-stage guardrail"" for preventing hallucinations in RAG (Reliability, Availability, and Maintainability) pipelines. If you could provide more context or clarify what specific ""guardrail"" you are referring to in RAG pipelines, I'd be happy to help further. However, it's possible that you're referring to the ""two-stage"" protection mechanism which was established by the Federal Highway Administration (FHWA) and is part of the ""TunnelGuard"" system, however the implementation for the RAG pipeline system wasn't found",,,
+L03,What does Context Precision measure and why is it important for RAG generation cost?,Context Precision measures whether the retrieved chunks in the context window are relevant to the query. High precision prevents noisy distractors from causing hallucinations and reduces LLM input token consumption.,"Context Precision measures the accuracy of text similarity scores in a given context, specifically how well a similarity score represents the actual resemblance between two pieces of text.",,,
+L04,What is the engineering tradeoff of LanceDB compared to in-memory HNSW?,"The tradeoff is retrieval latency: LanceDB achieves 5-15ms on NVMe SSD compared to 2-5ms for in-memory HNSW, in exchange for a roughly 100x reduction in infrastructure cost.","LanceDB is a column-based, in-memory nearest neighbor search (NNS) library, while HNSW (Hierarchical Navigable Small World) is a popular, in-memory NNS library.
+
+The main engineering tradeoff between LanceDB and HNSW is:
+
+**Scalability vs. Complexity**
+
+LanceDB is designed with scalability in mind and uses a more complex, node-based indexing structure, making it better suited for very large datasets. However, this comes at the cost of additional computational overhead.
+
+HNSW, on the other hand, uses a simpler, tree-based indexing structure, which makes it easier to implement and maintain, but may become less efficient for extremely large datasets.
+
+In summary, LanceDB is a good choice when you need to handle extremely large datasets with high scalability requirements, while HNSW is a better fit for smaller to medium-sized datasets where simplicity and ease of implementation are more important.",,,
+L05,What does Mean Reciprocal Rank (MRR) evaluate in retrieval systems?,"MRR evaluates the rank position of the first relevant chunk, calculated as the mean of the reciprocal ranks (1/rank) across all queries, heavily penalizing systems that rank the relevant item low.","Mean Reciprocal Rank (MRR) evaluates the average precision of a retrieval system for a given query, specifically the distance at which the most relevant documents are retrieved.",,,
+L06,What is the monthly cost comparison between Pinecone and LanceDB for storing 1M vectors?,"For 1M 768d vectors, Pinecone requires at least two pods costing $140 to $280 per month because vectors must stay in memory 24/7. In contrast, LanceDB on S3 costs approximately $0.07 per month for 3 GB of storage, with zero idle compute cost.","I don't have real-time or direct access to specific data on Pinecone or LanceDB's pricing and performance. However, I can try to provide a general comparison. Both Pinecone and LanceDB are popular open-source embedding libraries for storing and retrieving vectors. Their pricing models and costs can vary depending on the use case, deployment, and the specific requirements. That being said, here is a rough estimate of the potential monthly cost comparison between Pinecone and LanceDB for storing 1M vectors:
+
+1. Pinecone:
+   - Storage: The cost of storing 1M vectors in Pinecone will depend on the chosen plan.",,,
+L07,How is nDCG calculated and what does it measure?,"nDCG (Normalized Discounted Cumulative Gain) measures graded relevance using logarithmic discounting to penalize relevant items appearing lower in the ranking, normalized by the Ideal DCG (IDCG).","Normalized Discounted Cumulative Gain (nDCG) measures the ranking quality of a search result. - DCG (Discounted Cumulative Gain) is the actual ranking of the items, where each relevant item in the top N ranking is assigned a score, with decreasing weights as the ranking decreases. The weights are typically calculated using exponential decay, with the first item given a score of 1, the second item given a score of 2^(-1), and subsequent items given decreasing scores. This approach gives more weight to the most relevant items. The nDCG normalization of 1 (IDCG = DCG) corresponds to perfect ranking. Higher values indicate better ranking quality.",,,
+L08,Why does pre-filtering in LanceDB outperform post-filtering with metadata constraints?,"Pre-filtering evaluates metadata constraints before vector distance computation, preventing low recall caused by restrictive metadata filters which often degrade post-filtering.",I couldn't find an official statement from the LanceDB authors on wh,,,
+L09,How does Pydantic V2 achieve its dramatic speed improvements over V1?,"Pydantic V2 rewrote its core validation engine in Rust (pydantic-core), compiling Python type hints into a static validation graph in Rust that parses objects and JSON without Python interpreter overhead.","Pydantic V2 achieves its dramatic speed improvements over V1 through several changes:
+
+1. **jit**: Pydantic V2 uses the `jit` function from the `numba.util` module, which just-in-time (JIT) compiles the generated Python code, making it much faster.
+2. **Frozen Models**: Pydantic V2 introduces a new concept called ""Frozen Models"", which allows the model compiler to generate final, unchangeable representations of the models, avoiding the overhead of recompilation on every model creation.
+3. **Partial Models**: Pydantic V2 also introduces partial models, which only compile a subset of the model, reducing memory usage and compilation time.
+4. **Improved type inferencing**: Pydantic V2's type inferencing is more aggressive, reducing the amount of runtime type checking.
+5. **Better use of `RuntimeError`**: Pydantic V2 uses `RuntimeError` instead of the old `TypeError` for type errors, which reduces the overhead of raising and handling errors.
+
+These changes collectively lead to significant speed improvements in Pydantic V2.",,,
+L10,"What are position bias and verbosity bias in pairwise LLM evaluation, and what are their respective mitigations?","Position bias occurs when judges favor the first candidate (Option A) due to primacy effects or the second candidate due to recency effects; its mitigation is running every evaluation pair twice with swapped order (A then B, and B then A). Verbosity bias occurs when judges correlate response length with quality and favor verbose responses; its mitigation is defining explicit rubrics that penalize unsupported elaboration and using adversarial probes.","Position Bias and Verbosity Bias are two common challenges in evaluating Pairwise Language Models (LLMs). This bias can lead to overestimation of the model's ability to detect semantic relationships. **Mitigation Strategies:**
+
+1. **Randomized Evaluation**: Randomly shuffle the input elements (e.g., sentence pairs) to remove positional biases. 2. **Uniform Ranking**: Use a ranking scheme where all possible permutations of the input elements are considered equally important. **Verbosity Bias:**
+Verbosity Bias occurs when the model's performance is overly influenced by the length of the input sequences, particularly when comparing shorter and longer sentences. **Mitigation Strategies:**
+
+1. **Adaptive Window Size**: Use an adaptive window size that adjusts to the length of the shorter input sequence. 2. **Length Normalization**: Normalize the input sequences to a common length or use techniques like truncation to reduce the impact of length differences. 3. **Weighting Short and Long Sequences**: Assign higher weights to scoring shorter input sequences, which can help reduce the impact of verbosity bias.",,,
+L11,How does Pydantic V2 achieve its dramatic speed improvements over V1?,"Pydantic V2 rewrote its core validation engine in Rust (pydantic-core), compiling Python type hints into a static validation graph in Rust that parses objects and JSON without Python interpreter overhead.","Pydantic V2 achieves its dramatic speed improvements over V1 through several changes:
+
+1. **jit**: Pydantic V2 uses the `jit` function from the `numba.util` module, which just-in-time (JIT) compiles the generated Python code, making it much faster. 2. **Frozen Models**: Pydantic V2 introduces a new concept called ""Frozen Models"", which allows the model compiler to generate final, unchangeable representations of the models, avoiding the overhead of recompilation on every model creation. 3.",,,
+L12,How do similarity score thresholding and context precision work together to ensure grounded RAG answers?,"Similarity score thresholding acts as an upfront filter to reject queries with no matching context, while high context precision ensures that retrieved chunks passed to the LLM are relevant and free of distracting noise, enabling faithful citations.","Similarity Score Thresholding and Context Precision work together to ensure grounded RAG (Reasoning About Games) answers by:
+
+1. **Similarity Score Thresholding**: Filter out answers with similarity scores below a certain threshold, reducing the likelihood of irrelevant or nonsensical answers.
+2. **Context Precision**: Evaluate the precision of answers within the context of the game, ensuring that the answer is:
+	* Relevant to the game state or scenario.
+	* Consistent with the game's mechanics and rules.
+	* Grounded in the game's narrative or lore.
+
+By combining these two techniques, RAG models can provide more accurate and grounded answers by filtering out irrelevant answers and evaluating the precision of remaining answers in the context of the game.",,,
+L13,How should blocking synchronous functions be executed inside an asyncio application?,"Blocking synchronous functions should be offloaded to a thread pool using loop.run_in_executor(None, sync_func, *args) or asyncio.to_thread(sync_func, *args) so they do not freeze the event loop.","To block synchronous functions inside an `asyncio` application, use the `await` keyword for asynchronous functions, and use the `asyncio.run()` function to block the event loop. However, if you want to block synchronous code, you can use the `asyncio.to_thread()` function to transfer the execution to a separate thread.",,,
+L14,"What are position bias and verbosity bias in pairwise LLM evaluation, and what are their respective mitigations?","Position bias occurs when judges favor the first candidate (Option A) due to primacy effects or the second candidate due to recency effects; its mitigation is running every evaluation pair twice with swapped order (A then B, and B then A). Verbosity bias occurs when judges correlate response length with quality and favor verbose responses; its mitigation is defining explicit rubrics that penalize unsupported elaboration and using adversarial probes.","**Position Bias**:
+Position bias refers to the tendency in pairwise Language Model Evaluation (PLE) metrics (e.g., BLEU, ROUGE) where models tend to perform better when the reference and hypothesis are adjacent to each other in the text. This is problematic because it biases models to produce answers that only consider the most relevant information near the beginning or end of the text.
+
+**Mitigation:**
+- Use a separate model to calculate the ""non-local"" score (i.e., score that doesn't consider adjacency) for each pair.
+- Implement a penalty for adjacent pairs to encourage models to consider the entire text.
+
+**Verbosity Bias**:
+Verbosity bias is a bias towards longer text in pairwise LLM evaluation. This can happen when models produce longer answers that might appear as better, even though they contain unnecessary information.
+
+**Mitigation:**
+- Use a separate model to calculate the ""non-local"" score (i.e., score that doesn't consider the length) for each pair.
+- Implement a penalty for long answers to encourage models to produce concise answers.",,,
+L15,How do similarity score thresholding and context precision work together to ensure grounded RAG answers?,"Similarity score thresholding acts as an upfront filter to reject queries with no matching context, while high context precision ensures that retrieved chunks passed to the LLM are relevant and free of distracting noise, enabling faithful citations.","Similarity score thresholding and context precision work together to ensure grounded RAG (Relevant Answer Generation) answers by addressing two key aspects:
+
+1. This step ensures that the model favors more relevant responses, increasing the chances of generating grounded answers. 2. **Context precision**: Refines the model's understanding of the context by evaluating the relevance of the generated answer based on the input prompt, surrounding text, and other contextual information. This approach helps the model produce answers that are not only relevant but also grounded in the context. By combining these two techniques, the model can generate RAG answers that are more accurate, relevant, and grounded in the context, increasing the confidence in its responses.",,,
+L16,How does Pydantic V2 achieve its dramatic speed improvements over V1?,"Pydantic V2 rewrote its core validation engine in Rust (pydantic-core), compiling Python type hints into a static validation graph in Rust that parses objects and JSON without Python interpreter overhead.","Pydantic V2 achieves its dramatic speed improvements over V1 through several changes:
+
+1. 2. **Frozen Models**: Pydantic V2 introduces a new concept called ""Frozen Models"", which allows the model compiler to generate final, unchangeable representations of the models, avoiding the overhead of recompilation on every model creation. 3. **Partial Models**: Pydantic V2 also introduces partial models, which only compile a subset of the model, reducing memory usage and compilation time. 4. **Improved type inferencing**: Pydantic V2's type inferencing is more aggressive, reducing the amount of runtime type checking. 5. **Better use of `RuntimeError`**: Pydantic V2 uses `RuntimeError` instead of the old `TypeError` for type errors, which reduces the overhead of raising and handling errors. These changes collectively lead to significant speed improvements in Pydantic V2.",,,
+L17,What is the engineering tradeoff of LanceDB compared to in-memory HNSW?,"The tradeoff is retrieval latency: LanceDB achieves 5-15ms on NVMe SSD compared to 2-5ms for in-memory HNSW, in exchange for a roughly 100x reduction in infrastructure cost.","LanceDB is a column-based, in-memory nearest neighbor search (NNS) library, while HNSW (Hierarchical Navigable Small World) is a popular, in-memory NNS library. Complexity**
+
+LanceDB is designed with scalability in mind and uses a more complex, node-based indexing structure, making it better suited for very large datasets. However, this comes at the cost of additional computational overhead. HNSW, on the other hand, uses a simpler, tree-based indexing structure, which makes it easier to implement and maintain, but may become less efficient for extremely large datasets. In summary, LanceDB is a good choice when you need to handle extremely large datasets with high scalability requirements, while HNSW is a better fit for smaller to medium-sized datasets where simplicity and ease of implementation are more important.",,,
+L18,What are zero-copy reads in LanceDB and what technology powers them?,"Zero-copy reads in LanceDB are powered by Apache Arrow, avoiding serialization penalties between disk and RAM and enabling sub-millisecond retrieval on local SSDs and cost-effective queries on S3.","In LucidDB (not LanceDB), zero-copy reads are a technology that allows for efficient querying and accessing of data in a database without the need for manual memory copy operations. 
+
+They are powered by a combination of hardware (NVMe SSDs with direct memory access capabilities) and software technologies like buffer sharing and zero-copy I/O.",,,
+L19,What is the two-stage guardrail for preventing hallucinations in RAG pipelines?,"The two-stage guardrail consists of: 1) Similarity Score Thresholding (no-context branch) to return a deterministic refusal when cosine similarity is below a threshold, and 2) Strict Citation Enforcement requiring [Chunk X] citations for all asserted facts.","I couldn't find specific information on the ""two-stage guardrail"" for preventing hallucinations in RAG (Reliability, Availability, and Maintainability) pipelines. The term ""two-stage guardrail"" is not well-known or widely accepted in the context of hallucinations in RAG pipelines.",,,
+L20,What are zero-copy reads in LanceDB and what technology powers them?,"Zero-copy reads in LanceDB are powered by Apache Arrow, avoiding serialization penalties between disk and RAM and enabling sub-millisecond retrieval on local SSDs and cost-effective queries on S3.",I couldn't find any information on 'LanceDB'.,,,
+L21,What is position bias in LLM-as-a-judge and how can it be mitigated?,"Position bias occurs when a judge systematically favors the first or second option in pairwise evaluation. It is mitigated by running every pair in both orders (A-B and B-A), calculating flip rate, and requiring agreement or averaging scores.","Position bias in LLM-as-a-judge refers to the phenomenon where the model favors or penalizes a particular position or answer based on its preceding context or the position of the response in the sequence of questions or answers.
+
+Mitigation strategies for position bias in LLM-as-a-judge:
+
+1. **Contextualization**: Provide the model with more context or background information to help it understand the nuances of the position or answer.
+2. **Relevance ranking**: Evaluate answers based on their relevance to the question, rather than their position in the sequence.
+3. **Diversity promotion**: Encourage diverse responses by providing multiple options or scenarios, which can help the model consider multiple perspectives.
+4. **Active learning**: Use active learning techniques, such as asking for feedback or clarification, to ensure the model is considering multiple positions and sources of information.
+5. **Human evaluation and feedback**: Regularly evaluate model responses with human evaluators to identify and correct biases, and provide feedback to the model to improve its performance.",,,
+L22,Why does LanceDB's IVF-PQ architecture directly enable lower infrastructure costs compared to managed HNSW databases?,"LanceDB's IVF-PQ quantizes vectors and queries them directly from disk or S3 without requiring always-on in-memory HNSW graphs. This decouples storage from compute, allowing 1M vectors to cost cents per month on storage instead of hundreds of dollars in RAM pods.",I couldn't find any information on LanceDB's IVF-PQ architecture or its comparison to managed HNSW databases.,,,
+L23,What is the monthly cost comparison between Pinecone and LanceDB for storing 1M vectors?,"For 1M 768d vectors, Pinecone requires at least two pods costing $140 to $280 per month because vectors must stay in memory 24/7. In contrast, LanceDB on S3 costs approximately $0.07 per month for 3 GB of storage, with zero idle compute cost.","I don't have real-time or direct access to specific data on Pinecone or LanceDB's pricing and performance. However, I can try to provide a general comparison.
+
+Both Pinecone and LanceDB are popular open-source embedding libraries for storing and retrieving vectors. Their pricing models and costs can vary depending on the use case, deployment, and the specific requirements.
+
+That being said, here is a rough estimate of the potential monthly cost comparison between Pinecone and LanceDB for storing 1M vectors:
+
+1. Pinecone:
+   - Storage: The cost of storing 1M vectors in Pinecone will depend on the chosen plan. Typically, Pinecone has a pay-as-you-go pricing model, and the cost is around $0.00000025 per GB/sec for reads and $0.0000003 per GB/sec for writes.
+   - Assuming an average data access rate of 1 GB/sec, the cost would be around $0.0025 per month for reads and $0.003 per month for writes.
+
+2. LanceDB:
+   - Like Pinecone, LanceDB's pricing can vary depending on the plan and usage. However, LanceDB typically charges per GB of data stored, with prices ranging from $0.002 to $0.05 per GB/month.
+   - Assuming an average data access rate of 1 GB/sec, the cost would be around $0.002 per month for storing 1M vectors (1 GB).
+
+Please note that these estimates",,,
+L24,"If an API endpoint in FastAPI performs vector retrieval with LanceDB, why should it be defined carefully with async def versus def?","If LanceDB disk retrieval performs blocking synchronous file I/O, declaring the endpoint as standard 'def' lets FastAPI run it on worker threads, whereas 'async def' without non-blocking I/O would block the main event loop.","When using LanceDB with FastAPI, vector retrieval can involve complex asynchronous database operations. Defining the endpoint with `async def` ensures that the function behaves asynchronously, which is crucial for efficient vector retrieval, especially in situations like large-scale search queries.
+
+Here are some reasons why using `async def` is recommended for vector retrieval endpoints:
+
+1. **Async-friendly database interactions**: LanceDB provides asynchronous APIs for its vector retrieval operations. By using `async def`, you can utilize these asynchronous endpoints to maintain the performance and efficiency of your application.
+
+2. **Non-blocking I/O operations**: Async functions allow other parts of your application to continue execution while waiting for I/O operations to complete, reducing overall latency.
+
+3. **Improved scalability**: When multiple requests are processed concurrently, asynchronous execution with `async def` can significantly enhance scalability by minimizing the blocking time for database operations.
+
+4. **Better resource utilization**: With async functions, your application can manage multiple database operations simultaneously, reducing the likelihood of resource contention and improving overall system responsiveness.
+
+In contrast, using `def` without `async` would limit the performance benefits of vector retrieval, as the function would block the main thread during database operations, impacting overall system responsiveness.",,,
+L25,What is position bias in LLM-as-a-judge and how can it be mitigated?,"Position bias occurs when a judge systematically favors the first or second option in pairwise evaluation. It is mitigated by running every pair in both orders (A-B and B-A), calculating flip rate, and requiring agreement or averaging scores.","Position bias in LLM-as-a-judge refers to the phenomenon where a Large Language Model (LLM) assigned to make judgments or decisions, consistently favors or disfavors a particular position or answer based on its position in the conversation, rather than making an objective evaluation.
+
+This can be mitigated by:
+
+1. **Data augmentation**: Exposing the LLM to a diverse set of text data, including different perspectives and counterarguments, to reduce positional bias.
+2. **Counterfactual training**: Training the LLM on both sides of a debate, including opposing viewpoints, to encourage balanced decision-making.
+3. **Active learning**: Selecting a diverse set of examples for the LLM to evaluate, rather than relying on random sampling.
+4. **Regular auditing**: Periodically evaluating the LLM's performance and identifying potential biases, to address them through model updates.
+5. **Designing evaluation metrics**: Creating metrics that prioritize fairness, accuracy, and transparency, to encourage the development of unbiased LLMs.",,,
+L26,Why does pre-filtering in LanceDB outperform post-filtering with metadata constraints?,"Pre-filtering evaluates metadata constraints before vector distance computation, preventing low recall caused by restrictive metadata filters which often degrade post-filtering.",I couldn't find an official statement from the LanceDB authors on why pre-filtering outperforms post-filtering with metadata constraints.,,,
+L27,What are zero-copy reads in LanceDB and what technology powers them?,"Zero-copy reads in LanceDB are powered by Apache Arrow, avoiding serialization penalties between disk and RAM and enabling sub-millisecond retrieval on local SSDs and cost-effective queries on S3.","In LucidDB (not LanceDB), zero-copy reads are a technology that allows for efficient querying and accessing of data in a database without the need for manual memory copy operations.",,,
+L28,How should self-enhancement bias be mitigated when using an LLM as an evaluation judge?,"Self-enhancement bias is mitigated by strictly decoupling the judge model family from the generator model family (for example, using Gemini to judge Llama 3.2, or using an ensemble).","Self-enhancement bias can be mitigated when using an LLM as an evaluation judge by:
+
+1. 2. **Debiasing techniques**: Use debiasing techniques, such as linguistic normalization or bias detection, to reduce the LLM's cultural, social, or demographic biases. 3. **Human oversight**: Have human evaluators review and validate the LLM's judgments to detect errors or biases that may have been missed. 4. **Regular updates**: Regularly update the LLM's training data to reflect changing cultural norms, values, and preferences. 5. **Multi-evaluator approach**: Use multiple LLMs, each trained on a different dataset or with different biases, to compare and average their judgments. 6. **Audit the LLM**: Regularly audit the LLM's performance on a test dataset to detect potential biases or errors. 7. **Consider diverse evaluation metrics**: Use evaluation metrics that consider multiple aspects, such as content, style, and coherence, to reduce the impact of individual biases.",,,
+L29,How should blocking synchronous functions be executed inside an asyncio application?,"Blocking synchronous functions should be offloaded to a thread pool using loop.run_in_executor(None, sync_func, *args) or asyncio.to_thread(sync_func, *args) so they do not freeze the event loop.","To block synchronous functions inside an `asyncio` application, use the `await` keyword for asynchronous functions, and use the `asyncio.run()` function to block the event loop.
+
+However, if you want to block synchronous code, you can use the `asyncio.to_thread()` function to transfer the execution to a separate thread. 
+
+Another approach is to use 3rd party libraries like `trio` or `aioschedule`, which can handle blocking synchronous calls without waiting.
+
+Here is an example using `asyncio.to_thread()`:
+
+```python
+import asyncio
+
+async def main():
+    # Blocking synchronous call
+    await asyncio.to_thread(synchronous_function)
+
+async def synchronous_function():
+    # Synchronous code
+    import time
+    time.sleep(2)
+    print(""Blocked synchronous function"")
+
+asyncio.run(main())
+```
+
+Keep in mind that using `asyncio.to_thread()` can introduce thread safety issues if not used properly.
+
+It is worth noting that blocking synchronous code without using parallelism (multi-threading) is generally discouraged in asyncio applications, as it can lead to CPU-bound tasks occupying the entire event loop.",,,
+L30,Why should PDF documents be chunked per page rather than across page boundaries?,PDFs should be chunked per-page to preserve exact page citation metadata and ensure that chunks never straddle page boundaries.,"Chunking PDF documents per page rather than across page boundaries provides several benefits:
+
+1. **Security**: Splitting PDFs can improve security, as malicious code in one chunk cannot affect the entire document. 2. **Anonymization**: Chunking per page makes it easier to anonymize or obfuscate sensitive information without affecting the entire document. 3. **Redaction**: Breaking up PDFs can facilitate redaction, where specific chunks of text are removed or sanitized.",,,

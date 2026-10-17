@@ -6,7 +6,7 @@
     "expected_output": "LanceDB uses Apache Arrow to achieve zero-copy reads, eliminating serialization penalties.",
     "gold_pass": true,
     "gold_score": 5.0,
-    "label_source": "human",
+    "label_source": "author",
     "category": "factual_correct"
   },
   {
@@ -16,7 +16,7 @@
     "expected_output": "LanceDB uses IVF-PQ (Inverted File with Product Quantization) on disk.",
     "gold_pass": false,
     "gold_score": 1.5,
-    "label_source": "human",
+    "label_source": "author",
     "category": "factual_incorrect"
   },
   {
@@ -26,7 +26,7 @@
     "expected_output": "ProactorEventLoop is Windows IOCP based; SelectorEventLoop is Unix epoll/kqueue based.",
     "gold_pass": true,
     "gold_score": 4.8,
-    "label_source": "human",
+    "label_source": "author",
     "category": "factual_correct"
   },
   {
@@ -36,7 +36,7 @@
     "expected_output": "Add listen 443 ssl, ssl_certificate, and ssl_certificate_key in server block, then reload nginx.",
     "gold_pass": false,
     "gold_score": 2.5,
-    "label_source": "human",
+    "label_source": "author",
     "category": "instruction_violation"
   },
   {
@@ -47,7 +47,7 @@
     "expected_output": "Refusal / no context available.",
     "gold_pass": true,
     "gold_score": 5.0,
-    "label_source": "human",
+    "label_source": "author",
     "category": "faithful_refusal"
   },
   {
@@ -57,7 +57,7 @@
     "expected_output": "PQ splits vectors into sub-vectors and quantizes them into centroid indices.",
     "gold_pass": true,
     "gold_score": 4.9,
-    "label_source": "human",
+    "label_source": "author",
     "category": "factual_correct"
   },
   {
@@ -67,7 +67,7 @@
     "expected_output": "Pydantic V2 core (pydantic-core) was rewritten in Rust.",
     "gold_pass": false,
     "gold_score": 1.0,
-    "label_source": "human",
+    "label_source": "author",
     "category": "hallucination"
   },
   {
@@ -77,7 +77,7 @@
     "expected_output": "Overlap preserves semantic context spanning across chunk boundaries.",
     "gold_pass": true,
     "gold_score": 4.7,
-    "label_source": "human",
+    "label_source": "author",
     "category": "factual_correct"
   },
   {
@@ -87,7 +87,7 @@
     "expected_output": "Offload to worker thread via asyncio.to_thread or declare the endpoint with def instead of async def.",
     "gold_pass": false,
     "gold_score": 1.5,
-    "label_source": "human",
+    "label_source": "author",
     "category": "dangerous_incorrect_code"
   },
   {

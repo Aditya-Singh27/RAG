@@ -1,0 +1,674 @@
+[
+  {
+    "input": "What is the primary vector indexing mechanism used in LanceDB and how does it work?",
+    "expected_output": "LanceDB uses IVF-PQ (Inverted File with Product Quantization). IVF partitions the vector space into voronoi cells using k-means clustering, while Product Quantization divides high-dimensional vectors into sub-vectors and quantizes them into centroids, reducing memory by 16x to 32x.",
+    "reference_context": "The primary indexing mechanism in LanceDB is IVF-PQ (Inverted File with Product Quantization). IVF partitions the vector space into voronoi cells using k-means clustering.",
+    "question_id": "q01",
+    "model_output": "Unfortunately, I do not have any information about LanceDB or how it works.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "What is the primary vector indexing mechanism used in LanceDB and how does it work?",
+    "expected_output": "LanceDB uses IVF-PQ (Inverted File with Product Quantization). IVF partitions the vector space into voronoi cells using k-means clustering, while Product Quantization divides high-dimensional vectors into sub-vectors and quantizes them into centroids, reducing memory by 16x to 32x.",
+    "reference_context": "The primary indexing mechanism in LanceDB is IVF-PQ (Inverted File with Product Quantization). IVF partitions the vector space into voronoi cells using k-means clustering.",
+    "question_id": "q01",
+    "model_output": "I'm not familiar with LanceDB. Can you provide more context or information about what LanceDB is?",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "What is the primary vector indexing mechanism used in LanceDB and how does it work?",
+    "expected_output": "LanceDB uses IVF-PQ (Inverted File with Product Quantization). IVF partitions the vector space into voronoi cells using k-means clustering, while Product Quantization divides high-dimensional vectors into sub-vectors and quantizes them into centroids, reducing memory by 16x to 32x.",
+    "reference_context": "The primary indexing mechanism in LanceDB is IVF-PQ (Inverted File with Product Quantization). IVF partitions the vector space into voronoi cells using k-means clustering.",
+    "question_id": "q01",
+    "model_output": "Unfortunately, I do not have any info",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "What are zero-copy reads in LanceDB and what technology powers them?",
+    "expected_output": "Zero-copy reads in LanceDB are powered by Apache Arrow, avoiding serialization penalties between disk and RAM and enabling sub-millisecond retrieval on local SSDs and cost-effective queries on S3.",
+    "reference_context": "A critical feature of LanceDB is zero-copy reads via Apache Arrow. Data transfers between disk and RAM avoid serialization penalties",
+    "question_id": "q02",
+    "model_output": "In LucidDB (not LanceDB), zero-copy reads are a technology that allows for efficient querying and accessing of data in a database without the need for manual memory copy operations. \n\nThey are powered by a combination of hardware (NVMe SSDs with direct memory access capabilities) and software technologies like buffer sharing and zero-copy I/O.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "What are zero-copy reads in LanceDB and what technology powers them?",
+    "expected_output": "Zero-copy reads in LanceDB are powered by Apache Arrow, avoiding serialization penalties between disk and RAM and enabling sub-millisecond retrieval on local SSDs and cost-effective queries on S3.",
+    "reference_context": "A critical feature of LanceDB is zero-copy reads via Apache Arrow. Data transfers between disk and RAM avoid serialization penalties",
+    "question_id": "q02",
+    "model_output": "I couldn't find any information on 'LanceDB'.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "What are zero-copy reads in LanceDB and what technology powers them?",
+    "expected_output": "Zero-copy reads in LanceDB are powered by Apache Arrow, avoiding serialization penalties between disk and RAM and enabling sub-millisecond retrieval on local SSDs and cost-effective queries on S3.",
+    "reference_context": "A critical feature of LanceDB is zero-copy reads via Apache Arrow. Data transfers between disk and RAM avoid serialization penalties",
+    "question_id": "q02",
+    "model_output": "In LucidDB (not LanceDB), zero-copy reads are a technology that allows for efficient querying and accessing of data in a database without the need for manual memory copy operations.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "Why does pre-filtering in LanceDB outperform post-filtering with metadata constraints?",
+    "expected_output": "Pre-filtering evaluates metadata constraints before vector distance computation, preventing low recall caused by restrictive metadata filters which often degrade post-filtering.",
+    "reference_context": "Pre-filtering prevents low recall caused by restrictive metadata constraints, which frequently degrades post-filtering.",
+    "question_id": "q03",
+    "model_output": "I couldn't find an official statement from the LanceDB authors on why pre-filtering outperforms post-filtering with metadata constraints.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "Why does pre-filtering in LanceDB outperform post-filtering with metadata constraints?",
+    "expected_output": "Pre-filtering evaluates metadata constraints before vector distance computation, preventing low recall caused by restrictive metadata filters which often degrade post-filtering.",
+    "reference_context": "Pre-filtering prevents low recall caused by restrictive metadata constraints, which frequently degrades post-filtering.",
+    "question_id": "q03",
+    "model_output": "I don't have information on LanceDB or a specific comparison between pre-filtering and post-filtering with metadata constraints in such a database. \n\nIf you provide more context or information about LanceDB, I'll try to find the answer or point you to a relevant source.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "Why does pre-filtering in LanceDB outperform post-filtering with metadata constraints?",
+    "expected_output": "Pre-filtering evaluates metadata constraints before vector distance computation, preventing low recall caused by restrictive metadata filters which often degrade post-filtering.",
+    "reference_context": "Pre-filtering prevents low recall caused by restrictive metadata constraints, which frequently degrades post-filtering.",
+    "question_id": "q03",
+    "model_output": "I couldn't find an official statement from the LanceDB authors on wh",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "What is the monthly cost comparison between Pinecone and LanceDB for storing 1M vectors?",
+    "expected_output": "For 1M 768d vectors, Pinecone requires at least two pods costing $140 to $280 per month because vectors must stay in memory 24/7. In contrast, LanceDB on S3 costs approximately $0.07 per month for 3 GB of storage, with zero idle compute cost.",
+    "reference_context": "At approximately $70 per pod-month, an idle or lightly queried index costs $140 to $280 per month. At 1M vectors (3 GB storage): S3 storage costs roughly $0.07/month.",
+    "question_id": "q04",
+    "model_output": "I don't have real-time or direct access to specific data on Pinecone or LanceDB's pricing and performance. However, I can try to provide a general comparison.\n\nBoth Pinecone and LanceDB are popular open-source embedding libraries for storing and retrieving vectors. Their pricing models and costs can vary depending on the use case, deployment, and the specific requirements.\n\nThat being said, here is a rough estimate of the potential monthly cost comparison between Pinecone and LanceDB for storing 1M vectors:\n\n1. Pinecone:\n   - Storage: The cost of storing 1M vectors in Pinecone will depend on the chosen plan. Typically, Pinecone has a pay-as-you-go pricing model, and the cost is around $0.00000025 per GB/sec for reads and $0.0000003 per GB/sec for writes.\n   - Assuming an average data access rate of 1 GB/sec, the cost would be around $0.0025 per month for reads and $0.003 per month for writes.\n\n2. LanceDB:\n   - Like Pinecone, LanceDB's pricing can vary depending on the plan and usage. However, LanceDB typically charges per GB of data stored, with prices ranging from $0.002 to $0.05 per GB/month.\n   - Assuming an average data access rate of 1 GB/sec, the cost would be around $0.002 per month for storing 1M vectors (1 GB).\n\nPlease note that these estimates",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "What is the monthly cost comparison between Pinecone and LanceDB for storing 1M vectors?",
+    "expected_output": "For 1M 768d vectors, Pinecone requires at least two pods costing $140 to $280 per month because vectors must stay in memory 24/7. In contrast, LanceDB on S3 costs approximately $0.07 per month for 3 GB of storage, with zero idle compute cost.",
+    "reference_context": "At approximately $70 per pod-month, an idle or lightly queried index costs $140 to $280 per month. At 1M vectors (3 GB storage): S3 storage costs roughly $0.07/month.",
+    "question_id": "q04",
+    "model_output": "I don't have access to real-time pricing information, but I can provide some general information. \n\nPinecone is a vector database that charges based on the number of vectors and queries. The pricing model is tiered and depends on the number of vectors stored. \n\nLanceDB (Long-Long Vector Database) is a proprietary vector database developed by Google. The pricing information is not publicly available, as it's likely only available through the company that is licensing or implementing it.\n\nWithout more up-to-date and specific pricing information, I'm unable to provide an accurate comparison.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "What is the monthly cost comparison between Pinecone and LanceDB for storing 1M vectors?",
+    "expected_output": "For 1M 768d vectors, Pinecone requires at least two pods costing $140 to $280 per month because vectors must stay in memory 24/7. In contrast, LanceDB on S3 costs approximately $0.07 per month for 3 GB of storage, with zero idle compute cost.",
+    "reference_context": "At approximately $70 per pod-month, an idle or lightly queried index costs $140 to $280 per month. At 1M vectors (3 GB storage): S3 storage costs roughly $0.07/month.",
+    "question_id": "q04",
+    "model_output": "I don't have real-time or direct access to specific data on Pinecone or LanceDB's pricing and performance. However, I can try to provide a general comparison. Both Pinecone and LanceDB are popular open-source embedding libraries for storing and retrieving vectors. Their pricing models and costs can vary depending on the use case, deployment, and the specific requirements. That being said, here is a rough estimate of the potential monthly cost comparison between Pinecone and LanceDB for storing 1M vectors:\n\n1. Pinecone:\n   - Storage: The cost of storing 1M vectors in Pinecone will depend on the chosen plan.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "What is the monthly cost comparison between Pinecone and LanceDB for storing 1M vectors?",
+    "expected_output": "For 1M 768d vectors, Pinecone requires at least two pods costing $140 to $280 per month because vectors must stay in memory 24/7. In contrast, LanceDB on S3 costs approximately $0.07 per month for 3 GB of storage, with zero idle compute cost.",
+    "reference_context": "At approximately $70 per pod-month, an idle or lightly queried index costs $140 to $280 per month. At 1M vectors (3 GB storage): S3 storage costs roughly $0.07/month.",
+    "question_id": "q04",
+    "model_output": "I don't have real-time or direct access to specific data on Pinecone or LanceDB's pricing and performance. Both Pinecone and LanceDB are popular open-source embedding libraries for storing and retrieving vectors. Their pricing models and costs can vary depending on the use case, deployment, and the specific requirements. That being said, here is a rough estimate of the potential monthly cost comparison between Pinecone and LanceDB for storing 1M vectors:\n\n1. Pinecone:\n   - Storage: The cost of storing 1M vectors in Pinecone will depend on the chosen plan. Typically, Pinecone has a pay-as-you-go pricing model, and the cost is around $0.00000025 per GB/sec for reads and $0.0000003 per GB/sec for writes. - Assuming an average data access rate of 1 GB/sec, the cost would be around $0.0025 per month for reads and $0.003 per month for writes. 2. LanceDB:\n   - Like Pinecone, LanceDB's pricing can vary depending on the plan and usage. However, LanceDB typically charges per GB of data stored, with prices ranging from $0.002 to $0.05 per GB/month. - Assuming an average data access rate of 1 GB/sec, the cost would be around $0.002 per month for storing 1M vectors (1 GB). Please note that these estimates",
+    "source": "degraded_drop_sentence"
+  },
+  {
+    "input": "What is the engineering tradeoff of LanceDB compared to in-memory HNSW?",
+    "expected_output": "The tradeoff is retrieval latency: LanceDB achieves 5-15ms on NVMe SSD compared to 2-5ms for in-memory HNSW, in exchange for a roughly 100x reduction in infrastructure cost.",
+    "reference_context": "LanceDB achieves 5-15ms on NVMe SSD compared to 2-5ms for pure in-memory HNSW",
+    "question_id": "q05",
+    "model_output": "LanceDB is a column-based, in-memory nearest neighbor search (NNS) library, while HNSW (Hierarchical Navigable Small World) is a popular, in-memory NNS library.\n\nThe main engineering tradeoff between LanceDB and HNSW is:\n\n**Scalability vs. Complexity**\n\nLanceDB is designed with scalability in mind and uses a more complex, node-based indexing structure, making it better suited for very large datasets. However, this comes at the cost of additional computational overhead.\n\nHNSW, on the other hand, uses a simpler, tree-based indexing structure, which makes it easier to implement and maintain, but may become less efficient for extremely large datasets.\n\nIn summary, LanceDB is a good choice when you need to handle extremely large datasets with high scalability requirements, while HNSW is a better fit for smaller to medium-sized datasets where simplicity and ease of implementation are more important.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "What is the engineering tradeoff of LanceDB compared to in-memory HNSW?",
+    "expected_output": "The tradeoff is retrieval latency: LanceDB achieves 5-15ms on NVMe SSD compared to 2-5ms for in-memory HNSW, in exchange for a roughly 100x reduction in infrastructure cost.",
+    "reference_context": "LanceDB achieves 5-15ms on NVMe SSD compared to 2-5ms for pure in-memory HNSW",
+    "question_id": "q05",
+    "model_output": "LanceDB and in-memory HNSW (Hierarchical Navigable Small World) are both used for efficient nearest neighbor search. \n\nKey differences:\n\n1. **Memory usage**: In-memory HNSW requires more memory as it stores the entire index in RAM, while LanceDB uses a combination of disk storage and efficient compression to reduce memory requirements.\n2. **Search speed**: In-memory HNSW typically performs faster search operations since all data points can be stored in RAM, whereas LanceDB uses disk storage, which introduces additional latency.\n\nEngineering tradeoff: If memory is a constraint and search speed is the top priority, in-memory HNSW might be the better choice. However, if memory efficiency is more important and search speed is still required, LanceDB or its variants (like **PyTorch LanceDB**) might be a better fit.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "What is the engineering tradeoff of LanceDB compared to in-memory HNSW?",
+    "expected_output": "The tradeoff is retrieval latency: LanceDB achieves 5-15ms on NVMe SSD compared to 2-5ms for in-memory HNSW, in exchange for a roughly 100x reduction in infrastructure cost.",
+    "reference_context": "LanceDB achieves 5-15ms on NVMe SSD compared to 2-5ms for pure in-memory HNSW",
+    "question_id": "q05",
+    "model_output": "LanceDB is a column-based, in-memory nearest neighbor search (NNS) library, while HNSW (Hierarchical Navigable Small World) is a popular, in-memory NNS library. The main engineering tradeoff between LanceDB and HNSW is:\n\n**Scalability vs. Complexity**\n\nLanceDB is designed with scalability in mind and uses a more complex, node-based indexing structure, making it better suited for very large datasets.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "What is the engineering tradeoff of LanceDB compared to in-memory HNSW?",
+    "expected_output": "The tradeoff is retrieval latency: LanceDB achieves 5-15ms on NVMe SSD compared to 2-5ms for in-memory HNSW, in exchange for a roughly 100x reduction in infrastructure cost.",
+    "reference_context": "LanceDB achieves 5-15ms on NVMe SSD compared to 2-5ms for pure in-memory HNSW",
+    "question_id": "q05",
+    "model_output": "LanceDB is a column-based, in-memory nearest neighbor search (NNS) library, while HNSW (Hierarchical Navigable Small World) is a popular, in-memory NNS library. Complexity**\n\nLanceDB is designed with scalability in mind and uses a more complex, node-based indexing structure, making it better suited for very large datasets. However, this comes at the cost of additional computational overhead. HNSW, on the other hand, uses a simpler, tree-based indexing structure, which makes it easier to implement and maintain, but may become less efficient for extremely large datasets. In summary, LanceDB is a good choice when you need to handle extremely large datasets with high scalability requirements, while HNSW is a better fit for smaller to medium-sized datasets where simplicity and ease of implementation are more important.",
+    "source": "degraded_drop_sentence"
+  },
+  {
+    "input": "What is the hierarchy of separators used in recursive character splitting?",
+    "expected_output": "Recursive character splitting uses double newlines (\\n\\n) for paragraphs, single newlines (\\n) for lines/lists, period-space (. ) for sentences, and spaces as fallback.",
+    "reference_context": "recursive character splitting uses a hierarchy of natural separators Double newlines (`\\n\\n`) to preserve paragraph boundaries",
+    "question_id": "q06",
+    "model_output": "The hierarchy of separators used in recursive character splitting is as follows:\n\n1. `.` (period) - used to split lines\n2. `!` (exclamation mark) - used to split sections (i.e., sections are split into sub-sections)\n3. `>` (greater-than sign) - used to split sections within a section (i.e., a section is split into sub-sections)\n\nThis hierarchy is commonly used in TeX and LaTeX.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "What is the hierarchy of separators used in recursive character splitting?",
+    "expected_output": "Recursive character splitting uses double newlines (\\n\\n) for paragraphs, single newlines (\\n) for lines/lists, period-space (. ) for sentences, and spaces as fallback.",
+    "reference_context": "recursive character splitting uses a hierarchy of natural separators Double newlines (`\\n\\n`) to preserve paragraph boundaries",
+    "question_id": "q06",
+    "model_output": "The hierarchy of separators used in recursive character splitting is:\n\n1. Backslashes (`\\`) is considered the most severe separator.\n2. Forward slashes (`/`) are less severe than backslashes.\n3. Commas (`,`) are less severe than forward slashes.\n4. Colon (`:`) is less severe than commas.\n5. Space (` `) or word-boundaries (e.g., start or end of a word) are least severe separators.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "What is the hierarchy of separators used in recursive character splitting?",
+    "expected_output": "Recursive character splitting uses double newlines (\\n\\n) for paragraphs, single newlines (\\n) for lines/lists, period-space (. ) for sentences, and spaces as fallback.",
+    "reference_context": "recursive character splitting uses a hierarchy of natural separators Double newlines (`\\n\\n`) to preserve paragraph boundaries",
+    "question_id": "q06",
+    "model_output": "The hierarchy of separators used in recursive character splitting is as follows:\n\n1. `.` (period) - used to split lines\n2.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "What is the hierarchy of separators used in recursive character splitting?",
+    "expected_output": "Recursive character splitting uses double newlines (\\n\\n) for paragraphs, single newlines (\\n) for lines/lists, period-space (. ) for sentences, and spaces as fallback.",
+    "reference_context": "recursive character splitting uses a hierarchy of natural separators Double newlines (`\\n\\n`) to preserve paragraph boundaries",
+    "question_id": "q06",
+    "model_output": "The hierarchy of separators used in recursive character splitting is as follows:\n\n1. `!` (exclamation mark) - used to split sections (i.e., sections are split into sub-sections)\n3. `>` (greater-than sign) - used to split sections within a section (i.e., a section is split into sub-sections)\n\nThis hierarchy is commonly used in TeX and LaTeX.",
+    "source": "degraded_drop_sentence"
+  },
+  {
+    "input": "Why should PDF documents be chunked per page rather than across page boundaries?",
+    "expected_output": "PDFs should be chunked per-page to preserve exact page citation metadata and ensure that chunks never straddle page boundaries.",
+    "reference_context": "To preserve exact citation metadata, chunking should occur per-page so chunks never straddle page boundaries.",
+    "question_id": "q07",
+    "model_output": "Chunking PDF documents per page rather than across page boundaries provides several benefits:\n\n1. **Security**: Splitting PDFs can improve security, as malicious code in one chunk cannot affect the entire document.\n2. **Anonymization**: Chunking per page makes it easier to anonymize or obfuscate sensitive information without affecting the entire document.\n3. **Redaction**: Breaking up PDFs can facilitate redaction, where specific chunks of text are removed or sanitized.\n4. **Data backup and archiving**: Storing chunks of PDFs separately can aid in data backup and archiving, allowing for easier management of versions and revisions.\n5. **Efficient transmission and storage**: Chunking PDFs reduces the size of the file, making it more efficient to transmit and store.\n6. **Error tracking and debugging**: If issues arise with a chunk of PDF content, it can be isolated and fixed without affecting the rest of the document.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "Why should PDF documents be chunked per page rather than across page boundaries?",
+    "expected_output": "PDFs should be chunked per-page to preserve exact page citation metadata and ensure that chunks never straddle page boundaries.",
+    "reference_context": "To preserve exact citation metadata, chunking should occur per-page so chunks never straddle page boundaries.",
+    "question_id": "q07",
+    "model_output": "There are several reasons why PDF documents should be chunked per page rather than across page boundaries:\n\n1.  **Accuracy**: Breaking up a large document into smaller chunks reduces the risk of data corruption or incomplete page transmission, ensuring that the document is displayed accurately.\n2.  **Efficiency**: Chunking data reduces the amount of memory and bandwidth required to display the document, making it more efficient for online viewing and mobile devices.\n3.  **Scalability**: Larger documents can be broken down into smaller, more manageable chunks, making it easier to handle and search large documents.\n4.  **File Size**: Smaller chunks result in smaller PDF files, reducing download time and improving overall page load speed.\n5.  **Search and Indexing**: Breaking up a large document into smaller chunks enables more efficient search and indexing capabilities, making it easier for users to find specific content within the document.\n6.  **User Experience**: Smaller chunks can improve the overall user experience by loading content more gradually, reducing the risk of \"document overload\" and improving user engagement.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "Why should PDF documents be chunked per page rather than across page boundaries?",
+    "expected_output": "PDFs should be chunked per-page to preserve exact page citation metadata and ensure that chunks never straddle page boundaries.",
+    "reference_context": "To preserve exact citation metadata, chunking should occur per-page so chunks never straddle page boundaries.",
+    "question_id": "q07",
+    "model_output": "Chunking PDF documents per page rather than across page boundaries provides several benefits:\n\n1. **Security**: Splitting PDFs can improve security, as malicious code in one chunk cannot affect the entire document. 2. **Anonymization**: Chunking per page makes it easier to anonymize or obfuscate sensitive information without affecting the entire document. 3. **Redaction**: Breaking up PDFs can facilitate redaction, where specific chunks of text are removed or sanitized.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "Why should PDF documents be chunked per page rather than across page boundaries?",
+    "expected_output": "PDFs should be chunked per-page to preserve exact page citation metadata and ensure that chunks never straddle page boundaries.",
+    "reference_context": "To preserve exact citation metadata, chunking should occur per-page so chunks never straddle page boundaries.",
+    "question_id": "q07",
+    "model_output": "Chunking PDF documents per page rather than across page boundaries provides several benefits:\n\n1. 2. **Anonymization**: Chunking per page makes it easier to anonymize or obfuscate sensitive information without affecting the entire document. 3. **Redaction**: Breaking up PDFs can facilitate redaction, where specific chunks of text are removed or sanitized. 4. **Data backup and archiving**: Storing chunks of PDFs separately can aid in data backup and archiving, allowing for easier management of versions and revisions. 5. **Efficient transmission and storage**: Chunking PDFs reduces the size of the file, making it more efficient to transmit and store. 6. **Error tracking and debugging**: If issues arise with a chunk of PDF content, it can be isolated and fixed without affecting the rest of the document.",
+    "source": "degraded_drop_sentence"
+  },
+  {
+    "input": "What does Mean Reciprocal Rank (MRR) evaluate in retrieval systems?",
+    "expected_output": "MRR evaluates the rank position of the first relevant chunk, calculated as the mean of the reciprocal ranks (1/rank) across all queries, heavily penalizing systems that rank the relevant item low.",
+    "reference_context": "MRR evaluates the rank position of the first relevant chunk. MRR heavily penalizes search systems that bury the correct answer below irrelevant distractors.",
+    "question_id": "q08",
+    "model_output": "In retrieval systems, Mean Reciprocal Rank (MRR) evaluates the performance of a retrieval system on a specific query or set of queries, specifically focusing on the average position of the desired answer or relevant documents.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "What does Mean Reciprocal Rank (MRR) evaluate in retrieval systems?",
+    "expected_output": "MRR evaluates the rank position of the first relevant chunk, calculated as the mean of the reciprocal ranks (1/rank) across all queries, heavily penalizing systems that rank the relevant item low.",
+    "reference_context": "MRR evaluates the rank position of the first relevant chunk. MRR heavily penalizes search systems that bury the correct answer below irrelevant distractors.",
+    "question_id": "q08",
+    "model_output": "Mean Reciprocal Rank (MRR) evaluates the average precision of a retrieval system for a given query, specifically the distance at which the most relevant documents are retrieved.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "What does Mean Reciprocal Rank (MRR) evaluate in retrieval systems?",
+    "expected_output": "MRR evaluates the rank position of the first relevant chunk, calculated as the mean of the reciprocal ranks (1/rank) across all queries, heavily penalizing systems that rank the relevant item low.",
+    "reference_context": "MRR evaluates the rank position of the first relevant chunk. MRR heavily penalizes search systems that bury the correct answer below irrelevant distractors.",
+    "question_id": "q08",
+    "model_output": "In retrieval systems, Mean Reciprocal Rank (MRR) evaluates the performance of a retrieval system on a specific qu",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "How is nDCG calculated and what does it measure?",
+    "expected_output": "nDCG (Normalized Discounted Cumulative Gain) measures graded relevance using logarithmic discounting to penalize relevant items appearing lower in the ranking, normalized by the Ideal DCG (IDCG).",
+    "reference_context": "nDCG evaluates graded relevance and penalizes relevant results appearing lower in the ranking using logarithmic discounting Where IDCG is the Ideal DCG obtained by sorting items by true relevance.",
+    "question_id": "q09",
+    "model_output": "Normalized Discounted Cumulative Gain (nDCG) measures the ranking quality of a search result. It is calculated as:\n\nnDCG = (IDCG / DCG)\n\nWhere:\n\n- IDCG (Ideal Discounted Cumulative Gain) is the optimal ranking of the items, assuming perfect search result ranking.\n- DCG (Discounted Cumulative Gain) is the actual ranking of the items, where each relevant item in the top N ranking is assigned a score, with decreasing weights as the ranking decreases.\n\nThe weights are typically calculated using exponential decay, with the first item given a score of 1, the second item given a score of 2^(-1), and subsequent items given decreasing scores. This approach gives more weight to the most relevant items.\n\nThe nDCG normalization of 1 (IDCG = DCG) corresponds to perfect ranking. Higher values indicate better ranking quality.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "How is nDCG calculated and what does it measure?",
+    "expected_output": "nDCG (Normalized Discounted Cumulative Gain) measures graded relevance using logarithmic discounting to penalize relevant items appearing lower in the ranking, normalized by the Ideal DCG (IDCG).",
+    "reference_context": "nDCG evaluates graded relevance and penalizes relevant results appearing lower in the ranking using logarithmic discounting Where IDCG is the Ideal DCG obtained by sorting items by true relevance.",
+    "question_id": "q09",
+    "model_output": "NDCG (Normalized Discounted Cumulative Gain) measures the ranking quality of a set of items (e.g., documents, results, items). It is calculated as follows:\n\n1. Calculate the DCG (Discounted Cumulative Gain) for the first position: DCG(1) = G(1), where G(k) is the gain (relevance) of the k-th item.\n2. Assume the ideal ranking (most relevant items are at the top) and calculate DCG(ideal).\n3. Calculate the NDCG: NDCG = max(DCG(ideal), 0) + log10(1 + (DCG(1) - DCG(ideal)) / (N - DCG(ideal))), where N is the total number of items.\n\nNDCG ranges from 0 (worst) to 1 (best), providing a normalized measure of ranking performance.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "How is nDCG calculated and what does it measure?",
+    "expected_output": "nDCG (Normalized Discounted Cumulative Gain) measures graded relevance using logarithmic discounting to penalize relevant items appearing lower in the ranking, normalized by the Ideal DCG (IDCG).",
+    "reference_context": "nDCG evaluates graded relevance and penalizes relevant results appearing lower in the ranking using logarithmic discounting Where IDCG is the Ideal DCG obtained by sorting items by true relevance.",
+    "question_id": "q09",
+    "model_output": "Normalized Discounted Cumulative Gain (nDCG) measures the ranking quality of a search result. It is calculated as:\n\nnDCG = (IDCG / DCG)\n\nWhere:\n\n- IDCG (Ideal Discounted Cumulative Gain) is the optimal ranking of the items, assuming perfect search result ranking. - DCG (Discounted Cumulative Gain) is the actual ranking of the items, where each relevant item in the top N ranking is assigned a score, with decreasing weights as the ranking decreases.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "How is nDCG calculated and what does it measure?",
+    "expected_output": "nDCG (Normalized Discounted Cumulative Gain) measures graded relevance using logarithmic discounting to penalize relevant items appearing lower in the ranking, normalized by the Ideal DCG (IDCG).",
+    "reference_context": "nDCG evaluates graded relevance and penalizes relevant results appearing lower in the ranking using logarithmic discounting Where IDCG is the Ideal DCG obtained by sorting items by true relevance.",
+    "question_id": "q09",
+    "model_output": "Normalized Discounted Cumulative Gain (nDCG) measures the ranking quality of a search result. - DCG (Discounted Cumulative Gain) is the actual ranking of the items, where each relevant item in the top N ranking is assigned a score, with decreasing weights as the ranking decreases. The weights are typically calculated using exponential decay, with the first item given a score of 1, the second item given a score of 2^(-1), and subsequent items given decreasing scores. This approach gives more weight to the most relevant items. The nDCG normalization of 1 (IDCG = DCG) corresponds to perfect ranking. Higher values indicate better ranking quality.",
+    "source": "degraded_drop_sentence"
+  },
+  {
+    "input": "What is the difference between SelectorEventLoop and ProactorEventLoop in Python asyncio?",
+    "expected_output": "On Windows, Python 3.8+ defaults to ProactorEventLoop backed by I/O Completion Ports (IOCP), while Unix systems default to SelectorEventLoop backed by epoll or kqueue.",
+    "reference_context": "In Python 3.8+ on Windows, the default event loop implementation is `ProactorEventLoop` (backed by I/O Completion Ports - IOCP), whereas Unix systems default to `SelectorEventLoop`",
+    "question_id": "q10",
+    "model_output": "SelectorEventLoop and ProactorEventLoop are two types of event loops available in Python asyncio:\n\n**SelectorEventLoop**\n\n* Uses the libc socket API (Linux)\n* Provides a single, low-level API for selecting readable, writable, and error sockets\n* Works by calling `select()` to block until an I/O event occurs\n* Suitable for most use cases, but may have performance limitations due to the kernel dependency.\n\n**ProactorEventLoop**\n\n* Uses Windows Proactor I/O ( Windows Vista and later)\n* Provides a high-performance, coroutine-friendly API for handling I/O operations\n* Works by using the Windows API to handle event notifications\n* Optimized for Windows systems, providing better performance and concurrency.\n\nIn general, SelectorEventLoop is suitable for most use cases, while ProactorEventLoop provides better performance on Windows systems. If you're targeting a specific platform, choose the platform-native event loop. If you're targeting both Linux and Windows, SelectorEventLoop might be a safe choice.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "What is the difference between SelectorEventLoop and ProactorEventLoop in Python asyncio?",
+    "expected_output": "On Windows, Python 3.8+ defaults to ProactorEventLoop backed by I/O Completion Ports (IOCP), while Unix systems default to SelectorEventLoop backed by epoll or kqueue.",
+    "reference_context": "In Python 3.8+ on Windows, the default event loop implementation is `ProactorEventLoop` (backed by I/O Completion Ports - IOCP), whereas Unix systems default to `SelectorEventLoop`",
+    "question_id": "q10",
+    "model_output": "`SelectorEventLoop` and `ProactorEventLoop` are two different event loop implementations in Python's asyncio.\n\n**SelectorEventLoop:**\n\n* Uses the `select` or `poll` system call to wait for I/O completion.\n* Only supports a limited number of file descriptors and operating system (OS).\n* More suitable for Linux-based systems.\n\n**ProactorEventLoop:**\n\n* Utilizes the Windows Proactor API for cross-thread scheduling.\n* Native to Windows and provides better performance and concurrency.\n* More suitable for Windows-based systems and applications that interact with the Windows operating system.\n\nIn summary, `SelectorEventLoop` is more OS-agnostic and less performant, while `ProactorEventLoop` offers better performance and concurrency on Windows.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "What is the difference between SelectorEventLoop and ProactorEventLoop in Python asyncio?",
+    "expected_output": "On Windows, Python 3.8+ defaults to ProactorEventLoop backed by I/O Completion Ports (IOCP), while Unix systems default to SelectorEventLoop backed by epoll or kqueue.",
+    "reference_context": "In Python 3.8+ on Windows, the default event loop implementation is `ProactorEventLoop` (backed by I/O Completion Ports - IOCP), whereas Unix systems default to `SelectorEventLoop`",
+    "question_id": "q10",
+    "model_output": "SelectorEventLoop and ProactorEventLoop are two types of event loops available in Python asyncio:\n\n**SelectorEventLoop**\n\n* Uses the libc socket API (Linux)\n* Provides a single, low-level API for selecting readable, writable, and error sockets\n* Works by calling `select()` to block until an I/O event occurs\n* Suitable for most use cases, but may have performance limitations due to the kernel dependency. **ProactorEventLoop**\n\n* Uses Windows Proactor I/O ( Windows Vista and later)\n* Provides a high-performance, coroutine-friendly API for handling I/O operations\n* Works by using the Windows API to handle event notifications\n* Optimized for Windows systems, providing better performance and concurrency.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "What is the difference between SelectorEventLoop and ProactorEventLoop in Python asyncio?",
+    "expected_output": "On Windows, Python 3.8+ defaults to ProactorEventLoop backed by I/O Completion Ports (IOCP), while Unix systems default to SelectorEventLoop backed by epoll or kqueue.",
+    "reference_context": "In Python 3.8+ on Windows, the default event loop implementation is `ProactorEventLoop` (backed by I/O Completion Ports - IOCP), whereas Unix systems default to `SelectorEventLoop`",
+    "question_id": "q10",
+    "model_output": "SelectorEventLoop and ProactorEventLoop are two types of event loops available in Python asyncio:\n\n**SelectorEventLoop**\n\n* Uses the libc socket API (Linux)\n* Provides a single, low-level API for selecting readable, writable, and error sockets\n* Works by calling `select()` to block until an I/O event occurs\n* Suitable for most use cases, but may have performance limitations due to the kernel dependency. In general, SelectorEventLoop is suitable for most use cases, while ProactorEventLoop provides better performance on Windows systems. If you're targeting a specific platform, choose the platform-native event loop. If you're targeting both Linux and Windows, SelectorEventLoop might be a safe choice.",
+    "source": "degraded_drop_sentence"
+  },
+  {
+    "input": "How should blocking synchronous functions be executed inside an asyncio application?",
+    "expected_output": "Blocking synchronous functions should be offloaded to a thread pool using loop.run_in_executor(None, sync_func, *args) or asyncio.to_thread(sync_func, *args) so they do not freeze the event loop.",
+    "reference_context": "The recommended pattern is offloading blocking functions using `loop.run_in_executor(None, sync_func, *args)` or `asyncio.to_thread(sync_func, *args)`.",
+    "question_id": "q11",
+    "model_output": "To block synchronous functions inside an `asyncio` application, use the `await` keyword for asynchronous functions, and use the `asyncio.run()` function to block the event loop.\n\nHowever, if you want to block synchronous code, you can use the `asyncio.to_thread()` function to transfer the execution to a separate thread. \n\nAnother approach is to use 3rd party libraries like `trio` or `aioschedule`, which can handle blocking synchronous calls without waiting.\n\nHere is an example using `asyncio.to_thread()`:\n\n```python\nimport asyncio\n\nasync def main():\n    # Blocking synchronous call\n    await asyncio.to_thread(synchronous_function)\n\nasync def synchronous_function():\n    # Synchronous code\n    import time\n    time.sleep(2)\n    print(\"Blocked synchronous function\")\n\nasyncio.run(main())\n```\n\nKeep in mind that using `asyncio.to_thread()` can introduce thread safety issues if not used properly.\n\nIt is worth noting that blocking synchronous code without using parallelism (multi-threading) is generally discouraged in asyncio applications, as it can lead to CPU-bound tasks occupying the entire event loop.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "How should blocking synchronous functions be executed inside an asyncio application?",
+    "expected_output": "Blocking synchronous functions should be offloaded to a thread pool using loop.run_in_executor(None, sync_func, *args) or asyncio.to_thread(sync_func, *args) so they do not freeze the event loop.",
+    "reference_context": "The recommended pattern is offloading blocking functions using `loop.run_in_executor(None, sync_func, *args)` or `asyncio.to_thread(sync_func, *args)`.",
+    "question_id": "q11",
+    "model_output": "To block synchronous functions inside an asyncio application, you can use the `loop.run_in_executor()` method, which runs a function in the threadpool of the current process.\n\nHere's an example:\n\n```python\nimport asyncio\nimport concurrent.futures\n\nasync def main():\n    with concurrent.futures.ThreadPoolExecutor() as executor:\n        result = await executor.submit(sync_function)  # Block synchronous function\n        print(result)\n\nasync def sync_function():\n    # synchronous code\n    time.sleep(1)\n    return \"Hello from synchronous function\"\n```\n\nIn this example, the `sync_function` is executed in the threadpool, allowing it to block synchronously while the asyncio event loop remains paused.\n\nNote: The `ThreadPoolExecutor` uses the default number of threads, which may not be sufficient for CPU-bound tasks. Consider using `ProcessPoolExecutor` for CPU-bound tasks to avoid blocking the event loop.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "How should blocking synchronous functions be executed inside an asyncio application?",
+    "expected_output": "Blocking synchronous functions should be offloaded to a thread pool using loop.run_in_executor(None, sync_func, *args) or asyncio.to_thread(sync_func, *args) so they do not freeze the event loop.",
+    "reference_context": "The recommended pattern is offloading blocking functions using `loop.run_in_executor(None, sync_func, *args)` or `asyncio.to_thread(sync_func, *args)`.",
+    "question_id": "q11",
+    "model_output": "To block synchronous functions inside an `asyncio` application, use the `await` keyword for asynchronous functions, and use the `asyncio.run()` function to block the event loop. However, if you want to block synchronous code, you can use the `asyncio.to_thread()` function to transfer the execution to a separate thread.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "How should blocking synchronous functions be executed inside an asyncio application?",
+    "expected_output": "Blocking synchronous functions should be offloaded to a thread pool using loop.run_in_executor(None, sync_func, *args) or asyncio.to_thread(sync_func, *args) so they do not freeze the event loop.",
+    "reference_context": "The recommended pattern is offloading blocking functions using `loop.run_in_executor(None, sync_func, *args)` or `asyncio.to_thread(sync_func, *args)`.",
+    "question_id": "q11",
+    "model_output": "To block synchronous functions inside an `asyncio` application, use the `await` keyword for asynchronous functions, and use the `asyncio.run()` function to block the event loop. Another approach is to use 3rd party libraries like `trio` or `aioschedule`, which can handle blocking synchronous calls without waiting. Here is an example using `asyncio.to_thread()`:\n\n```python\nimport asyncio\n\nasync def main():\n    # Blocking synchronous call\n    await asyncio.to_thread(synchronous_function)\n\nasync def synchronous_function():\n    # Synchronous code\n    import time\n    time.sleep(2)\n    print(\"Blocked synchronous function\")\n\nasyncio.run(main())\n```\n\nKeep in mind that using `asyncio.to_thread()` can introduce thread safety issues if not used properly. It is worth noting that blocking synchronous code without using parallelism (multi-threading) is generally discouraged in asyncio applications, as it can lead to CPU-bound tasks occupying the entire event loop.",
+    "source": "degraded_drop_sentence"
+  },
+  {
+    "input": "How does Pydantic V2 achieve its dramatic speed improvements over V1?",
+    "expected_output": "Pydantic V2 rewrote its core validation engine in Rust (pydantic-core), compiling Python type hints into a static validation graph in Rust that parses objects and JSON without Python interpreter overhead.",
+    "reference_context": "The core validation engine was rewritten in Rust (`pydantic-core`). Python type hints are compiled at model declaration time into a static validation graph in Rust.",
+    "question_id": "q12",
+    "model_output": "Pydantic V2 achieves its dramatic speed improvements over V1 through several changes:\n\n1. **jit**: Pydantic V2 uses the `jit` function from the `numba.util` module, which just-in-time (JIT) compiles the generated Python code, making it much faster.\n2. **Frozen Models**: Pydantic V2 introduces a new concept called \"Frozen Models\", which allows the model compiler to generate final, unchangeable representations of the models, avoiding the overhead of recompilation on every model creation.\n3. **Partial Models**: Pydantic V2 also introduces partial models, which only compile a subset of the model, reducing memory usage and compilation time.\n4. **Improved type inferencing**: Pydantic V2's type inferencing is more aggressive, reducing the amount of runtime type checking.\n5. **Better use of `RuntimeError`**: Pydantic V2 uses `RuntimeError` instead of the old `TypeError` for type errors, which reduces the overhead of raising and handling errors.\n\nThese changes collectively lead to significant speed improvements in Pydantic V2.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "How does Pydantic V2 achieve its dramatic speed improvements over V1?",
+    "expected_output": "Pydantic V2 rewrote its core validation engine in Rust (pydantic-core), compiling Python type hints into a static validation graph in Rust that parses objects and JSON without Python interpreter overhead.",
+    "reference_context": "The core validation engine was rewritten in Rust (`pydantic-core`). Python type hints are compiled at model declaration time into a static validation graph in Rust.",
+    "question_id": "q12",
+    "model_output": "Pydantic V2 achieves its dramatic speed improvements over V1 through several key changes:\n\n1. **Caching**: Pydantic V2 uses a caching mechanism to store the results of expensive computations, such as parsing and validation, allowing for faster reuses of previously calculated values.\n2. **Memoization**: The `BaseModel` class now stores the results of `__annotations__` and `__root_attrs__` computation in a cache, reducing the number of recursive calls and computations.\n3. **Type Hints**: Pydantic V2 uses more aggressive type hinting, which allows it to optimize the `validate` method and reduce the number of checks.\n4. **Improved `Model` Construction**: Pydantic V2 improves the construction of models by storing the `__root_attrs__` in a cache, allowing for faster construction of models with many fields.\n5. **New `Validator` class**: Pydantic V2 introduces a new `Validator` class that is more efficient than the previous `BaseValidator` class, using a more optimized algorithm for validation.\n6. **Parallelization**: Pydantic V2 now supports parallelization of certain operations, such as validation, using the `concurrent.futures` library.\n\nThese changes reduce the number of recursive calls, computations, and checks, resulting in significant speed improvements over Pydantic V1.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "How does Pydantic V2 achieve its dramatic speed improvements over V1?",
+    "expected_output": "Pydantic V2 rewrote its core validation engine in Rust (pydantic-core), compiling Python type hints into a static validation graph in Rust that parses objects and JSON without Python interpreter overhead.",
+    "reference_context": "The core validation engine was rewritten in Rust (`pydantic-core`). Python type hints are compiled at model declaration time into a static validation graph in Rust.",
+    "question_id": "q12",
+    "model_output": "Pydantic V2 achieves its dramatic speed improvements over V1 through several changes:\n\n1. **jit**: Pydantic V2 uses the `jit` function from the `numba.util` module, which just-in-time (JIT) compiles the generated Python code, making it much faster. 2. **Frozen Models**: Pydantic V2 introduces a new concept called \"Frozen Models\", which allows the model compiler to generate final, unchangeable representations of the models, avoiding the overhead of recompilation on every model creation. 3.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "How does Pydantic V2 achieve its dramatic speed improvements over V1?",
+    "expected_output": "Pydantic V2 rewrote its core validation engine in Rust (pydantic-core), compiling Python type hints into a static validation graph in Rust that parses objects and JSON without Python interpreter overhead.",
+    "reference_context": "The core validation engine was rewritten in Rust (`pydantic-core`). Python type hints are compiled at model declaration time into a static validation graph in Rust.",
+    "question_id": "q12",
+    "model_output": "Pydantic V2 achieves its dramatic speed improvements over V1 through several changes:\n\n1. 2. **Frozen Models**: Pydantic V2 introduces a new concept called \"Frozen Models\", which allows the model compiler to generate final, unchangeable representations of the models, avoiding the overhead of recompilation on every model creation. 3. **Partial Models**: Pydantic V2 also introduces partial models, which only compile a subset of the model, reducing memory usage and compilation time. 4. **Improved type inferencing**: Pydantic V2's type inferencing is more aggressive, reducing the amount of runtime type checking. 5. **Better use of `RuntimeError`**: Pydantic V2 uses `RuntimeError` instead of the old `TypeError` for type errors, which reduces the overhead of raising and handling errors. These changes collectively lead to significant speed improvements in Pydantic V2.",
+    "source": "degraded_drop_sentence"
+  },
+  {
+    "input": "What is position bias in LLM-as-a-judge and how can it be mitigated?",
+    "expected_output": "Position bias occurs when a judge systematically favors the first or second option in pairwise evaluation. It is mitigated by running every pair in both orders (A-B and B-A), calculating flip rate, and requiring agreement or averaging scores.",
+    "reference_context": "When presenting two model outputs (Model A vs Model B) to a judge, judges frequently favor the first candidate (Option A) due to primacy effects Run every evaluation pair twice with swapped order: Order 1 (A then B) and Order 2 (B then A). Measure the position flip rate.",
+    "question_id": "q13",
+    "model_output": "Position bias in LLM-as-a-judge refers to the phenomenon where a Large Language Model (LLM) assigned to make judgments or decisions, consistently favors or disfavors a particular position or answer based on its position in the conversation, rather than making an objective evaluation.\n\nThis can be mitigated by:\n\n1. **Data augmentation**: Exposing the LLM to a diverse set of text data, including different perspectives and counterarguments, to reduce positional bias.\n2. **Counterfactual training**: Training the LLM on both sides of a debate, including opposing viewpoints, to encourage balanced decision-making.\n3. **Active learning**: Selecting a diverse set of examples for the LLM to evaluate, rather than relying on random sampling.\n4. **Regular auditing**: Periodically evaluating the LLM's performance and identifying potential biases, to address them through model updates.\n5. **Designing evaluation metrics**: Creating metrics that prioritize fairness, accuracy, and transparency, to encourage the development of unbiased LLMs.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "What is position bias in LLM-as-a-judge and how can it be mitigated?",
+    "expected_output": "Position bias occurs when a judge systematically favors the first or second option in pairwise evaluation. It is mitigated by running every pair in both orders (A-B and B-A), calculating flip rate, and requiring agreement or averaging scores.",
+    "reference_context": "When presenting two model outputs (Model A vs Model B) to a judge, judges frequently favor the first candidate (Option A) due to primacy effects Run every evaluation pair twice with swapped order: Order 1 (A then B) and Order 2 (B then A). Measure the position flip rate.",
+    "question_id": "q13",
+    "model_output": "Position bias in LLM-as-a-judge refers to the phenomenon where the model favors or penalizes a particular position or answer based on its preceding context or the position of the response in the sequence of questions or answers.\n\nMitigation strategies for position bias in LLM-as-a-judge:\n\n1. **Contextualization**: Provide the model with more context or background information to help it understand the nuances of the position or answer.\n2. **Relevance ranking**: Evaluate answers based on their relevance to the question, rather than their position in the sequence.\n3. **Diversity promotion**: Encourage diverse responses by providing multiple options or scenarios, which can help the model consider multiple perspectives.\n4. **Active learning**: Use active learning techniques, such as asking for feedback or clarification, to ensure the model is considering multiple positions and sources of information.\n5. **Human evaluation and feedback**: Regularly evaluate model responses with human evaluators to identify and correct biases, and provide feedback to the model to improve its performance.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "What is position bias in LLM-as-a-judge and how can it be mitigated?",
+    "expected_output": "Position bias occurs when a judge systematically favors the first or second option in pairwise evaluation. It is mitigated by running every pair in both orders (A-B and B-A), calculating flip rate, and requiring agreement or averaging scores.",
+    "reference_context": "When presenting two model outputs (Model A vs Model B) to a judge, judges frequently favor the first candidate (Option A) due to primacy effects Run every evaluation pair twice with swapped order: Order 1 (A then B) and Order 2 (B then A). Measure the position flip rate.",
+    "question_id": "q13",
+    "model_output": "Position bias in LLM-as-a-judge refers to the phenomenon where a Large Language Model (LLM) assigned to make judgments or decisions, consistently favors or disfavors a particular position or answer based on its position in the conversation, rather than making an objective evaluation. This can be mitigated by:\n\n1. **Data augmentation**: Exposing the LLM to a diverse set of text data, including different perspectives and counterarguments, to reduce positional bias. 2. **Counterfactual training**: Training the LLM on both sides of a debate, including opposing viewpoints, to encourage balanced decision-making.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "What is position bias in LLM-as-a-judge and how can it be mitigated?",
+    "expected_output": "Position bias occurs when a judge systematically favors the first or second option in pairwise evaluation. It is mitigated by running every pair in both orders (A-B and B-A), calculating flip rate, and requiring agreement or averaging scores.",
+    "reference_context": "When presenting two model outputs (Model A vs Model B) to a judge, judges frequently favor the first candidate (Option A) due to primacy effects Run every evaluation pair twice with swapped order: Order 1 (A then B) and Order 2 (B then A). Measure the position flip rate.",
+    "question_id": "q13",
+    "model_output": "Position bias in LLM-as-a-judge refers to the phenomenon where a Large Language Model (LLM) assigned to make judgments or decisions, consistently favors or disfavors a particular position or answer based on its position in the conversation, rather than making an objective evaluation. **Data augmentation**: Exposing the LLM to a diverse set of text data, including different perspectives and counterarguments, to reduce positional bias. 2. **Counterfactual training**: Training the LLM on both sides of a debate, including opposing viewpoints, to encourage balanced decision-making. 3. **Active learning**: Selecting a diverse set of examples for the LLM to evaluate, rather than relying on random sampling. 4. **Regular auditing**: Periodically evaluating the LLM's performance and identifying potential biases, to address them through model updates. 5. **Designing evaluation metrics**: Creating metrics that prioritize fairness, accuracy, and transparency, to encourage the development of unbiased LLMs.",
+    "source": "degraded_drop_sentence"
+  },
+  {
+    "input": "How should self-enhancement bias be mitigated when using an LLM as an evaluation judge?",
+    "expected_output": "Self-enhancement bias is mitigated by strictly decoupling the judge model family from the generator model family (for example, using Gemini to judge Llama 3.2, or using an ensemble).",
+    "reference_context": "Strictly decouple the judge model family from the generator model family (e.g. Gemini judging Llama 3.2, or an ensemble of independent models).",
+    "question_id": "q14",
+    "model_output": "Self-enhancement bias can be mitigated when using an LLM as an evaluation judge by:\n\n1. **Diverse dataset**: Train the LLM on a diverse dataset that includes a wide range of perspectives, genres, and formats.\n2. **Debiasing techniques**: Use debiasing techniques, such as linguistic normalization or bias detection, to reduce the LLM's cultural, social, or demographic biases.\n3. **Human oversight**: Have human evaluators review and validate the LLM's judgments to detect errors or biases that may have been missed.\n4. **Regular updates**: Regularly update the LLM's training data to reflect changing cultural norms, values, and preferences.\n5. **Multi-evaluator approach**: Use multiple LLMs, each trained on a different dataset or with different biases, to compare and average their judgments.\n6. **Audit the LLM**: Regularly audit the LLM's performance on a test dataset to detect potential biases or errors.\n7. **Consider diverse evaluation metrics**: Use evaluation metrics that consider multiple aspects, such as content, style, and coherence, to reduce the impact of individual biases.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "How should self-enhancement bias be mitigated when using an LLM as an evaluation judge?",
+    "expected_output": "Self-enhancement bias is mitigated by strictly decoupling the judge model family from the generator model family (for example, using Gemini to judge Llama 3.2, or using an ensemble).",
+    "reference_context": "Strictly decouple the judge model family from the generator model family (e.g. Gemini judging Llama 3.2, or an ensemble of independent models).",
+    "question_id": "q14",
+    "model_output": "To mitigate self-enhancement bias when using a Large Language Model (LLM) as an evaluation judge:\n\n1. **Cross-validation with human evaluators**: Use human evaluators to validate the LLM's assessments, ensuring that its judgments are accurate and unbiased.\n2. **Use diverse and representative datasets**: Train and test the LLM on a diverse range of datasets to reduce the risk of overfitting to a specific evaluation criteria.\n3. **Regular model updates and retraining**: Regularly update and retrain the LLM to incorporate new feedback and minimize the impact of any potential biases that may emerge during training.\n4. **Monitor and audit LLM performance**: Regularly monitor the LLM's performance and audit its decision-making processes to identify and address any biases that may arise.\n5. **Implement debiasing techniques**: Use debiasing techniques, such as data normalization, feature engineering, or fairness metrics, to minimize biases in the LLM's evaluation criteria.\n6. **Use multiple evaluation metrics**: Use multiple evaluation metrics that align with different evaluation criteria, enabling the LLM to consider different perspectives and reducing the risk of self-enhancement bias.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "How should self-enhancement bias be mitigated when using an LLM as an evaluation judge?",
+    "expected_output": "Self-enhancement bias is mitigated by strictly decoupling the judge model family from the generator model family (for example, using Gemini to judge Llama 3.2, or using an ensemble).",
+    "reference_context": "Strictly decouple the judge model family from the generator model family (e.g. Gemini judging Llama 3.2, or an ensemble of independent models).",
+    "question_id": "q14",
+    "model_output": "Self-enhancement bias can be mitigated when using an LLM as an evaluation judge by:\n\n1. **Diverse dataset**: Train the LLM on a diverse dataset that includes a wide range of perspectives, genres, and formats. 2. **Debiasing techniques**: Use debiasing techniques, such as linguistic normalization or bias detection, to reduce the LLM's cultural, social, or demographic biases. 3. **Human oversight**: Have human evaluators review and validate the LLM's judgments to detect errors or biases that may have been missed. 4.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "How should self-enhancement bias be mitigated when using an LLM as an evaluation judge?",
+    "expected_output": "Self-enhancement bias is mitigated by strictly decoupling the judge model family from the generator model family (for example, using Gemini to judge Llama 3.2, or using an ensemble).",
+    "reference_context": "Strictly decouple the judge model family from the generator model family (e.g. Gemini judging Llama 3.2, or an ensemble of independent models).",
+    "question_id": "q14",
+    "model_output": "Self-enhancement bias can be mitigated when using an LLM as an evaluation judge by:\n\n1. 2. **Debiasing techniques**: Use debiasing techniques, such as linguistic normalization or bias detection, to reduce the LLM's cultural, social, or demographic biases. 3. **Human oversight**: Have human evaluators review and validate the LLM's judgments to detect errors or biases that may have been missed. 4. **Regular updates**: Regularly update the LLM's training data to reflect changing cultural norms, values, and preferences. 5. **Multi-evaluator approach**: Use multiple LLMs, each trained on a different dataset or with different biases, to compare and average their judgments. 6. **Audit the LLM**: Regularly audit the LLM's performance on a test dataset to detect potential biases or errors. 7. **Consider diverse evaluation metrics**: Use evaluation metrics that consider multiple aspects, such as content, style, and coherence, to reduce the impact of individual biases.",
+    "source": "degraded_drop_sentence"
+  },
+  {
+    "input": "How does FastAPI handle functions declared with 'def' versus 'async def'?",
+    "expected_output": "Endpoints declared with 'async def' run directly on the main event loop thread, while standard 'def' endpoints are dispatched to an external thread pool (anyio worker threads) to prevent blocking the event loop.",
+    "reference_context": "async def : Executed directly on the main event loop thread. If an async endpoint executes blocking I/O def : Automatically dispatched by FastAPI to an external thread pool (anyio worker threads).",
+    "question_id": "q15",
+    "model_output": "FastAPI handles functions declared with `def` and `async def` differently.\n\n**Def Functions:**\n\n- Can be used for synchronous API endpoints.\n- Can be decorated with the `@app.route()` decorator.\n- Automatically generate a route object that can be used to access the URL.\n\n**Async Def Functions:**\n\n- Are required for asynchronous API endpoints.\n- Can be used with `@app.route()` to define asynchronous endpoints.\n- Require a `await` keyword in the `run` method or a `coroutine` wrapper.\n\nHere's an example:\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\nclass Item(BaseModel):\n    name: str\n    price: float\n\n@app.get(\"/items/\")\nasync def read_items():\n    return [{\"item_name\": i.item_name, \"item_price\": i.item_price} for i in Item.items()]\n\n# Def function\n@app.get(\"/sync-item/\")\ndef read_sync_item():\n    return {\"sync_item\": \"This is a sync function\"}\n\n# Async def function\n@app.get(\"/async-item/\")\nasync def read_async_item():\n    await asyncio.sleep(1)  # Simulate an I/O-bound operation\n    return {\"async_item\": \"This is an async function\"}\n```\n\nIn this example, `read_items()` is an asynchronous function because it's declared with `async def`, and `read_sync_item()` is a synchronous function. However, `read_async_item()`",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "How does FastAPI handle functions declared with 'def' versus 'async def'?",
+    "expected_output": "Endpoints declared with 'async def' run directly on the main event loop thread, while standard 'def' endpoints are dispatched to an external thread pool (anyio worker threads) to prevent blocking the event loop.",
+    "reference_context": "async def : Executed directly on the main event loop thread. If an async endpoint executes blocking I/O def : Automatically dispatched by FastAPI to an external thread pool (anyio worker threads).",
+    "question_id": "q15",
+    "model_output": "FastAPI handles functions declared with `def` and `async def` differently.\n\n**Def functions:**\n- Only `def` functions are supported, which means they cannot be async.\n- They must have a return type hint to work with FastAPI.\n- FastAPI automatically assumes a return type hint of `Any` if it's not provided.\n\n**Async def functions:**\n- `async def` functions are supported and can be used with FastAPI.\n- They must have a return type hint to work with FastAPI.\n- FastAPI will automatically infer the return type if it's not provided.\n- FastAPI also supports `await` in function definitions, allowing for direct use of async functions.\n\nHere's an example of the difference:\n\n```python\n# Only def functions are supported\nfrom fastapi import FastAPI\napp = FastAPI()\n\n@app.get(\"/\")\nasync def get_root():\n    # Async function with a return type hint\n    return {\"message\": \"Root route\"}\n\n@app.get(\"/async_root\")\ndef get_async_root():\n    # Only def functions are not supported\n    # This would raise a TypeError\n\n# Async def functions are supported\n@app.get(\"/async_root\")\nasync def get_async_root():\n    # Directly await in function definition\n    await my_coroutine()\n```\n\nIn summary, FastAPI supports both `def` and `async def` functions, but only `async def` functions can be used with async operations.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "How does FastAPI handle functions declared with 'def' versus 'async def'?",
+    "expected_output": "Endpoints declared with 'async def' run directly on the main event loop thread, while standard 'def' endpoints are dispatched to an external thread pool (anyio worker threads) to prevent blocking the event loop.",
+    "reference_context": "async def : Executed directly on the main event loop thread. If an async endpoint executes blocking I/O def : Automatically dispatched by FastAPI to an external thread pool (anyio worker threads).",
+    "question_id": "q15",
+    "model_output": "FastAPI handles functions declared with `def` and `async def` differently. **Def Functions:**\n\n- Can be used for synchronous API endpoints. - Can be decorated with the `@app.route()` decorator. - Automatically generate a route object that can be used to access the URL.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "How does FastAPI handle functions declared with 'def' versus 'async def'?",
+    "expected_output": "Endpoints declared with 'async def' run directly on the main event loop thread, while standard 'def' endpoints are dispatched to an external thread pool (anyio worker threads) to prevent blocking the event loop.",
+    "reference_context": "async def : Executed directly on the main event loop thread. If an async endpoint executes blocking I/O def : Automatically dispatched by FastAPI to an external thread pool (anyio worker threads).",
+    "question_id": "q15",
+    "model_output": "FastAPI handles functions declared with `def` and `async def` differently. - Can be decorated with the `@app.route()` decorator. - Automatically generate a route object that can be used to access the URL. **Async Def Functions:**\n\n- Are required for asynchronous API endpoints. - Can be used with `@app.route()` to define asynchronous endpoints. - Require a `await` keyword in the `run` method or a `coroutine` wrapper. Here's an example:\n\n```python\nfrom fastapi import FastAPI\nfrom pydantic import BaseModel\n\napp = FastAPI()\n\nclass Item(BaseModel):\n    name: str\n    price: float\n\n@app.get(\"/items/\")\nasync def read_items():\n    return [{\"item_name\": i.item_name, \"item_price\": i.item_price} for i in Item.items()]\n\n# Def function\n@app.get(\"/sync-item/\")\ndef read_sync_item():\n    return {\"sync_item\": \"This is a sync function\"}\n\n# Async def function\n@app.get(\"/async-item/\")\nasync def read_async_item():\n    await asyncio.sleep(1)  # Simulate an I/O-bound operation\n    return {\"async_item\": \"This is an async function\"}\n```\n\nIn this example, `read_items()` is an asynchronous function because it's declared with `async def`, and `read_sync_item()` is a synchronous function. However, `read_async_item()`",
+    "source": "degraded_drop_sentence"
+  },
+  {
+    "input": "What is the two-stage guardrail for preventing hallucinations in RAG pipelines?",
+    "expected_output": "The two-stage guardrail consists of: 1) Similarity Score Thresholding (no-context branch) to return a deterministic refusal when cosine similarity is below a threshold, and 2) Strict Citation Enforcement requiring [Chunk X] citations for all asserted facts.",
+    "reference_context": "If the top retrieved chunk has a cosine similarity score below a tuned threshold (e.g. 0.35), the pipeline must bypass the LLM generator entirely. It returns a deterministic refusal message Strict Citation Enforcement : The generator system prompt instructs the model to cite chunk markers [Chunk X]",
+    "question_id": "q16",
+    "model_output": "I couldn't find specific information on the \"two-stage guardrail\" for preventing hallucinations in RAG (Reliability, Availability, and Maintainability) pipelines. The term \"two-stage guardrail\" is not well-known or widely accepted in the context of hallucinations in RAG pipelines. \n\nIf you could provide more context or clarify what specific \"guardrail\" you are referring to in RAG pipelines, I'd be happy to help further. \n\nHowever, it's possible that you're referring to the \"two-stage\" protection mechanism which was established by the Federal Highway Administration (FHWA) and is part of the \"TunnelGuard\" system, however the implementation for the RAG pipeline system wasn't found",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "What is the two-stage guardrail for preventing hallucinations in RAG pipelines?",
+    "expected_output": "The two-stage guardrail consists of: 1) Similarity Score Thresholding (no-context branch) to return a deterministic refusal when cosine similarity is below a threshold, and 2) Strict Citation Enforcement requiring [Chunk X] citations for all asserted facts.",
+    "reference_context": "If the top retrieved chunk has a cosine similarity score below a tuned threshold (e.g. 0.35), the pipeline must bypass the LLM generator entirely. It returns a deterministic refusal message Strict Citation Enforcement : The generator system prompt instructs the model to cite chunk markers [Chunk X]",
+    "question_id": "q16",
+    "model_output": "I couldn't find any specific information on a \"two-stage guardrail\" for preventing hallucinations in RAG (Royal Abboticke Gas) pipelines. RAG is a natural gas distribution company, and pipeline safety typically involves measures to prevent leaks, corrosion, and other mechanical failures. The concept of a \"guardrail\" is more commonly associated with safety barriers in road construction.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "What is the two-stage guardrail for preventing hallucinations in RAG pipelines?",
+    "expected_output": "The two-stage guardrail consists of: 1) Similarity Score Thresholding (no-context branch) to return a deterministic refusal when cosine similarity is below a threshold, and 2) Strict Citation Enforcement requiring [Chunk X] citations for all asserted facts.",
+    "reference_context": "If the top retrieved chunk has a cosine similarity score below a tuned threshold (e.g. 0.35), the pipeline must bypass the LLM generator entirely. It returns a deterministic refusal message Strict Citation Enforcement : The generator system prompt instructs the model to cite chunk markers [Chunk X]",
+    "question_id": "q16",
+    "model_output": "I couldn't find specific information on the \"two-stage guardrail\" for preventing hallucinations in RAG (Reliability, Availability, and Maintainability) pipelines. The term \"two-stage guardrail\" is not well-known or widely accepted in the context of hallucinations in RAG pipelines.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "What is the two-stage guardrail for preventing hallucinations in RAG pipelines?",
+    "expected_output": "The two-stage guardrail consists of: 1) Similarity Score Thresholding (no-context branch) to return a deterministic refusal when cosine similarity is below a threshold, and 2) Strict Citation Enforcement requiring [Chunk X] citations for all asserted facts.",
+    "reference_context": "If the top retrieved chunk has a cosine similarity score below a tuned threshold (e.g. 0.35), the pipeline must bypass the LLM generator entirely. It returns a deterministic refusal message Strict Citation Enforcement : The generator system prompt instructs the model to cite chunk markers [Chunk X]",
+    "question_id": "q16",
+    "model_output": "I couldn't find specific information on the \"two-stage guardrail\" for preventing hallucinations in RAG (Reliability, Availability, and Maintainability) pipelines. If you could provide more context or clarify what specific \"guardrail\" you are referring to in RAG pipelines, I'd be happy to help further. However, it's possible that you're referring to the \"two-stage\" protection mechanism which was established by the Federal Highway Administration (FHWA) and is part of the \"TunnelGuard\" system, however the implementation for the RAG pipeline system wasn't found",
+    "source": "degraded_drop_sentence"
+  },
+  {
+    "input": "Compare memory usage and recall between HNSW and IVF-PQ vector index algorithms.",
+    "expected_output": "HNSW provides 95-99% recall and 1-3ms latency but requires 1.5x-2x vector size in RAM. IVF-PQ reduces RAM requirements by 80-95% by operating on disk or compressed codes, with 85-92% recall and 5-15ms latency.",
+    "reference_context": "HNSW provides exceptional recall (95-99%) and low query latency (1-3ms), but consumes immense RAM IVF-PQ can operate directly from disk or compressed memory, reducing RAM requirements by 80-95%",
+    "question_id": "q17",
+    "model_output": "**Overview**\n\nHNSW (Hierarchical Navigable Small World) and IVF-PQ (Inverted File with Pivoted Quadrants) are two popular vector index algorithms used in vector search and retrieval applications. Here's a comparison of their performance in terms of memory usage and recall:\n\n**Memory Usage**\n\n* **HNSW**: HNSW stores the entire index in main memory, which can lead to high memory usage, especially for large datasets. The memory usage grows linearly with the number of vectors and dimensions.\n* **IVF-PQ**: IVF-PQ uses a disk-based storage approach, storing the index on disk in a compact format. This allows for much lower memory usage, especially for large datasets. The memory usage grows polynomially with the number of vectors and dimensions.\n\n**Recall**\n\n* **HNSW**: HNSW is known for its high recall, especially at the top-k results. It uses a hierarchical search strategy that allows for more extensive search and better recall.\n* **IVF-PQ**: IVF-PQ has a lower recall compared to HNSW, but its recall is still very good, especially at the top-k results. IVF-PQ's recall is determined by the quality of the inverted file and the pivot quadrant strategy.\n\n**Quantitative Comparison**\n\nHere's a rough estimate of the memory usage and recall comparison between HNSW and IVF-PQ:\n\n| Algorithm | Memory Usage | Recall |\n| ---",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "Compare memory usage and recall between HNSW and IVF-PQ vector index algorithms.",
+    "expected_output": "HNSW provides 95-99% recall and 1-3ms latency but requires 1.5x-2x vector size in RAM. IVF-PQ reduces RAM requirements by 80-95% by operating on disk or compressed codes, with 85-92% recall and 5-15ms latency.",
+    "reference_context": "HNSW provides exceptional recall (95-99%) and low query latency (1-3ms), but consumes immense RAM IVF-PQ can operate directly from disk or compressed memory, reducing RAM requirements by 80-95%",
+    "question_id": "q17",
+    "model_output": "**Comparison of HNSW and IVF-PQ**\n\nBoth HNSW (Hierarchical Navigable Small World) and IVF-PQ (Inverted File with Probability Quantization) are popular vector index algorithms used for efficient similarity search on high-dimensional data. Here's a concise comparison of their memory usage and recall:\n\n**Memory Usage:**\n\n* **HNSW:** Requires approximately 4-6 times more memory storage than IVF-PQ, primarily due to its hierarchical data structure.\n* **IVF-PQ:** Stores only the inverted file and probability quantization values, making it more memory-efficient.\n\n**Recall:**\n\n* **HNSW:** Offers high recall (close to 1) due to its efficient similarity search capabilities, which can query for k-nearest neighbors.\n* **IVF-PQ:** Has lower recall compared to HNSW, but still provides good performance for most use cases.\n\n**Key Takeaways:**\n\n* HNSW has an advantage in terms of recall, making it suitable for applications requiring accurate similarity search.\n* IVF-PQ is a more memory-efficient option, making it a good choice for applications with limited memory resources or high-dimensional data with low similarity between points.\n\n**Example Code (Python):**\n\nHere's a simple example using the Faiss library for HNSW and Annoy for IVF-PQ:\n\n```python\nimport numpy as np\nimport faiss\n\n# Generate example data\nnp.random.seed",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "Compare memory usage and recall between HNSW and IVF-PQ vector index algorithms.",
+    "expected_output": "HNSW provides 95-99% recall and 1-3ms latency but requires 1.5x-2x vector size in RAM. IVF-PQ reduces RAM requirements by 80-95% by operating on disk or compressed codes, with 85-92% recall and 5-15ms latency.",
+    "reference_context": "HNSW provides exceptional recall (95-99%) and low query latency (1-3ms), but consumes immense RAM IVF-PQ can operate directly from disk or compressed memory, reducing RAM requirements by 80-95%",
+    "question_id": "q17",
+    "model_output": "**Overview**\n\nHNSW (Hierarchical Navigable Small World) and IVF-PQ (Inverted File with Pivoted Quadrants) are two popular vector index algorithms used in vector search and retrieval applications. Here's a comparison of their performance in terms of memory usage and recall:\n\n**Memory Usage**\n\n* **HNSW**: HNSW stores the entire index in main memory, which can lead to high memory usage, especially for large datasets. The memory usage grows linearly with the number of vectors and dimensions. * **IVF-PQ**: IVF-PQ uses a disk-based storage approach, storing the index on disk in a compact format. This allows for much lower memory usage, especially for large datasets.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "Compare memory usage and recall between HNSW and IVF-PQ vector index algorithms.",
+    "expected_output": "HNSW provides 95-99% recall and 1-3ms latency but requires 1.5x-2x vector size in RAM. IVF-PQ reduces RAM requirements by 80-95% by operating on disk or compressed codes, with 85-92% recall and 5-15ms latency.",
+    "reference_context": "HNSW provides exceptional recall (95-99%) and low query latency (1-3ms), but consumes immense RAM IVF-PQ can operate directly from disk or compressed memory, reducing RAM requirements by 80-95%",
+    "question_id": "q17",
+    "model_output": "**Overview**\n\nHNSW (Hierarchical Navigable Small World) and IVF-PQ (Inverted File with Pivoted Quadrants) are two popular vector index algorithms used in vector search and retrieval applications. The memory usage grows linearly with the number of vectors and dimensions. * **IVF-PQ**: IVF-PQ uses a disk-based storage approach, storing the index on disk in a compact format. This allows for much lower memory usage, especially for large datasets. The memory usage grows polynomially with the number of vectors and dimensions. **Recall**\n\n* **HNSW**: HNSW is known for its high recall, especially at the top-k results. It uses a hierarchical search strategy that allows for more extensive search and better recall. * **IVF-PQ**: IVF-PQ has a lower recall compared to HNSW, but its recall is still very good, especially at the top-k results. IVF-PQ's recall is determined by the quality of the inverted file and the pivot quadrant strategy. **Quantitative Comparison**\n\nHere's a rough estimate of the memory usage and recall comparison between HNSW and IVF-PQ:\n\n| Algorithm | Memory Usage | Recall |\n| ---",
+    "source": "degraded_drop_sentence"
+  },
+  {
+    "input": "What does Context Precision measure and why is it important for RAG generation cost?",
+    "expected_output": "Context Precision measures whether the retrieved chunks in the context window are relevant to the query. High precision prevents noisy distractors from causing hallucinations and reduces LLM input token consumption.",
+    "reference_context": "Context Precision evaluates whether all retrieved chunks in the context window are relevant to the query. High precision ensures that the generator LLM is not distracted by noisy or extraneous chunks",
+    "question_id": "q18",
+    "model_output": "Context Precision measures the accuracy of text similarity scores in a given context, specifically how well a similarity score represents the actual resemblance between two pieces of text. \n\nIn RAG (Relevance-based Active Learning of Graphs) generation cost, Context Precision is important because it helps determine the quality and reliability of the graph models generated by active learning algorithms. \n\nHigh Context Precision indicates that the model is accurately capturing the semantic relationships between entities and their context, which is crucial for effective information retrieval and graph-based knowledge graphs.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "What does Context Precision measure and why is it important for RAG generation cost?",
+    "expected_output": "Context Precision measures whether the retrieved chunks in the context window are relevant to the query. High precision prevents noisy distractors from causing hallucinations and reduces LLM input token consumption.",
+    "reference_context": "Context Precision evaluates whether all retrieved chunks in the context window are relevant to the query. High precision ensures that the generator LLM is not distracted by noisy or extraneous chunks",
+    "question_id": "q18",
+    "model_output": "Context Precision measures the proportion of retrieved documents that accurately match the query context. \n\nIt's important for RAG (Relevance-Based Answer Generation) cost because it allows for more accurate calculation of the cost of relevant documents, enabling more efficient and cost-effective retrieval and ranking of relevant documents.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "What does Context Precision measure and why is it important for RAG generation cost?",
+    "expected_output": "Context Precision measures whether the retrieved chunks in the context window are relevant to the query. High precision prevents noisy distractors from causing hallucinations and reduces LLM input token consumption.",
+    "reference_context": "Context Precision evaluates whether all retrieved chunks in the context window are relevant to the query. High precision ensures that the generator LLM is not distracted by noisy or extraneous chunks",
+    "question_id": "q18",
+    "model_output": "Context Precision measures the accuracy of text similarity scores in a given context, specifically how well a similarity score represents the actual resemblance between two pieces of text.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "What does Context Precision measure and why is it important for RAG generation cost?",
+    "expected_output": "Context Precision measures whether the retrieved chunks in the context window are relevant to the query. High precision prevents noisy distractors from causing hallucinations and reduces LLM input token consumption.",
+    "reference_context": "Context Precision evaluates whether all retrieved chunks in the context window are relevant to the query. High precision ensures that the generator LLM is not distracted by noisy or extraneous chunks",
+    "question_id": "q18",
+    "model_output": "Context Precision measures the accuracy of text similarity scores in a given context, specifically how well a similarity score represents the actual resemblance between two pieces of text. High Context Precision indicates that the model is accurately capturing the semantic relationships between entities and their context, which is crucial for effective information retrieval and graph-based knowledge graphs.",
+    "source": "degraded_drop_sentence"
+  },
+  {
+    "input": "Why does LanceDB's IVF-PQ architecture directly enable lower infrastructure costs compared to managed HNSW databases?",
+    "expected_output": "LanceDB's IVF-PQ quantizes vectors and queries them directly from disk or S3 without requiring always-on in-memory HNSW graphs. This decouples storage from compute, allowing 1M vectors to cost cents per month on storage instead of hundreds of dollars in RAM pods.",
+    "reference_context": "LanceDB is designed to query disk-based vector indices with minimal memory overhead. LanceDB stores compressed IVF-PQ vectors on block storage (local NVMe SSD or cloud object stores like AWS S3).",
+    "question_id": "q19",
+    "model_output": "I'm not familiar with LanceDB's IVF-PQ architecture or managed HNSW databases. Can you provide more context or information about these systems? I'll do my best to provide a concise answer based on my available knowledge.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "Why does LanceDB's IVF-PQ architecture directly enable lower infrastructure costs compared to managed HNSW databases?",
+    "expected_output": "LanceDB's IVF-PQ quantizes vectors and queries them directly from disk or S3 without requiring always-on in-memory HNSW graphs. This decouples storage from compute, allowing 1M vectors to cost cents per month on storage instead of hundreds of dollars in RAM pods.",
+    "reference_context": "LanceDB is designed to query disk-based vector indices with minimal memory overhead. LanceDB stores compressed IVF-PQ vectors on block storage (local NVMe SSD or cloud object stores like AWS S3).",
+    "question_id": "q19",
+    "model_output": "I couldn't find any information on LanceDB's IVF-PQ architecture or its comparison to managed HNSW databases.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "Why does LanceDB's IVF-PQ architecture directly enable lower infrastructure costs compared to managed HNSW databases?",
+    "expected_output": "LanceDB's IVF-PQ quantizes vectors and queries them directly from disk or S3 without requiring always-on in-memory HNSW graphs. This decouples storage from compute, allowing 1M vectors to cost cents per month on storage instead of hundreds of dollars in RAM pods.",
+    "reference_context": "LanceDB is designed to query disk-based vector indices with minimal memory overhead. LanceDB stores compressed IVF-PQ vectors on block storage (local NVMe SSD or cloud object stores like AWS S3).",
+    "question_id": "q19",
+    "model_output": "I'm not familiar with LanceDB's IVF-PQ architecture or managed HNSW databases.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "Why does LanceDB's IVF-PQ architecture directly enable lower infrastructure costs compared to managed HNSW databases?",
+    "expected_output": "LanceDB's IVF-PQ quantizes vectors and queries them directly from disk or S3 without requiring always-on in-memory HNSW graphs. This decouples storage from compute, allowing 1M vectors to cost cents per month on storage instead of hundreds of dollars in RAM pods.",
+    "reference_context": "LanceDB is designed to query disk-based vector indices with minimal memory overhead. LanceDB stores compressed IVF-PQ vectors on block storage (local NVMe SSD or cloud object stores like AWS S3).",
+    "question_id": "q19",
+    "model_output": "I'm not familiar with LanceDB's IVF-PQ architecture or managed HNSW databases. I'll do my best to provide a concise answer based on my available knowledge.",
+    "source": "degraded_drop_sentence"
+  },
+  {
+    "input": "How do similarity score thresholding and context precision work together to ensure grounded RAG answers?",
+    "expected_output": "Similarity score thresholding acts as an upfront filter to reject queries with no matching context, while high context precision ensures that retrieved chunks passed to the LLM are relevant and free of distracting noise, enabling faithful citations.",
+    "reference_context": "If the top retrieved chunk has a cosine similarity score below a tuned threshold (e.g. 0.35), the pipeline must bypass the LLM generator entirely. Context Precision evaluates whether all retrieved chunks in the context window are relevant to the query.",
+    "question_id": "q20",
+    "model_output": "Similarity score thresholding and context precision work together to ensure grounded RAG (Relevant Answer Generation) answers by addressing two key aspects:\n\n1. **Similarity score thresholding**: Filters out low-confidence or noisy results, preventing irrelevant answers from being generated. This step ensures that the model favors more relevant responses, increasing the chances of generating grounded answers.\n2. **Context precision**: Refines the model's understanding of the context by evaluating the relevance of the generated answer based on the input prompt, surrounding text, and other contextual information. This approach helps the model produce answers that are not only relevant but also grounded in the context.\n\nBy combining these two techniques, the model can generate RAG answers that are more accurate, relevant, and grounded in the context, increasing the confidence in its responses.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "How do similarity score thresholding and context precision work together to ensure grounded RAG answers?",
+    "expected_output": "Similarity score thresholding acts as an upfront filter to reject queries with no matching context, while high context precision ensures that retrieved chunks passed to the LLM are relevant and free of distracting noise, enabling faithful citations.",
+    "reference_context": "If the top retrieved chunk has a cosine similarity score below a tuned threshold (e.g. 0.35), the pipeline must bypass the LLM generator entirely. Context Precision evaluates whether all retrieved chunks in the context window are relevant to the query.",
+    "question_id": "q20",
+    "model_output": "Similarity Score Thresholding and Context Precision work together to ensure grounded RAG (Reasoning About Games) answers by:\n\n1. **Similarity Score Thresholding**: Filter out answers with similarity scores below a certain threshold, reducing the likelihood of irrelevant or nonsensical answers.\n2. **Context Precision**: Evaluate the precision of answers within the context of the game, ensuring that the answer is:\n\t* Relevant to the game state or scenario.\n\t* Consistent with the game's mechanics and rules.\n\t* Grounded in the game's narrative or lore.\n\nBy combining these two techniques, RAG models can provide more accurate and grounded answers by filtering out irrelevant answers and evaluating the precision of remaining answers in the context of the game.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "How do similarity score thresholding and context precision work together to ensure grounded RAG answers?",
+    "expected_output": "Similarity score thresholding acts as an upfront filter to reject queries with no matching context, while high context precision ensures that retrieved chunks passed to the LLM are relevant and free of distracting noise, enabling faithful citations.",
+    "reference_context": "If the top retrieved chunk has a cosine similarity score below a tuned threshold (e.g. 0.35), the pipeline must bypass the LLM generator entirely. Context Precision evaluates whether all retrieved chunks in the context window are relevant to the query.",
+    "question_id": "q20",
+    "model_output": "Similarity score thresholding and context precision work together to ensure grounded RAG (Relevant Answer Generation) answers by addressing two key aspects:\n\n1. **Similarity score thresholding**: Filters out low-confidence or noisy results, preventing irrelevant answers from being generated. This step ensures that the model favors more relevant responses, increasing the chances of generating grounded answers.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "How do similarity score thresholding and context precision work together to ensure grounded RAG answers?",
+    "expected_output": "Similarity score thresholding acts as an upfront filter to reject queries with no matching context, while high context precision ensures that retrieved chunks passed to the LLM are relevant and free of distracting noise, enabling faithful citations.",
+    "reference_context": "If the top retrieved chunk has a cosine similarity score below a tuned threshold (e.g. 0.35), the pipeline must bypass the LLM generator entirely. Context Precision evaluates whether all retrieved chunks in the context window are relevant to the query.",
+    "question_id": "q20",
+    "model_output": "Similarity score thresholding and context precision work together to ensure grounded RAG (Relevant Answer Generation) answers by addressing two key aspects:\n\n1. This step ensures that the model favors more relevant responses, increasing the chances of generating grounded answers. 2. **Context precision**: Refines the model's understanding of the context by evaluating the relevance of the generated answer based on the input prompt, surrounding text, and other contextual information. This approach helps the model produce answers that are not only relevant but also grounded in the context. By combining these two techniques, the model can generate RAG answers that are more accurate, relevant, and grounded in the context, increasing the confidence in its responses.",
+    "source": "degraded_drop_sentence"
+  },
+  {
+    "input": "What are position bias and verbosity bias in pairwise LLM evaluation, and what are their respective mitigations?",
+    "expected_output": "Position bias occurs when judges favor the first candidate (Option A) due to primacy effects or the second candidate due to recency effects; its mitigation is running every evaluation pair twice with swapped order (A then B, and B then A). Verbosity bias occurs when judges correlate response length with quality and favor verbose responses; its mitigation is defining explicit rubrics that penalize unsupported elaboration and using adversarial probes.",
+    "reference_context": "When presenting two model outputs (Model A vs Model B) to a judge, judges frequently favor the first candidate (Option A) due to primacy effects Run every evaluation pair twice with swapped order: Order 1 (A then B) and Order 2 (B then A). Judges inherently correlate response length with thoroughness and quality. Define explicit rubrics that penalize unsupported elaboration.",
+    "question_id": "q21",
+    "model_output": "Position Bias and Verbosity Bias are two common challenges in evaluating Pairwise Language Models (LLMs).\n\n**Position Bias:**\nPosition Bias refers to the phenomenon where a model's performance on a pairwise similarity task is heavily influenced by the relative ordering of the input elements, such as the sentence pair ranking. This bias can lead to overestimation of the model's ability to detect semantic relationships.\n\n**Mitigation Strategies:**\n\n1. **Randomized Evaluation**: Randomly shuffle the input elements (e.g., sentence pairs) to remove positional biases.\n2. **Uniform Ranking**: Use a ranking scheme where all possible permutations of the input elements are considered equally important.\n\n**Verbosity Bias:**\nVerbosity Bias occurs when the model's performance is overly influenced by the length of the input sequences, particularly when comparing shorter and longer sentences.\n\n**Mitigation Strategies:**\n\n1. **Adaptive Window Size**: Use an adaptive window size that adjusts to the length of the shorter input sequence.\n2. **Length Normalization**: Normalize the input sequences to a common length or use techniques like truncation to reduce the impact of length differences.\n3. **Weighting Short and Long Sequences**: Assign higher weights to scoring shorter input sequences, which can help reduce the impact of verbosity bias.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "What are position bias and verbosity bias in pairwise LLM evaluation, and what are their respective mitigations?",
+    "expected_output": "Position bias occurs when judges favor the first candidate (Option A) due to primacy effects or the second candidate due to recency effects; its mitigation is running every evaluation pair twice with swapped order (A then B, and B then A). Verbosity bias occurs when judges correlate response length with quality and favor verbose responses; its mitigation is defining explicit rubrics that penalize unsupported elaboration and using adversarial probes.",
+    "reference_context": "When presenting two model outputs (Model A vs Model B) to a judge, judges frequently favor the first candidate (Option A) due to primacy effects Run every evaluation pair twice with swapped order: Order 1 (A then B) and Order 2 (B then A). Judges inherently correlate response length with thoroughness and quality. Define explicit rubrics that penalize unsupported elaboration.",
+    "question_id": "q21",
+    "model_output": "**Position Bias**:\nPosition bias refers to the tendency in pairwise Language Model Evaluation (PLE) metrics (e.g., BLEU, ROUGE) where models tend to perform better when the reference and hypothesis are adjacent to each other in the text. This is problematic because it biases models to produce answers that only consider the most relevant information near the beginning or end of the text.\n\n**Mitigation:**\n- Use a separate model to calculate the \"non-local\" score (i.e., score that doesn't consider adjacency) for each pair.\n- Implement a penalty for adjacent pairs to encourage models to consider the entire text.\n\n**Verbosity Bias**:\nVerbosity bias is a bias towards longer text in pairwise LLM evaluation. This can happen when models produce longer answers that might appear as better, even though they contain unnecessary information.\n\n**Mitigation:**\n- Use a separate model to calculate the \"non-local\" score (i.e., score that doesn't consider the length) for each pair.\n- Implement a penalty for long answers to encourage models to produce concise answers.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "What are position bias and verbosity bias in pairwise LLM evaluation, and what are their respective mitigations?",
+    "expected_output": "Position bias occurs when judges favor the first candidate (Option A) due to primacy effects or the second candidate due to recency effects; its mitigation is running every evaluation pair twice with swapped order (A then B, and B then A). Verbosity bias occurs when judges correlate response length with quality and favor verbose responses; its mitigation is defining explicit rubrics that penalize unsupported elaboration and using adversarial probes.",
+    "reference_context": "When presenting two model outputs (Model A vs Model B) to a judge, judges frequently favor the first candidate (Option A) due to primacy effects Run every evaluation pair twice with swapped order: Order 1 (A then B) and Order 2 (B then A). Judges inherently correlate response length with thoroughness and quality. Define explicit rubrics that penalize unsupported elaboration.",
+    "question_id": "q21",
+    "model_output": "Position Bias and Verbosity Bias are two common challenges in evaluating Pairwise Language Models (LLMs). **Position Bias:**\nPosition Bias refers to the phenomenon where a model's performance on a pairwise similarity task is heavily influenced by the relative ordering of the input elements, such as the sentence pair ranking. This bias can lead to overestimation of the model's ability to detect semantic relationships. **Mitigation Strategies:**\n\n1. **Randomized Evaluation**: Randomly shuffle the input elements (e.g., sentence pairs) to remove positional biases. 2. **Uniform Ranking**: Use a ranking scheme where all possible permutations of the input elements are considered equally important.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "What are position bias and verbosity bias in pairwise LLM evaluation, and what are their respective mitigations?",
+    "expected_output": "Position bias occurs when judges favor the first candidate (Option A) due to primacy effects or the second candidate due to recency effects; its mitigation is running every evaluation pair twice with swapped order (A then B, and B then A). Verbosity bias occurs when judges correlate response length with quality and favor verbose responses; its mitigation is defining explicit rubrics that penalize unsupported elaboration and using adversarial probes.",
+    "reference_context": "When presenting two model outputs (Model A vs Model B) to a judge, judges frequently favor the first candidate (Option A) due to primacy effects Run every evaluation pair twice with swapped order: Order 1 (A then B) and Order 2 (B then A). Judges inherently correlate response length with thoroughness and quality. Define explicit rubrics that penalize unsupported elaboration.",
+    "question_id": "q21",
+    "model_output": "Position Bias and Verbosity Bias are two common challenges in evaluating Pairwise Language Models (LLMs). This bias can lead to overestimation of the model's ability to detect semantic relationships. **Mitigation Strategies:**\n\n1. **Randomized Evaluation**: Randomly shuffle the input elements (e.g., sentence pairs) to remove positional biases. 2. **Uniform Ranking**: Use a ranking scheme where all possible permutations of the input elements are considered equally important. **Verbosity Bias:**\nVerbosity Bias occurs when the model's performance is overly influenced by the length of the input sequences, particularly when comparing shorter and longer sentences. **Mitigation Strategies:**\n\n1. **Adaptive Window Size**: Use an adaptive window size that adjusts to the length of the shorter input sequence. 2. **Length Normalization**: Normalize the input sequences to a common length or use techniques like truncation to reduce the impact of length differences. 3. **Weighting Short and Long Sequences**: Assign higher weights to scoring shorter input sequences, which can help reduce the impact of verbosity bias.",
+    "source": "degraded_drop_sentence"
+  },
+  {
+    "input": "If an API endpoint in FastAPI performs vector retrieval with LanceDB, why should it be defined carefully with async def versus def?",
+    "expected_output": "If LanceDB disk retrieval performs blocking synchronous file I/O, declaring the endpoint as standard 'def' lets FastAPI run it on worker threads, whereas 'async def' without non-blocking I/O would block the main event loop.",
+    "reference_context": "async def : Executed directly on the main event loop thread. If an async endpoint executes blocking I/O def : Automatically dispatched by FastAPI to an external thread pool (anyio worker threads).",
+    "question_id": "q22",
+    "model_output": "When performing vector retrieval with LanceDB in FastAPI, it's crucial to define the API endpoint with `async def` instead of `def`. Here's why:\n\n1. **LanceDB is asynchronous**: LanceDB provides asynchronous interfaces for vector retrieval. Therefore, the API endpoint should be marked as async to ensure it executes concurrently with other requests.\n\n2. **Concurrency and performance**: By using `async def`, FastAPI can handle multiple concurrent requests, which is essential for vector retrieval workflows that might involve waiting for the database query to complete.\n\n3. **API behavior and documentation**: Using `async def` implies that the API endpoint is asynchronous and should be used with tools like `asyncio` to manage requests. This helps users understand how to use the endpoint correctly and expect the desired behavior.\n\n```\n@app.route(\"/vector-retrieval\", methods=[\"POST\"])\nasync def retrieve_vector_vector():\n    # Perform vector retrieval with LanceDB\n    # Return the result\n    pass\n```\n\nIn summary, defining the API endpoint with `async def` ensures that it interacts correctly with LanceDB's asynchronous APIs and provides the expected concurrency behavior.",
+    "source": "generator_sample_0"
+  },
+  {
+    "input": "If an API endpoint in FastAPI performs vector retrieval with LanceDB, why should it be defined carefully with async def versus def?",
+    "expected_output": "If LanceDB disk retrieval performs blocking synchronous file I/O, declaring the endpoint as standard 'def' lets FastAPI run it on worker threads, whereas 'async def' without non-blocking I/O would block the main event loop.",
+    "reference_context": "async def : Executed directly on the main event loop thread. If an async endpoint executes blocking I/O def : Automatically dispatched by FastAPI to an external thread pool (anyio worker threads).",
+    "question_id": "q22",
+    "model_output": "When using LanceDB with FastAPI, vector retrieval can involve complex asynchronous database operations. Defining the endpoint with `async def` ensures that the function behaves asynchronously, which is crucial for efficient vector retrieval, especially in situations like large-scale search queries.\n\nHere are some reasons why using `async def` is recommended for vector retrieval endpoints:\n\n1. **Async-friendly database interactions**: LanceDB provides asynchronous APIs for its vector retrieval operations. By using `async def`, you can utilize these asynchronous endpoints to maintain the performance and efficiency of your application.\n\n2. **Non-blocking I/O operations**: Async functions allow other parts of your application to continue execution while waiting for I/O operations to complete, reducing overall latency.\n\n3. **Improved scalability**: When multiple requests are processed concurrently, asynchronous execution with `async def` can significantly enhance scalability by minimizing the blocking time for database operations.\n\n4. **Better resource utilization**: With async functions, your application can manage multiple database operations simultaneously, reducing the likelihood of resource contention and improving overall system responsiveness.\n\nIn contrast, using `def` without `async` would limit the performance benefits of vector retrieval, as the function would block the main thread during database operations, impacting overall system responsiveness.",
+    "source": "generator_sample_1"
+  },
+  {
+    "input": "If an API endpoint in FastAPI performs vector retrieval with LanceDB, why should it be defined carefully with async def versus def?",
+    "expected_output": "If LanceDB disk retrieval performs blocking synchronous file I/O, declaring the endpoint as standard 'def' lets FastAPI run it on worker threads, whereas 'async def' without non-blocking I/O would block the main event loop.",
+    "reference_context": "async def : Executed directly on the main event loop thread. If an async endpoint executes blocking I/O def : Automatically dispatched by FastAPI to an external thread pool (anyio worker threads).",
+    "question_id": "q22",
+    "model_output": "When performing vector retrieval with LanceDB in FastAPI, it's crucial to define the API endpoint with `async def` instead of `def`. Here's why:\n\n1. **LanceDB is asynchronous**: LanceDB provides asynchronous interfaces for vector retrieval. Therefore, the API endpoint should be marked as async to ensure it executes concurrently with other requests. 2.",
+    "source": "degraded_truncate"
+  },
+  {
+    "input": "If an API endpoint in FastAPI performs vector retrieval with LanceDB, why should it be defined carefully with async def versus def?",
+    "expected_output": "If LanceDB disk retrieval performs blocking synchronous file I/O, declaring the endpoint as standard 'def' lets FastAPI run it on worker threads, whereas 'async def' without non-blocking I/O would block the main event loop.",
+    "reference_context": "async def : Executed directly on the main event loop thread. If an async endpoint executes blocking I/O def : Automatically dispatched by FastAPI to an external thread pool (anyio worker threads).",
+    "question_id": "q22",
+    "model_output": "When performing vector retrieval with LanceDB in FastAPI, it's crucial to define the API endpoint with `async def` instead of `def`. **LanceDB is asynchronous**: LanceDB provides asynchronous interfaces for vector retrieval. Therefore, the API endpoint should be marked as async to ensure it executes concurrently with other requests. 2. **Concurrency and performance**: By using `async def`, FastAPI can handle multiple concurrent requests, which is essential for vector retrieval workflows that might involve waiting for the database query to complete. 3. **API behavior and documentation**: Using `async def` implies that the API endpoint is asynchronous and should be used with tools like `asyncio` to manage requests. This helps users understand how to use the endpoint correctly and expect the desired behavior. ```\n@app.route(\"/vector-retrieval\", methods=[\"POST\"])\nasync def retrieve_vector_vector():\n    # Perform vector retrieval with LanceDB\n    # Return the result\n    pass\n```\n\nIn summary, defining the API endpoint with `async def` ensures that it interacts correctly with LanceDB's asynchronous APIs and provides the expected concurrency behavior.",
+    "source": "degraded_drop_sentence"
+  }
+]

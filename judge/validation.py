@@ -44,7 +44,7 @@ class JudgeValidator:
                 deltas.append(abs(v.overall_score - float(c["gold_score"])))
             details.append({"case_id": c["id"], "gold_pass": g, "judge_pass": v.passed, "agreed": g == v.passed,
                             "judge_score": v.overall_score, "gold_score": c.get("gold_score"),
-                            "label_source": c.get("label_source", "unspecified"), "rationale": v.overall_rationale})
+                            "label_source": c.get("label_source", "unspecified"), "labeled_by": c.get("labeled_by"), "rationale": v.overall_rationale})
         n = len(labeled_cases)
         agree = sum(g == j for g, j in zip(gold, judge))
         k = cohens_kappa(gold, judge)
@@ -53,6 +53,7 @@ class JudgeValidator:
         return {
             "total_cases": n, "pass_threshold": pass_threshold,
             "label_sources": dict(Counter(d["label_source"] for d in details)),
+            "labeled_by": sorted({d["labeled_by"] for d in details if d["labeled_by"]}),
             "agreement_rate": round(agree / n, 4) if n else 0.0,
             "agreement_ci95_wilson": [round(x, 3) for x in wilson_ci(agree, n)],
             "cohens_kappa": None if k is None else round(k, 4),

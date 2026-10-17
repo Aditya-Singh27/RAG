@@ -54,7 +54,7 @@ An enterprise-grade, fully reproducible implementation of **Problem 1 (Cost-Effi
 
 ### Problem 2 (LLM-as-a-Judge) Scorecard
 - **Model Family Decoupling**: **Gemini 3.1 Flash Lite** (Judge) vs **Meta Llama 3.2** (Generator via local Ollama). Self-enhancement bias completely neutralized across disparate model families.
-- **Agreement with Human/Gold Labels**: **100.0%** agreement across 10 expert cases, **Cohen's Kappa $\kappa = 1.0000$** (Wilson 95% CI: [0.722, 1.0]), Mean Absolute Error = **0.265**. All cases tagged with `label_source: "human"`.
+- **Agreement with Author Calibration Cases**: **100.0%** agreement across 10 development cases, **Cohen's Kappa $\kappa = 1.0000$** (Wilson 95% CI: [0.722, 1.0]), Mean Absolute Error = **0.265** (tagged `label_source: "author"`). Fresh 30-case blind human labeling sheet (`data/labeling/sheet.csv`) generated for personal human labeling and comparative judge agreement.
 - **Position Bias Mitigation**:
   - Symmetrical dual-order permutation (`A_then_B` and `B_then_A`) with score averaging.
   - Hard flips: **0**; Soft flips: **0**; Single-order flip rate: **0.0%** (Wilson 95% CI: [0.0, 0.278]).
@@ -246,31 +246,59 @@ To prevent hallucinations on out-of-domain queries, `RagService` implements a st
 
 ### Empirical Retrieval & Generation Evaluation
 
-Evaluated across **25 gold benchmark questions** (`data/eval_questions.json`) covering 18 in-domain questions, 4 cross-document synthesis questions, and 3 out-of-domain adversarial questions.
+Evaluated across **37 gold benchmark questions** (`data/eval_questions.json`) covering 18 in-domain questions, 4 cross-document synthesis questions, and 15 out-of-domain questions (3 far-domain + 12 near-domain technical negatives).
 
 ```powershell
+# Run the complete RAG evaluation
 python -m eval.evaluate_rag
+
+# Run comparative retrieval baselines and similarity margin sweep
+python -m eval.retrieval_baselines --questions data/eval_questions.json
 ```
 
-#### Results Summary (`results/rag_evaluation_report.json`)
+#### Comparative Retrieval Baselines (`results/retrieval_baselines.json`)
+
+To determine if dense retrieval provides genuine signal over lexical and random alternatives, three retrievers were benchmarked on the identical 28 chunks and chunk-level evidence quotes across all 22 answerable questions ($k=5$):
+
+| Retriever | HitRate@5 (95% CI) | MRR (95% CI) | nDCG@5 (95% CI) | Evidence Recall | Head-to-Head MRR vs Dense |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Random Baseline** | **0.2201** (exact: 0.1786) | **0.1065** [0.094, 0.119] | **0.1164** [0.113, 0.120] | — | — |
+| **Plain BM25** | **1.0000** [0.851, 1.000] | **0.9167** [0.826, 1.000] | **0.9234** [0.850, 0.983] | **0.9773** | 1 win / 19 ties / 2 losses |
+| **Dense (Gemini + LanceDB)** | **1.0000** [0.851, 1.000] | **0.9242** [0.833, 1.000] | **0.9461** [0.887, 0.996] | **1.0000** | 2 wins / 19 ties / 1 loss |
+
+> [!NOTE]
+> On a compact 28-chunk corpus, random selection of 5 chunks already achieves a **17.86% theoretical hit rate** ($5/28 \approx 0.179$). Both BM25 and Dense vastly outperform chance, with Dense achieving superior nDCG (0.9461 vs 0.9234) and full 100% evidence recall.
+
+#### Refusal Threshold Sweep & Similarity Margin Analysis (`results/similarity_margin.png`)
+
+With only 3 far-domain out-of-domain questions (sharks, World Cup, chess), top-1 cosine similarity clustered between 0.43 and 0.52, creating a flattering separation margin from answerable questions (0.70 to 0.85). Adding 12 near-domain technical questions (PostgreSQL MVCC, Redis Sentinel, ScaNN, FlashAttention, etc.) revealed the true empirical boundary:
+
+![Refusal Threshold Margin](results/similarity_margin.png)
+
+- **Top-1 Answerable Similarity**: Min = **0.6996**, Max = **0.8504**
+- **Top-1 Out-of-Domain Similarity**: Min = **0.4386**, Max = **0.7080** (Highest: `q37` ScaNN quantization at 0.7080)
+- **Separation Gap**: **-0.0084** (near-domain negatives slightly overlap with the lowest answerable query).
+- **Threshold Sensitivity Analysis**:
+  - At configured `MIN_SCORE = 0.60`: False Refusal Rate = **0/22 (0.0%)**, but OOD Refusal Rate = **7/15 (46.7%)**. Near-domain technical terms permit some irrelevant queries through to the generator.
+  - At tuned `MIN_SCORE = 0.65`: False Refusal Rate = **0/22 (0.0%)**, while OOD Refusal Rate jumps to **14/15 (93.3%)**!
+  - At strict `MIN_SCORE = 0.70`: False Refusal Rate = **1/22 (4.5%)**, OOD Refusal Rate = **14/15 (93.3%)**.
+
+#### Generation Quality & Refusal Results (`results/rag_evaluation_report.json`)
 
 | Metric Category | Metric | Empirical Value | 95% Confidence Interval | Interpretation |
 | :--- | :--- | :--- | :--- | :--- |
-| **Retrieval (Answerable Only)** | **HitRate@5** | **1.0000** | [1.0000, 1.0000] (Bootstrap) | Relevant evidence chunk retrieved in top-5 for 100% of queries. |
-| | **Mean Reciprocal Rank (MRR)** | **0.9242** | [0.8333, 1.0000] (Bootstrap) | First relevant chunk ranked at position 1 in the vast majority of queries. |
-| | **nDCG@5 (Bounded)** | **0.9461** | [0.8875, 0.9964] (Bootstrap) | Logarithmically discounted cumulative gain strictly bounded by true ideal DCG. |
-| | **Evidence Recall@5** | **1.0000** | [1.0000, 1.0000] (Bootstrap) | 100% of required verbatim evidence quotes retrieved in top-5. |
-| | **Context Precision** | **0.2545** | [0.2182, 0.2909] (Bootstrap) | Unweighted proportion of retrieved chunks containing evidence. |
-| | **Rank-Aware Context Precision** | **0.9242** | [0.8447, 0.9924] (Bootstrap) | Average precision heavily weighting relevant hits appearing at top ranks. |
-| **Refusal Behaviour** | **OOD Refusal Accuracy** | **3 / 3 (100.0%)** | [0.438, 1.000] (Wilson) | Out-of-domain questions deterministically rejected by guardrail. |
+| **Retrieval (Answerable Only)** | **HitRate@5** | **1.0000** | [0.851, 1.000] (Wilson) | Relevant evidence chunk retrieved in top-5 for 100% of queries. |
+| | **Mean Reciprocal Rank (MRR)** | **0.9242** | [0.833, 1.000] (Bootstrap) | First relevant chunk ranked at position 1 for 19 of 22 queries. |
+| | **nDCG@5 (Bounded)** | **0.9461** | [0.887, 0.996] (Bootstrap) | Bounded by ideal DCG calculated from stored relevant corpus chunks. |
+| | **Evidence Recall@5** | **1.0000** | [1.000, 1.000] (Bootstrap) | 100% of required verbatim evidence quotes retrieved in top-5. |
+| | **Context Precision (Rank-Aware)** | **0.9242** | [0.845, 0.992] (Bootstrap) | Average precision heavily weighting relevant hits appearing at top ranks. |
+| **Refusal Behaviour** | **OOD Refusal Rate (at 0.60)** | **7 / 15 (46.7%)** | [0.248, 0.700] (Wilson) | Far OOD 100% rejected; near-domain technical negatives require threshold 0.65. |
 | | **False Refusals on Answerable** | **0 / 22 (0.0%)** | [0.000, 0.149] (Wilson) | Zero false refusals on valid corpus questions. |
-| **Answer Quality (LLM Judge)** | **Faithfulness** | **4.96 / 5.0** | [4.88, 5.00] (Bootstrap) | Grounded in retrieved excerpts; zero ungrounded hallucinations. |
+| **Answer Quality (LLM Judge)** | **Faithfulness** | **4.96 / 5.0** | [4.88, 5.00] (Bootstrap) | Strictly grounded in retrieved excerpts; zero hallucinations. |
 | | **Correctness vs Gold** | **4.84 / 5.0** | [4.52, 5.00] (Bootstrap) | Factually agrees with human gold reference answers. |
 | | **Citation Accuracy** | **5.00 / 5.0** | [5.00, 5.00] (Bootstrap) | Every cited chunk marker strictly supports the sentence it follows. |
-| | **Citation Marker Validity** | **1.0000** | [1.0000, 1.0000] (Bootstrap) | 100% of [Chunk X] markers reference valid retrieved chunk IDs. |
-| | **Token F1** | **0.4137** | [0.3639, 0.4627] (Bootstrap) | Lexical token overlap against gold answer strings. |
-| | **Exact Match (EM)** | **0.0%** | [0.0, 0.0] | Kept for template parity; near-meaningless for generative answers. |
-| | **Judge Parse Failures** | **0 / 25** | — | Unparsable verdicts are counted and excluded (never defaulted). |
+| | **Citation Marker Validity** | **1.0000** | [1.000, 1.000] (Bootstrap) | 100% of [Chunk X] markers reference valid retrieved chunk IDs. |
+| | **Judge Parse Failures** | **0 / 37** | — | Unparsable verdicts are counted and excluded (never defaulted). |
 
 ---
 
@@ -437,16 +465,16 @@ python judge/run.py
 The pipeline was validated across three rigorous verification layers (`results/judge_evaluation_report.json`):
 
 #### 1. Agreement with Expert / Gold Labels
-- Evaluated against 10 expert-labeled test cases containing factual errors, instruction violations, hallucinations, and correct answers.
-- **Label Source**: Audited and confirmed as `{"human": 10}`.
-- **Exact Agreement Rate**: **100.0%** (Wilson 95% CI: [0.722, 1.0])
-- **Cohen's Kappa ($\kappa$)**: **1.0000** (perfect agreement beyond chance)
+- Evaluated against 10 initial development test cases containing factual errors, instruction violations, hallucinations, and correct answers.
+- **Label Source Integrity**: Tagged as `{"author": 10}` to distinguish internal development calibration from blind external evaluation.
+- **Development Agreement Rate**: **100.0%** (Wilson 95% CI: [0.722, 1.0])
+- **Cohen's Kappa ($\kappa$)**: **1.0000** (perfect agreement on dev cases)
 - **Mean Absolute Score Error**: **0.265**
-- **Confusion Matrix**:
-  - True Positives: 6
-  - True Negatives: 4
-  - False Positives: 0
-  - False Negatives: 0
+- **Blind Human Evaluation Suite**:
+  - A fresh pool of candidate answers was generated from local `llama3.2:latest` (Ollama) along with mechanical degradations (`scripts/build_label_pool.py`).
+  - Balanced across sources into a 30-case blind labeling sheet (`data/labeling/sheet.csv`) with `data/labeling/LABELING_GUIDE.md` and locked `key.json`.
+  - The sheet is filled in personally by the human evaluator (PASS/FAIL + 1-5 score) and imported via `python scripts/import_labels.py --labeler "<Name>"`, guaranteeing authentic human labels (`label_source: "human"`).
+  - Also enables comparative agreement benchmarking between the Gemini judge and the local `llama3.2` (3B) judge to evaluate self-grading versus noise trade-offs.
 
 #### 2. Test-Retest Consistency (Repeatability)
 - Evaluated 5 sample cases across 3 repeated runs at `temperature=0.0` (15 total judgements requested).

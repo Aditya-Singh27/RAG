@@ -1,0 +1,239 @@
+{
+  "k": 5,
+  "n_chunks": 28,
+  "n_answerable": 22,
+  "n_out_of_domain": 15,
+  "random_hit_at_k_if_one_relevant_chunk": 0.1786,
+  "retrievers": {
+    "random": {
+      "n": 22,
+      "hit": {
+        "mean": 0.2201,
+        "ci95": null
+      },
+      "reciprocal_rank": {
+        "mean": 0.1065,
+        "ci95": [
+          0.094,
+          0.119
+        ]
+      },
+      "ndcg": {
+        "mean": 0.1164,
+        "ci95": [
+          0.113,
+          0.12
+        ]
+      }
+    },
+    "bm25": {
+      "n": 22,
+      "hit": {
+        "mean": 1.0,
+        "ci95": [
+          0.851,
+          1.0
+        ]
+      },
+      "reciprocal_rank": {
+        "mean": 0.9167,
+        "ci95": [
+          0.826,
+          1.0
+        ]
+      },
+      "ndcg": {
+        "mean": 0.9234,
+        "ci95": [
+          0.85,
+          0.983
+        ]
+      },
+      "evidence_recall": 0.9773
+    },
+    "dense": {
+      "n": 22,
+      "hit": {
+        "mean": 1.0,
+        "ci95": [
+          0.851,
+          1.0
+        ]
+      },
+      "reciprocal_rank": {
+        "mean": 0.9242,
+        "ci95": [
+          0.833,
+          1.0
+        ]
+      },
+      "ndcg": {
+        "mean": 0.9461,
+        "ci95": [
+          0.887,
+          0.996
+        ]
+      },
+      "evidence_recall": 1.0
+    }
+  },
+  "dense_vs_bm25_reciprocal_rank": {
+    "dense_better": 2,
+    "tie": 19,
+    "bm25_better": 1
+  },
+  "similarity_margin": {
+    "top1_answerable": {
+      "min": 0.6996,
+      "max": 0.8504
+    },
+    "top1_out_of_domain": {
+      "min": 0.4386,
+      "max": 0.708
+    },
+    "gap_min_answerable_minus_max_ood": -0.0084,
+    "configured_min_score": 0.6,
+    "at_configured_threshold": {
+      "threshold": 0.6,
+      "false_refusals": "0/22",
+      "false_refusal_rate": 0.0,
+      "ood_refused": "7/15",
+      "ood_refusal_rate": 0.467
+    },
+    "sweep": [
+      {
+        "threshold": 0.3,
+        "false_refusals": "0/22",
+        "false_refusal_rate": 0.0,
+        "ood_refused": "0/15",
+        "ood_refusal_rate": 0.0
+      },
+      {
+        "threshold": 0.35,
+        "false_refusals": "0/22",
+        "false_refusal_rate": 0.0,
+        "ood_refused": "0/15",
+        "ood_refusal_rate": 0.0
+      },
+      {
+        "threshold": 0.4,
+        "false_refusals": "0/22",
+        "false_refusal_rate": 0.0,
+        "ood_refused": "0/15",
+        "ood_refusal_rate": 0.0
+      },
+      {
+        "threshold": 0.45,
+        "false_refusals": "0/22",
+        "false_refusal_rate": 0.0,
+        "ood_refused": "1/15",
+        "ood_refusal_rate": 0.067
+      },
+      {
+        "threshold": 0.5,
+        "false_refusals": "0/22",
+        "false_refusal_rate": 0.0,
+        "ood_refused": "1/15",
+        "ood_refusal_rate": 0.067
+      },
+      {
+        "threshold": 0.55,
+        "false_refusals": "0/22",
+        "false_refusal_rate": 0.0,
+        "ood_refused": "3/15",
+        "ood_refusal_rate": 0.2
+      },
+      {
+        "threshold": 0.6,
+        "false_refusals": "0/22",
+        "false_refusal_rate": 0.0,
+        "ood_refused": "7/15",
+        "ood_refusal_rate": 0.467
+      },
+      {
+        "threshold": 0.65,
+        "false_refusals": "0/22",
+        "false_refusal_rate": 0.0,
+        "ood_refused": "14/15",
+        "ood_refusal_rate": 0.933
+      },
+      {
+        "threshold": 0.7,
+        "false_refusals": "1/22",
+        "false_refusal_rate": 0.045,
+        "ood_refused": "14/15",
+        "ood_refusal_rate": 0.933
+      },
+      {
+        "threshold": 0.75,
+        "false_refusals": "5/22",
+        "false_refusal_rate": 0.227,
+        "ood_refused": "15/15",
+        "ood_refusal_rate": 1.0
+      },
+      {
+        "threshold": 0.8,
+        "false_refusals": "16/22",
+        "false_refusal_rate": 0.727,
+        "ood_refused": "15/15",
+        "ood_refusal_rate": 1.0
+      },
+      {
+        "threshold": 0.85,
+        "false_refusals": "21/22",
+        "false_refusal_rate": 0.955,
+        "ood_refused": "15/15",
+        "ood_refusal_rate": 1.0
+      },
+      {
+        "threshold": 0.9,
+        "false_refusals": "22/22",
+        "false_refusal_rate": 1.0,
+        "ood_refused": "15/15",
+        "ood_refusal_rate": 1.0
+      }
+    ],
+    "per_question_top1": {
+      "q01": 0.8006,
+      "q02": 0.7887,
+      "q03": 0.7786,
+      "q04": 0.7706,
+      "q05": 0.8504,
+      "q06": 0.6996,
+      "q07": 0.7543,
+      "q08": 0.7773,
+      "q09": 0.7452,
+      "q10": 0.7139,
+      "q11": 0.7657,
+      "q12": 0.8003,
+      "q13": 0.7791,
+      "q14": 0.7957,
+      "q15": 0.7369,
+      "q16": 0.8193,
+      "q17": 0.8224,
+      "q18": 0.7868,
+      "q19": 0.8244,
+      "q20": 0.7545,
+      "q21": 0.7533,
+      "q22": 0.732,
+      "q23": 0.5004,
+      "q24": 0.4386,
+      "q25": 0.525,
+      "q26": 0.5883,
+      "q27": 0.5596,
+      "q28": 0.6059,
+      "q29": 0.6277,
+      "q30": 0.6003,
+      "q31": 0.6346,
+      "q32": 0.6274,
+      "q33": 0.571,
+      "q34": 0.6328,
+      "q35": 0.564,
+      "q36": 0.6247,
+      "q37": 0.708
+    }
+  },
+  "caveats": [
+    "corpus has 28 chunks: random retrieval already hits 18% of the time at k=5"
+  ]
+}
