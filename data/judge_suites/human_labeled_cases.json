@@ -97,7 +97,7 @@
     "expected_output": "MRR is the mean of 1/rank for the first relevant retrieved document.",
     "gold_pass": true,
     "gold_score": 5.0,
-    "label_source": "human",
+    "label_source": "author",
     "category": "factual_correct"
   }
 ]

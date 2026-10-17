@@ -88,31 +88,49 @@
       "vectors": 100000,
       "stored_gb": 0.286,
       "self_hosted_usd": 24.66,
-      "self_hosted_breakdown": "instance 24.53 + storage 0.01 + reads 0.12",
+      "self_hosted_ec2_usd": 24.66,
+      "self_hosted_s3_only_usd": 0.13,
+      "self_hosted_breakdown": "instance $24.53 + storage $0.01 + reads $0.12",
       "managed_usd": 70.0,
       "managed_model": "tier<= 100000",
+      "pinecone_pod_usd": 70.0,
+      "pinecone_serverless_usd": 0.9,
       "difference_usd": 45.34,
-      "ratio": 2.8
+      "ratio": 2.8,
+      "ratio_vs_pod": 2.8,
+      "break_even_queries_month": 3470215
     },
     {
       "vectors": 1000000,
       "stored_gb": 2.863,
       "self_hosted_usd": 24.72,
-      "self_hosted_breakdown": "instance 24.53 + storage 0.07 + reads 0.12",
+      "self_hosted_ec2_usd": 24.72,
+      "self_hosted_s3_only_usd": 0.19,
+      "self_hosted_breakdown": "instance $24.53 + storage $0.07 + reads $0.12",
       "managed_usd": 140.0,
       "managed_model": "tier<= 1000000",
+      "pinecone_pod_usd": 140.0,
+      "pinecone_serverless_usd": 1.55,
       "difference_usd": 115.28,
-      "ratio": 5.7
+      "ratio": 5.7,
+      "ratio_vs_pod": 5.7,
+      "break_even_queries_month": 3387252
     },
     {
       "vectors": 10000000,
       "stored_gb": 28.629,
       "self_hosted_usd": 25.31,
-      "self_hosted_breakdown": "instance 24.53 + storage 0.66 + reads 0.12",
+      "self_hosted_ec2_usd": 25.31,
+      "self_hosted_s3_only_usd": 0.78,
+      "self_hosted_breakdown": "instance $24.53 + storage $0.66 + reads $0.12",
       "managed_usd": 1400.0,
       "managed_model": "tier<= 10000000",
+      "pinecone_pod_usd": 1400.0,
+      "pinecone_serverless_usd": 7.99,
       "difference_usd": 1374.69,
-      "ratio": 55.3
+      "ratio": 55.3,
+      "ratio_vs_pod": 55.3,
+      "break_even_queries_month": 2557624
     }
   ]
 }

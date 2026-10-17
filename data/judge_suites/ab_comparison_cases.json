@@ -2,91 +2,121 @@
   {
     "id": "ab_01",
     "input": "What is IVF-PQ in LanceDB?",
-    "output_a": "IVF-PQ is a vector index that uses clustering and quantization to store vectors quickly.",
-    "output_b": "In LanceDB, IVF-PQ (Inverted File with Product Quantization) is the primary indexing mechanism [Chunk 1]. It partitions the vector space into Voronoi cells via k-means clustering and compresses high-dimensional vectors into compact byte codes via Product Quantization [Chunk 1], reducing RAM overhead by 16x-32x [Chunk 2].",
+    "output_a": "IVF-PQ in LanceDB is an Inverted File with Product Quantization, which clusters vectors into Voronoi cells and quantizes vectors into small codebooks.",
+    "output_b": "Based on the provided context, IVF-PQ in LanceDB is an inverted file with product quantization that clusters vectors into Voronoi cells and quantizes vectors into small codebooks [Chunk 1]. It reduces RAM requirements by 80-95% at the expense of a modest reduction in recall (85-92%) and slightly higher latency (5-15ms) [Chunk 1].",
     "gold_winner": "B",
     "expected_output": "IVF-PQ partitions vector space with k-means and quantizes vectors into centroids.",
-    "reference_context": "LanceDB uses IVF-PQ. IVF partitions vector space using k-means; PQ compresses vectors by 16x-32x."
+    "reference_context": "LanceDB uses IVF-PQ. IVF partitions vector space using k-means; PQ compresses vectors by 16x-32x.",
+    "source_generator": "llama3.2:latest",
+    "prompt_a_type": "naive_uncited_v1",
+    "prompt_b_type": "grounded_cited_v2"
   },
   {
     "id": "ab_02",
     "input": "How do you avoid freezing the event loop with blocking I/O in asyncio?",
-    "output_a": "You can just run it normally or use sleep.",
-    "output_b": "Blocking synchronous functions should be offloaded to a thread pool executor using `asyncio.to_thread(func, *args)` or `loop.run_in_executor(None, func, *args)` [Chunk 1], ensuring that the main event loop thread continues processing concurrent tasks without stalling.",
+    "output_a": "To avoid freezing the event loop with blocking I/O in asyncio, you can use the following techniques:\n\n1. **Use `loop.run_in_executor(None, sync_func, *args)` or `asyncio.to_thread(sync_func, *args)`**: This allows you to run blocking synchronous I/O operations in a separate thread, avoiding the blocking of the event loop.\n\n2. **Use asynchronous I/O operations**: Instead of using blocking synchronous I/O operations, use asynchronous I/O operations such as `aiohttp` or `asyncio.open()` to read from files or make network requests.\n\n3. **Use a thread pool**: You can use a thread pool like `anyio` or `concurrent.futures` to run blocking synchronous operations in separate threads, allowing the event loop to continue running.\n\n4. **Use asynchronous libraries**: Use asynchronous libraries like `aiosqlite` or `asyncpg` to interact with databases, which can handle asynchronous I/O operations.\n\n5. **Avoid using `await` on blocking I/O operations**: If you're using a blocking synchronous I/O operation, avoid using `await` on it, as it will block the event loop. Instead, use one of the above techniques to run the operation in a separate thread or using asynchronous I/O.\n\nBy using these techniques, you can avoid freezing the event loop with blocking I/O operations in asyncio.",
+    "output_b": "To avoid freezing the event loop with blocking I/O in asyncio, you can use the `loop.run_in_executor(None, sync_func, *args)` or `asyncio.to_thread(sync_func, *args)` pattern, as recommended in [Chunk 1]. This allows offloading blocking functions to an external thread pool, preventing the event loop from blocking.\n\nAdditionally, when using FastAPI, you can use the `def` endpoint type instead of `async def` for blocking synchronous code, as it automatically dispatches the request to an external thread pool, allowing the event loop to remain unblocked [Chunk 4].",
     "gold_winner": "B",
     "expected_output": "Offload blocking functions to worker threads via asyncio.to_thread or run_in_executor.",
-    "reference_context": "Offload blocking synchronous code to worker threads with asyncio.to_thread or loop.run_in_executor."
+    "reference_context": "Offload blocking synchronous code to worker threads with asyncio.to_thread or loop.run_in_executor.",
+    "source_generator": "llama3.2:latest",
+    "prompt_a_type": "naive_uncited_v1",
+    "prompt_b_type": "grounded_cited_v2"
   },
   {
     "id": "ab_03",
     "input": "Why does LanceDB have lower monthly costs than Pinecone for lightly queried datasets?",
-    "output_a": "LanceDB is cheaper because it is open source and doesn't charge license fees.",
-    "output_b": "Pinecone pod-based architectures require always-on RAM allocations costing $140-$280/month for 1M vectors even when completely idle [Chunk 1]. In contrast, LanceDB decouples storage from compute, persisting compressed IVF-PQ vectors on S3 ($0.07/month) or local SSD ($0.00), consuming zero compute cost when idle [Chunk 2].",
+    "output_a": "LanceDB has lower monthly costs than Pinecone for lightly queried datasets because it stores compressed IVF-PQ vectors on block storage (local NVMe SSD or cloud object stores like AWS S3), which reduces storage costs. Specifically, for 100K vectors (300 MB storage), S3 storage costs roughly $0.01/month, and local disk cost is effectively $0.00. In contrast, Pinecone requires at least two s1 or p1 pods for redundancy and performance, which costs $140 to $280 per month for an idle or lightly queried index with 1,000,000 vectors.",
+    "output_b": "Based on the provided context, it appears that LanceDB has lower monthly costs than Pinecone for lightly queried datasets due to the following reasons:\n\n1. **Storage costs**: LanceDB stores compressed IVF-PQ vectors on block storage (local NVMe SSD or cloud object stores like AWS S3), which has lower costs compared to Pinecone's always-on compute and memory requirements. [Chunk 2]\n2. **Compute costs**: LanceDB's compute costs are co-located within the application process or serverless container, which means CPU cycles are consumed strictly per request, resulting in zero cost during idle periods. [Chunk 2]\n3. **Memory overhead**: LanceDB's IVF-PQ indexing mechanism partitions the vector space into voronoi cells using k-means clustering, which reduces memory overhead compared to traditional vector databases. [Chunk 5]\n\nIt is not explicitly stated in the provided context why Pinecone's costs are higher, but it can be inferred that Pinecone's always-on compute and memory requirements for its managed vector database model contribute to its higher costs. [Chunk 4]\n\nWhat cannot be answered with the provided context is the exact cost comparison between LanceDB and Pinecone for lightly queried datasets, as the context only provides general information about the costs associated with each database.",
     "gold_winner": "B",
     "expected_output": "LanceDB decouples compute from storage, storing on S3 or local SSD with zero idle compute costs.",
-    "reference_context": "Pinecone pods cost $140-$280/mo in always-on RAM. LanceDB on S3 costs $0.07/mo with zero idle compute."
+    "reference_context": "Pinecone pods cost $140-$280/mo in always-on RAM. LanceDB on S3 costs $0.07/mo with zero idle compute.",
+    "source_generator": "llama3.2:latest",
+    "prompt_a_type": "naive_uncited_v1",
+    "prompt_b_type": "grounded_cited_v2"
   },
   {
     "id": "ab_04",
     "input": "How does Pydantic V2 parse JSON so fast?",
-    "output_a": "It uses Python's built-in json library with multithreading.",
-    "output_b": "Pydantic V2 integrates the `jiter` Rust crate [Chunk 1], which parses JSON directly from C-level memory buffers into a compiled Rust validation graph without intermediate Python dictionary creation, reducing memory allocations and interpreter overhead [Chunk 1].",
+    "output_a": "Pydantic V2 parses JSON so fast by using the `jiter` Rust crate to power native JSON parsing and serialization. This approach bypasses Python's intermediate dictionary creation, dramatically lowering memory allocation overhead for high-throughput APIs.\n\nHere's a high-level overview of how Pydantic V2 parses JSON:\n\n1. **Python objects are passed directly into compiled Rust code**: When you call `model.model_dump_json()`, Pydantic V2 passes the JSON data directly into the compiled Rust code.\n2. **Rust traverses the validation graph**: The Rust code traverses the validation graph, which is generated from Python type hints at model declaration time.\n3. **Rust coerces types and executes validators**: The Rust code coerces types and executes validators without Python interpreter overhead.\n4. **Errors are collected and formatted in a single pass**: The Rust code collects and formats errors in a single pass, making it more efficient than Python's approach.\n\nBy using Rust and bypassing Python's interpreter overhead, Pydantic V2 achieves significant performance improvements, often 5x to 50x faster than previous versions.",
+    "output_b": "Unfortunately, the provided context does not contain enough information to fully answer how Pydantic V2 parses JSON so fast. The context mentions that Pydantic V2 achieves 5x to 50x performance improvements, but it does not provide specific details on the parsing process or the underlying mechanisms that enable fast JSON parsing.\n\nHowever, it is known that Pydantic V2 uses the `jiter` Rust crate for native JSON parsing and serialization, which bypasses Python's intermediate dictionary creation and reduces memory allocation overhead. Additionally, the core validation engine was rewritten in Rust, which allows for type coercion and validator execution without Python interpreter overhead.\n\nIt is also mentioned that Python objects are passed directly into compiled Rust code during data parsing, and Rust traverses the validation graph, coercing types and executing validators without Python interpreter overhead. However, the specific details on how this process enables fast JSON parsing are not provided in the context.",
     "gold_winner": "B",
     "expected_output": "Pydantic V2 uses the jiter Rust crate to parse JSON directly into the Rust validation graph.",
-    "reference_context": "Pydantic V2 uses jiter in Rust to parse JSON directly from memory without Python dict overhead."
+    "reference_context": "Pydantic V2 uses jiter in Rust to parse JSON directly from memory without Python dict overhead.",
+    "source_generator": "llama3.2:latest",
+    "prompt_a_type": "naive_uncited_v1",
+    "prompt_b_type": "grounded_cited_v2"
   },
   {
     "id": "ab_05",
     "input": "What is the capital of Mars?",
-    "output_a": "The capital of Mars is Olympus City, established near Olympus Mons in 2042.",
+    "output_a": "I must inform you that there is no capital of Mars. Mars is a planet in our solar system, and it does not have a capital city like Earth does.",
     "output_b": "I do not have enough relevant context in the provided documents to answer this question.",
     "gold_winner": "B",
     "expected_output": "Refusal / no context available.",
-    "reference_context": "Documents cover vector databases, asyncio, and Pydantic."
+    "reference_context": "Documents cover vector databases, asyncio, and Pydantic.",
+    "source_generator": "llama3.2:latest",
+    "prompt_a_type": "naive_uncited_v1",
+    "prompt_b_type": "grounded_cited_v2"
   },
   {
     "id": "ab_06",
     "input": "What are zero-copy reads in LanceDB?",
-    "output_a": "Zero-copy reads mean you can read data without copying files on disk.",
-    "output_b": "Zero-copy reads in LanceDB are powered by the Apache Arrow columnar format [Chunk 1]. They eliminate serialization and deserialization overhead between storage and RAM, enabling sub-millisecond retrieval on local SSDs [Chunk 1].",
+    "output_a": "Zero-copy reads in LanceDB refer to the ability to transfer data between disk and RAM without serialization penalties, allowing for fast and efficient data retrieval. This is achieved through the use of Apache Arrow, which enables direct memory mapping and copying of data between disk and RAM, bypassing the need for serialization. This feature enables sub-millisecond retrieval on local SSDs and cost-effective querying against Amazon S3.",
+    "output_b": "According to the provided context, zero-copy reads in LanceDB are achieved via Apache Arrow, allowing data transfers between disk and RAM to avoid serialization penalties, enabling sub-millisecond retrieval on local SSDs [Chunk 1].",
     "gold_winner": "B",
     "expected_output": "Zero-copy reads use Apache Arrow to avoid serialization between disk and RAM.",
-    "reference_context": "Zero-copy reads via Apache Arrow avoid serialization penalties between disk and memory."
+    "reference_context": "Zero-copy reads via Apache Arrow avoid serialization penalties between disk and memory.",
+    "source_generator": "llama3.2:latest",
+    "prompt_a_type": "naive_uncited_v1",
+    "prompt_b_type": "grounded_cited_v2"
   },
   {
     "id": "ab_07",
     "input": "Why should PDF pages be chunked separately?",
-    "output_a": "PDFs should be chunked separately so files are smaller.",
-    "output_b": "PDFs should be chunked per-page so that chunks never straddle page boundaries, ensuring exact page citation metadata for grounded user references [Chunk 1].",
+    "output_a": "PDF pages should be chunked separately because PDFs lack semantic structure, meaning that text must be extracted page-by-page. To preserve exact citation metadata, it is essential to chunk PDF pages individually, so that chunks never straddle page boundaries. This approach ensures that citation metadata is accurately preserved and not fragmented across page boundaries.",
+    "output_b": "The provided context does not explicitly state why PDF pages should be chunked separately. However, it does mention that PDFs lack semantic structure, and text must be extracted page-by-page to preserve exact citation metadata. This implies that chunking PDF pages separately may be necessary to maintain the integrity of the metadata and prevent chunks from straddling page boundaries.",
     "gold_winner": "B",
     "expected_output": "PDFs should be chunked per page so chunks don't straddle boundaries and citations remain exact.",
-    "reference_context": "Chunk per-page so chunks never straddle page boundaries and citation page metadata is exact."
+    "reference_context": "Chunk per-page so chunks never straddle page boundaries and citation page metadata is exact.",
+    "source_generator": "llama3.2:latest",
+    "prompt_a_type": "naive_uncited_v1",
+    "prompt_b_type": "grounded_cited_v2"
   },
   {
     "id": "ab_08",
     "input": "What is the difference between def and async def in FastAPI endpoints?",
-    "output_a": "def is Python 2 and async def is Python 3.",
-    "output_b": "In FastAPI, `async def` endpoints run directly on the main event loop thread (meaning blocking I/O will stall all requests), while standard `def` endpoints are automatically dispatched to an external thread pool (anyio worker threads) to safely execute synchronous code [Chunk 1].",
+    "output_a": "In FastAPI endpoints, the main difference between `async def` and `def` is how they handle blocking I/O operations.\n\n`async def` is executed directly on the main event loop thread. If an async endpoint executes blocking I/O (e.g., `time.sleep` or synchronous database calls), it blocks the entire event loop for all requests.\n\nOn the other hand, `def` is automatically dispatched by FastAPI to an external thread pool (anyio worker threads). This allows blocking synchronous code to run without halting the event loop.\n\nIn summary, if you want to avoid blocking the event loop for all requests, use `async def` and handle blocking I/O within the coroutine. If you need to run blocking synchronous code, use `def` and offload it to an external thread pool using `loop.run_in_executor` or `asyncio.to_thread`.",
+    "output_b": "According to the provided context, the main difference between `async def` and `def` in FastAPI endpoints is how they handle blocking I/O operations.\n\n`async def`: If an async endpoint executes blocking I/O (e.g., `time.sleep` or synchronous database calls), it blocks the entire event loop for all requests. [Chunk 1]\n\n`def`: Blocking synchronous code is automatically dispatched to an external thread pool (anyio worker threads), allowing it to run without halting the event loop. [Chunk 1]\n\nIn summary, `async def` endpoints are executed directly on the main event loop thread and can block the entire event loop, while `def` endpoints are dispatched to an external thread pool, allowing blocking synchronous code to run without halting the event loop.",
     "gold_winner": "B",
     "expected_output": "async def runs on the main event loop; def runs on external worker threads.",
-    "reference_context": "async def runs on main event loop; def is dispatched to anyio thread pool."
+    "reference_context": "async def runs on main event loop; def is dispatched to anyio thread pool.",
+    "source_generator": "llama3.2:latest",
+    "prompt_a_type": "naive_uncited_v1",
+    "prompt_b_type": "grounded_cited_v2"
   },
   {
     "id": "ab_09",
     "input": "How does LanceDB pre-filtering compare to post-filtering?",
-    "output_a": "Pre-filtering evaluates scalar metadata filters prior to computing vector distances, avoiding the recall drop that post-filtering suffers when strict filters prune nearest neighbors [Chunk 1].",
-    "output_b": "Pre-filtering applies metadata constraints beforehand so low recall from restrictive filters is prevented, whereas post-filtering computes distances first and then filters, which can discard top hits [Chunk 1]. Both methods support metadata queries.",
+    "output_a": "According to the context provided, pre-filtering and post-filtering in LanceDB have the following differences:\n\nPre-filtering:\n- Prevents low recall caused by restrictive metadata constraints\n- Can improve query performance by reducing the number of rows that need to be processed\n- Can be executed before vector distance computation\n\nPost-filtering:\n- Typically used after top-k vector retrieval\n- May degrade performance due to restrictive metadata constraints\n- Can be slower than pre-filtering\n\nIn summary, pre-filtering can improve query performance and prevent low recall, while post-filtering is typically used after vector retrieval and may degrade performance due to restrictive metadata constraints.",
+    "output_b": "Based on the provided context, here is the answer to the user's question:\n\nLanceDB pre-filtering and post-filtering differ in their execution order and impact on performance.\n\nPre-filtering [Chunk 1] involves filtering candidate rows before vector distance computation, which can prevent low recall caused by restrictive metadata constraints. This approach can improve performance by reducing the number of rows that need to be processed.\n\nPost-filtering, on the other hand, involves filtering after top-k vector retrieval. While this approach can be restrictive, it can also be more efficient in terms of memory usage.\n\nThe exact performance benefits of pre-filtering versus post-filtering are not specified in the provided context. However, it is known that LanceDB's columnar layout and selective column projection enable efficient pre-filtering [Chunk 1].\n\nIn general, LanceDB's design prioritizes cost-effectiveness and scalability, as evident from the trade-offs made in terms of retrieval latency [Chunk 3] and the use of zero-copy reads [Chunk 2].",
     "gold_winner": "A",
     "expected_output": "Pre-filtering evaluates metadata before vector distance computation, preventing recall degradation.",
-    "reference_context": "Pre-filtering prevents low recall caused by restrictive metadata constraints, which frequently degrades post-filtering."
+    "reference_context": "Pre-filtering prevents low recall caused by restrictive metadata constraints, which frequently degrades post-filtering.",
+    "source_generator": "llama3.2:latest",
+    "prompt_a_type": "naive_uncited_v1",
+    "prompt_b_type": "grounded_cited_v2"
   },
   {
     "id": "ab_10",
     "input": "What is the engineering tradeoff between HNSW and IVF-PQ?",
-    "output_a": "HNSW provides 95-99% recall and 1-3ms latency but requires 1.5x-2x vector size in RAM [Chunk 1]. IVF-PQ cuts RAM by 80-95% by reading from disk or compressed codes, with 85-92% recall and 5-15ms latency [Chunk 2].",
-    "output_b": "HNSW offers very high recall and fast latency around 1-3ms, while IVF-PQ uses Voronoi clustering and Product Quantization to reduce RAM by 80-95% with slightly lower recall and 5-15ms latency [Chunk 1].",
+    "output_a": "The engineering tradeoff between HNSW and IVF-PQ is a cost reduction of 100x in terms of RAM requirements, but with a corresponding increase in query latency. Specifically, IVF-PQ reduces RAM requirements by 80-95% at the expense of a modest reduction in recall (85-92%) and slightly higher latency (5-15ms) compared to HNSW.",
+    "output_b": "Based on the provided context, the engineering tradeoff between HNSW and IVF-PQ is a reduction in RAM requirements at the expense of a modest reduction in recall and slightly higher latency.\n\n[Chunk 2] states that IVF-PQ reduces RAM requirements by 80-95% compared to HNSW.\n\n[Chunk 3] mentions that the accepted engineering trade-off is a 100x cost reduction, which is achieved by reducing RAM requirements.\n\n[Chunk 4] explains that IVF-PQ partitions the vector space into Voronoi cells using k-means clustering, which reduces the number of vectors that need to be stored in memory.\n\n[Chunk 5] describes how Product Quantization (PQ) compresses high-dimensional vectors into compact byte codes, reducing the vector memory footprint by a factor of 16x to 32x.\n\nIt is not possible to determine the exact tradeoff between recall and latency, as this information is not provided in the context.",
     "gold_winner": "A",
     "expected_output": "HNSW gives higher recall and lower latency but requires 1.5x-2x RAM; IVF-PQ cuts RAM by 80-95% with 5-15ms latency.",
-    "reference_context": "HNSW provides 95-99% recall and 1-3ms latency but requires 1.5x-2x RAM. IVF-PQ reduces RAM by 80-95% with 85-92% recall and 5-15ms latency."
+    "reference_context": "HNSW provides 95-99% recall and 1-3ms latency but requires 1.5x-2x RAM. IVF-PQ reduces RAM by 80-95% with 85-92% recall and 5-15ms latency.",
+    "source_generator": "llama3.2:latest",
+    "prompt_a_type": "naive_uncited_v1",
+    "prompt_b_type": "grounded_cited_v2"
   }
 ]
